@@ -13,10 +13,12 @@ def main():
         if kind == 'code': item.update(execution_count=None, outputs=[])
         cells.append(item)
     cell('markdown', '''
-        # PINS AI v2 on Google Colab
+        # PINS AI v3 training on Google Colab
 
         Use a hosted **GPU** Colab kernel in VS Code. The notebook delegates to the
-        existing FP16/NF4 QLoRA scripts and audited MCP contracts at `d9b5dc6`.
+        existing FP16/NF4 QLoRA scripts and audited MCP contracts at `e6d13f9`.
+        Train-only device contrasts and competing tool lists extend the originals;
+        validation remains separate. Gold suites are never training inputs.
         No MCP connection, equipment operation or Pi deployment occurs.
 
         Code is cloned/pulled from `acocalypso/pins-ai` on GitHub. Existing data
@@ -42,9 +44,12 @@ def main():
 
         RUN_TRAINING = True  # Authorized cloud run; set False for validation only.
         RUN_EVALUATION = False  # Enable after training; no tuning against gold scores.
-        RUN_HARD_GOLD = False  # One-shot challenge evaluation, not a tuning loop.
+        RUN_FINAL_GOLD = False  # Final release measurement only, never an iterative tuning loop.
         DRIVE_FOLDER = Path('/content/drive/MyDrive/pins-ai')
-        RUN_NAME = 'qwen3-pins-v2-colab-' + datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
+        RUN_NAME = 'qwen3-pins-v3-colab-' + datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
+        TRAIN_CONFIG = 'training/config-v3.json'
+        SFT_DATA = 'artifacts/v3/sft'
+        PRIOR_ADAPTER = DRIVE_FOLDER / 'runs/qwen3-pins-v2-colab-20261011-131536/full/adapter'
         REPOSITORY = 'https://github.com/acocalypso/pins-ai.git'
         BRANCH = 'main'
         PROJECT = Path('/content/pins-ai-git')
@@ -81,7 +86,7 @@ def main():
         from colab_workspace import use_drive_data
         drive_data = use_drive_data(PROJECT, DRIVE_FOLDER)
         audit = json.loads((PROJECT / 'PINS_MCP_AI_Training_v2/data/contract-audit.json').read_text())
-        if audit['sourceRevision'] != 'd9b5dc6ba3874113589f58d88c20909cff599b45':
+        if audit['sourceRevision'] != 'e6d13f916cdf1f29a52703e5e7c893a113b2e531':
             raise ValueError('Rebuild this notebook/bundle for the newer audited MCP revision')
         RUN_ROOT = DRIVE_FOLDER / 'runs' / RUN_NAME
         RUN_ROOT.mkdir(parents=True, exist_ok=False)
@@ -173,9 +178,11 @@ def main():
     cell('code', '''
         run_pipeline(['training/fetch_base.py', '--download', '--accept-license'], 'fetch-base.log')
         run_pipeline(['PINS_MCP_AI_Training_v2/scripts/validate_dataset.py'], 'package-validation.log')
-        run_pipeline(['training/prepare_v2.py', '--max-tokens', '1280'], 'prepare-sft.log')
+        run_pipeline(['training/prepare_v2.py', '--curriculum', '--max-tokens', '1536',
+                      '--output', SFT_DATA], 'prepare-sft.log')
         run_pipeline(['tests/v2_tests.py'], 'v2-tests.log')
-        manifest = json.loads((PROJECT / 'artifacts/v2/sft/manifest.json').read_text())
+        run_pipeline(['tests/curriculum_tests.py'], 'curriculum-tests.log')
+        manifest = json.loads((PROJECT / SFT_DATA / 'manifest.json').read_text())
         assert manifest['skipped'] == 0
         for split, info in manifest['splits'].items():
             print(split, ':', info['assistantTurns'], 'assistant turns; max tokens', info['tokens']['max'])
@@ -192,12 +199,12 @@ def main():
         SMOKE = RUN_ROOT / 'smoke'
         FULL = RUN_ROOT / 'full'
         if RUN_TRAINING:
-            smoke_config = json.loads((PROJECT / 'training/config-v2.json').read_text())
+            smoke_config = json.loads((PROJECT / TRAIN_CONFIG).read_text())
             smoke_config['gradientAccumulation'] = 8
             smoke_path = RUN_ROOT / 'smoke-config.json'
             smoke_path.write_text(json.dumps(smoke_config, indent=2))
             run_pipeline(['training/train.py', '--base', '.local/training/base', '--dataset-mode', 'mcp',
-                '--config', smoke_path, '--max-steps', '1', '--logging-steps', '1', '--output', SMOKE], 'smoke.log')
+                '--config', smoke_path, '--data', SFT_DATA, '--max-steps', '1', '--logging-steps', '1', '--output', SMOKE], 'smoke.log')
             run_pipeline(['training/evaluate_v2.py', '--suite', 'validation_smoke', '--per-language', '2',
                 '--adapter', SMOKE / 'adapter', '--output', RUN_ROOT / 'smoke-reload.json'], 'smoke-reload.log')
             smoke_report = json.loads((RUN_ROOT / 'smoke-reload.json').read_text())
@@ -206,11 +213,13 @@ def main():
             print('Training remains disabled. Change RUN_TRAINING in the configuration cell to opt in.')
     ''')
     cell('markdown', '''
-        ## Full two-epoch run
-        Use the unchanged comparison configuration: FP16/NF4, rank8/alpha16,
-        microbatch1, accumulation16, context1280, seed3407, learning rate1e-4.
-        Keep the GPU comparison fair before changing these settings. Logs show
-        train_loss every five optimizer steps and eval_loss at each epoch.
+        ## Full run, up to three epochs with early stopping
+        Use FP16/NF4, rank8/alpha16, microbatch1, accumulation16, context1536,
+        seed3407, learning rate5e-5. Validation/checkpoints every100 optimizer
+        steps; stop after two checks without improvement of at least0.002.
+        This changes data and training settings together; results are an engineering
+        comparison, not a controlled attribution experiment. Logs show train_loss
+        every five optimizer steps and eval_loss at each validation check.
         Checkpoints, metrics, dependency versions and the final best adapter are
         written to Drive. Interrupting a cell stops its child process. Abrupt VM
         deletion may leave metadata marked started; it never implies completion.
@@ -218,7 +227,7 @@ def main():
     cell('code', '''
         if RUN_TRAINING:
             run_pipeline(['training/train.py', '--base', '.local/training/base', '--dataset-mode', 'mcp',
-                '--config', 'training/config-v2.json', '--smoke-run', SMOKE,
+                '--config', TRAIN_CONFIG, '--data', SFT_DATA, '--smoke-run', SMOKE,
                 '--logging-steps', '5', '--output', FULL], 'training.log')
             result = json.loads((FULL / 'training-run.json').read_text())
             assert result['status'] == 'completed' and not result['smokeOnly']
@@ -243,7 +252,7 @@ def main():
                                        ('validation', 'eval_loss', 'Validation')]:
                 points = [m for m in metrics if m['event'] == event]
                 ax.plot([m['step'] for m in points], [m[key] for m in points], marker='o', label=label)
-            ax.set(xlabel='Optimizer step', ylabel='Loss', title='PINS Qwen3 v2 training')
+            ax.set(xlabel='Optimizer step', ylabel='Loss', title='PINS Qwen3 v3 training')
             ax.legend(); ax.grid(alpha=0.2); fig.tight_layout()
             fig.savefig(RUN_ROOT / 'loss-curves.png', dpi=150)
             plt.show()
@@ -252,28 +261,32 @@ def main():
             print('No full-run metrics yet.')
     ''')
     cell('markdown', '''
-        ## Unseen comparison (optional, after completion)
-        Identical prompts/settings for base and v2; tools never execute. Default
-        comparison is 30 multilingual cases including conditional polling. Enable
-        RUN_HARD_GOLD once for the full 120 challenge cases; never tune the dataset
-        or prompts against those results. Full 593-case eval_gold is available by
-        removing the per-language subset flag. The v1 adapter is not in the source
-        ZIP, so its cloud comparison remains pending unless separately transferred.
+        ## Development comparison (optional, after completion)
+        Identical prompts/settings for base and adapters; tools never execute. Default
+        comparison uses all583 validation conversations for base, the prior v2
+        adapter (if present on Drive), and the new adapter. Validation is development
+        evidence, not an unseen quality claim. The final gold suites have already
+        been inspected; do not use them to guide iterative changes. Enable
+        RUN_FINAL_GOLD only for a final release comparison. A newly authored,
+        independently reviewed holdout is still needed. V1 comparison requires
+        separately transferring that preserved local adapter.
         GGUF export, quantized comparison, human review and Pi validation remain separate.
     ''')
     cell('code', '''
         if RUN_EVALUATION:
             completed = json.loads((FULL / 'training-run.json').read_text())
             assert completed['status'] == 'completed' and not completed['smokeOnly']
-            for name, adapter in [('base', None), ('v2', FULL / 'adapter')]:
+            comparisons = [('base', None), ('v3', FULL / 'adapter')]
+            if PRIOR_ADAPTER.is_dir(): comparisons.insert(1, ('prior-v2', PRIOR_ADAPTER))
+            else: print('Prior v2 adapter not found on Drive; its comparison is pending.')
+            for name, adapter in comparisons:
                 extra = ['--adapter', adapter] if adapter else []
-                run_pipeline(['training/evaluate_v2.py', '--per-language', '2', '--job-continuations',
+                run_pipeline(['training/evaluate_v2.py', '--suite', 'validation_smoke', '--job-continuations',
                     *extra, '--output', RUN_ROOT / f'{name}-eval.json'], f'{name}-eval.log')
-                if RUN_HARD_GOLD:
+                if RUN_FINAL_GOLD:
                     run_pipeline(['training/evaluate_v2.py', '--suite', 'hard_gold',
                         *extra, '--output', RUN_ROOT / f'{name}-hard-gold.json'], f'{name}-hard-gold.log')
-            run_pipeline(['training/report_v2.py', '--directory', RUN_ROOT,
-                '--training-run', FULL, '--smoke-run', SMOKE], 'report.log')
+            print('Comparison JSON/logs saved to Drive; inspect strict argument and per-language scores.')
         else:
             print('Evaluation disabled; gold cases have not been used for training.')
     ''')

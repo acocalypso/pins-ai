@@ -60,6 +60,13 @@ def main():
     if args.dataset_mode == 'mcp':
         from v2_contracts import PACKAGE, POLICY, VERIFIED, ADAPTER
         data_info = json.loads((args.data / 'manifest.json').read_text(encoding='utf-8'))
+        if args.smoke_run is not None and args.max_steps is None:
+            if any(smoke['dataset'].get(key) != data_info.get(key) for key in ('sourceProfile', 'curriculumSha256', 'splits')):
+                raise ValueError('GPU smoke must use the identical prepared curriculum and splits')
+        if data_info.get('sourceProfile'):
+            from curriculum_v3 import PROFILE
+            if data_info['sourceProfile'] != PROFILE or data_info.get('curriculumSha256') != sha256(ROOT / 'training/curriculum_v3.py'):
+                raise ValueError('Unknown or changed curriculum; prepare again')
         prompt_hash = fingerprint(POLICY)
         if data_info['policySha256'] != prompt_hash or data_info['contractSha256'] != sha256(VERIFIED):
             raise ValueError('MCP policy/contract changed; prepare v2 again')
@@ -122,8 +129,15 @@ def main():
         train_rows = read_jsonl(args.data / 'train.jsonl')
         validation_rows = read_jsonl(args.data / 'validation.jsonl')
         for split, prepared in (('train', train_rows), ('validation', validation_rows)):
+            if data_info.get('sourceProfile'):
+                from curriculum_v3 import curriculum_rows
+                source_rows = curriculum_rows(split)
+                if fingerprint(source_rows) != data_info['splits'][split]['sourceRowsSha256']:
+                    raise ValueError('Curriculum changed after preparation')
+            else:
+                source_rows = read_jsonl(PACKAGE / 'data/audited' / f'{split}.jsonl')
             expected_rows = [assistant_example(tokenizer, row, turn, config['maxLength'])
-                             for row in read_jsonl(PACKAGE / 'data/audited' / f'{split}.jsonl')
+                             for row in source_rows
                              for turn, message in enumerate(row['messages']) if message['role'] == 'assistant']
             if prepared != expected_rows:
                 raise ValueError('Prepared supervision differs from audited assistant turns; no gold substitution allowed')
@@ -160,20 +174,28 @@ def main():
            'loggingSteps': args.logging_steps, 'datasetMode': args.dataset_mode, 'smokeExamples': smoke_ids}
     write_json(args.output / 'training-run.json', run)
     (args.output / 'pip-freeze.txt').write_text(subprocess.check_output([os.sys.executable, '-m', 'pip', 'freeze'], text=True))
+    evaluation_steps = config.get('evaluationSteps') if not args.max_steps else None
     training_args = TrainingArguments(output_dir=str(args.output / 'checkpoints'),
         num_train_epochs=config['epochs'], max_steps=args.max_steps or -1,
         learning_rate=config['learningRate'], per_device_train_batch_size=config['batchSize'],
         per_device_eval_batch_size=1, gradient_accumulation_steps=config['gradientAccumulation'],
         gradient_checkpointing=True, gradient_checkpointing_kwargs={'use_reentrant': False},
         fp16=precision == 'fp16', bf16=precision == 'bf16', optim='adamw_torch',
-        eval_strategy='epoch', save_strategy='epoch', save_total_limit=2, logging_steps=args.logging_steps,
+        eval_strategy='steps' if evaluation_steps else 'epoch', save_strategy='steps' if evaluation_steps else 'epoch',
+        eval_steps=evaluation_steps, save_steps=evaluation_steps or 500,
+        save_total_limit=2, logging_steps=args.logging_steps,
         warmup_ratio=0.05, weight_decay=0.01, max_grad_norm=1.0, seed=config['seed'], data_seed=config['seed'],
         report_to=[], dataloader_num_workers=0, remove_unused_columns=False, prediction_loss_only=True,
         load_best_model_at_end=True, metric_for_best_model='eval_loss', greater_is_better=False)
     metrics = TrainingMetrics(args.output)
+    callbacks = [metrics]
+    if config.get('earlyStoppingPatience') and not args.max_steps:
+        from transformers import EarlyStoppingCallback
+        callbacks.append(EarlyStoppingCallback(early_stopping_patience=config['earlyStoppingPatience'],
+                         early_stopping_threshold=config.get('earlyStoppingThreshold', 0.0)))
     trainer = Trainer(model=model, args=training_args, train_dataset=Rows(train_rows),
                       eval_dataset=Rows(validation_rows), data_collator=collate, processing_class=tokenizer,
-                      callbacks=[metrics])
+                      callbacks=callbacks)
     try:
         result = trainer.train()
         trainer.save_model(str(args.output / 'adapter'))

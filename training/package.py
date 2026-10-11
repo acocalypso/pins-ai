@@ -10,6 +10,7 @@ def main():
              ROOT / 'src/Pins.AI.Runtime/Contracts.cs', ROOT / 'scripts/benchmark.py',
              ROOT / 'tests/training_tests.py', ROOT / 'tests/training_backend.py', ROOT / 'tests/v2_tests.py', ROOT / 'tests/colab_tests.py',
              ROOT / 'output/jupyter-notebook/pins-ai-v2-colab.ipynb']
+    files.append(ROOT / 'tests/curriculum_tests.py')
     for directory in ('training', 'docs', 'models', 'benchmarks', 'PINS_MCP_AI_Training_v2'):
         files.extend(path for path in (ROOT / directory).rglob('*')
                      if path.is_file() and path.suffix in ('.py', '.json', '.jsonl', '.txt', '.md')

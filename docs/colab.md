@@ -1,4 +1,4 @@
-# PINS v2 training with Colab in VS Code
+# PINS v3 training with Colab in VS Code
 
 Prepared notebook: [pins-ai-v2-colab.ipynb](../output/jupyter-notebook/pins-ai-v2-colab.ipynb).
 This is cloud **training** only. Pi inference still belongs to the PINS plugin;
@@ -17,7 +17,8 @@ notebook refresh and a new run, with Git pulling the current branch.
    `git pull --ff-only origin main`. No source ZIP upload is required for code updates.
 3. Existing data is read from `My Drive/pins-ai/PINS_MCP_AI_Training_v2/data`,
    `My Drive/pins-ai/data`, or the existing `pins-ai-training-0.1.0.zip` there.
-   Every dataset/contract file must match the Git revision before any data is copied.
+   Original dataset files must match Git checksums. Updated audited contracts stay in Git;
+   old contract files in the Drive bundle are ignored.
    Code is never imported from Drive. Adjust `DRIVE_FOLDER` if your data lives elsewhere.
    Training is enabled (`RUN_TRAINING = True`) for the authorized cloud run;
    set it to `False` for validation only. Approve Drive mounting in your session.
@@ -25,9 +26,9 @@ notebook refresh and a new run, with Git pulling the current branch.
    torch 2.7.1/cu126 and the existing pinned training requirements. The explicit
    base-download cell accepts the Apache-2.0 checkpoint license and verifies the
    pinned weights. Preflight, package/hash checks and tokenizer tests must pass.
-5. A new GPU smoke and adapter reload precede two-epoch v2 training. Output is
+5. A new GPU smoke and adapter reload precede up to three epochs of v3 training. Output is
    under `My Drive/pins-ai/runs/<RUN_NAME>/`. `training.log` shows training loss
-   every five optimizer steps and validation loss at each epoch.
+   every five optimizer steps and validation loss every100 optimizer steps.
 
 The notebook kernel can run Python 3.13; training still uses isolated Python 3.11.
 Setup explicitly installs managed Python through uv and creates the environment
@@ -36,8 +37,11 @@ is printed on errors. After a setup failure, reload the updated local notebook
 and rerun only the setup cell, then continue below it. Keep the existing kernel,
 project and Drive run folder; do not rerun Git/data setup or configuration.
 
-The initial cloud configuration preserves FP16/NF4, context1280, batch1,
-accumulation16, rank8/alpha16 and seed3407. A T4-class or newer GPU is a practical
+The v3 configuration uses FP16/NF4, context1536, batch1, accumulation16,
+rank8/alpha16, seed3407 and learning rate5e-5. Early stopping has patience2
+and minimum improvement0.002. The best validation checkpoint is saved.
+Train-only device contrasts and competing-tool contexts are generated from Git
+code; original validation is unchanged apart from refreshed MCP contracts. A T4-class or newer GPU is a practical
 candidate, but no particular GPU is guaranteed and no training speed is measured
 yet. The notebook checks the allocated GPU and actual kernels; a failure stops
 the workflow. Colab's current resources and lifetime depend on allocation and
@@ -50,11 +54,15 @@ the child job. A disconnected/deleted VM may leave an incomplete run marked
 `started`; do not treat it as completed. Existing runs are never overwritten,
 and this workflow currently requires a fresh run rather than automatic resume.
 
-Enable `RUN_EVALUATION` after a completed run for an identical base/v2 comparison.
-`RUN_HARD_GOLD` enables a one-shot 120-case challenge evaluation. Never change
-training or prompts to optimize that holdout. The prior v1 adapter is preserved
-locally and is absent from Git and the data bundle; its cloud comparison requires
-a separate transfer. GGUF export/evaluation and Pi validation remain pending.
+Enable `RUN_EVALUATION` for the full583-case validation development comparison
+of base, prior v2 (when its adapter is present on Drive) and new v3. This is
+selection/development evidence, not an unseen score. `PRIOR_ADAPTER` defaults
+to the completed v2 run on Drive; adjust it if that folder was moved.
+`RUN_FINAL_GOLD` is for a final release check only, not iterative tuning.
+Original test/eval_gold/hard_gold are never training sources. Independent,
+human-authored multilingual holdout review is still pending.
+GGUF export/evaluation, plugin chat/gateway binding and Pi validation remain pending.
+See [v3 preparation and v2 measured results](training-v3.md).
 
 Verified locally: notebook JSON/code-cell syntax, Git/Drive data checks
 (directory, ZIP and mismatch rejection), audited package

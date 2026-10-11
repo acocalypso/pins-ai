@@ -25,6 +25,7 @@ jobs:
       - run: python PINS_MCP_AI_Training_v2/scripts/validate_dataset.py
       - run: python tests/v2_tests.py
       - run: python tests/colab_tests.py
+      - run: python tests/curriculum_tests.py
       - run: dotnet run --project tests/Mcp.GatewayTests -- PINS_MCP_AI_Training_v2/data/verified-tools-list.json
       - run: python -m compileall -q training tests/training_tests.py
       # Plugin compatibility is verified separately against real installed PINS

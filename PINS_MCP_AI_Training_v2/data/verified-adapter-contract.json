@@ -1,5 +1,5 @@
 {
-  "sourceRevision": "d9b5dc6ba3874113589f58d88c20909cff599b45",
+  "sourceRevision": "e6d13f916cdf1f29a52703e5e7c893a113b2e531",
   "verification": "source inspection; no live endpoint or equipment",
   "ditherEveryMaximum": 32,
   "reservedSequenceSuffix": ".template",
@@ -13,10 +13,10 @@
   "sourceHashes": {
     "NINA.Mcp.Adapter/Sequence/NinaSequenceService.Plan.cs": "3c9fd06fa45f63cf75356d653f9ee323bf836097de40c054a55c338f7e0dec4b",
     "NINA.Mcp.Adapter/Sequence/NinaSequenceService.Editing.cs": "9d0579c2c47614ffaf1b494cb9201ae4e0e6114d4135bb8896f3180243b5508a",
-    "NINA.Mcp.Adapter/NinaObservatory.Equipment.cs": "7cde7c2fc12e436607e7065ae6b4503f81d2583006fac345a8e6ae70c30ecba3",
-    "NINA.Mcp.Adapter/NinaObservatory.Status.cs": "d7d9c55f97e8ec6fb17da2e3bb139729877e3183ac0c01a7bbd360045f30752d",
-    "NINA.Mcp.Adapter/Sequence/NinaSequenceService.cs": "21db36d9d64c4ad9e7a2fd6ccc37ffbed8be4f98dafdf48f72ec5256f5f4fe98",
-    "NINA.Mcp.Adapter/McpAdapterServiceCollectionExtensions.cs": "7a68de9bb4dd4f3d1373fcfd7537783d0f21284bd8cb96683b55e15c52a3c023",
-    "NINA/Program.cs": "84a709b0f4ea381ff8b6919bc49c9906d1ace3058f63dd105cbb797a13e1d981"
+    "NINA.Mcp.Adapter/NinaObservatory.Equipment.cs": "f7327cbbfea2e18da0cbbeee97b16ac308bc128163d9219b36493a5a49cd2b6d",
+    "NINA.Mcp.Adapter/NinaObservatory.Status.cs": "4b57d0ca20f050b2ca3e6b1a599ec634d5d1173f417daedaec97127a85f01706",
+    "NINA.Mcp.Adapter/Sequence/NinaSequenceService.cs": "54c48265ec8270ef0e53bff4842382e4cadea1cce2a1749e20f73d0a5e1808da",
+    "NINA.Mcp.Adapter/McpAdapterServiceCollectionExtensions.cs": "807a1933bbe88dc465a783f538e909bcdb099ea88a6c5c187d8a9a3ca7e9e779",
+    "NINA/Program.cs": "08373b4cde2405fa804c0dfc910187c69d248b7b7aa88242e9661d5ea5584202"
   }
 }

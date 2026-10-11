@@ -11,6 +11,8 @@ from common import CONFIG, ROOT, fingerprint, policy, sha256, write_json
 
 def commands(converter_python, source, merged, output, stem='pins-qwen3-0.6b'):
     binary = source / 'build/bin' / ('llama-quantize.exe' if os.name == 'nt' else 'llama-quantize')
+    if os.name == 'nt' and not binary.exists():
+        binary = source / 'build/bin/Release/llama-quantize.exe'
     return [[str(converter_python), str(source / 'convert_hf_to_gguf.py'), str(merged),
              '--outfile', str(output / (stem + '-f16.gguf')), '--outtype', 'f16'],
             [str(binary), str(output / (stem + '-f16.gguf')),

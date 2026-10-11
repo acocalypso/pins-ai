@@ -18,6 +18,9 @@ adds source-audited schemas, assistant-only tool supervision and a simulated,
 deterministic gateway. Its local experiment is stopped; live MCP chat remains disabled.
 The [Colab workflow](docs/colab.md) provides a GPU notebook with a fresh smoke test,
 training loss and validation loss monitoring, and persistent Google Drive outputs.
+The completed Colab v2 adapter and its measured comparison are preserved;
+[v3 training preparation](docs/training-v3.md) adds train-only contrasts, updated
+MCP contracts and early stopping. No specialized GGUF is deployed yet.
 
 The plugin and resource/lifecycle checks are complete. Initial Qwen3 measurements
 reached about 25 output tokens/s with two threads, but failed basic arithmetic

@@ -176,6 +176,13 @@ public sealed class ToolGateway {
     }
 
     private static void Schema(JsonNode? value, JsonObject schema) {
+        if (schema["anyOf"] is JsonArray alternatives) {
+            foreach (var alternative in alternatives) {
+                try { Schema(value, alternative!.AsObject()); return; }
+                catch (ArgumentException) { }
+            }
+            throw new ArgumentException("Tool argument matches no allowed schema variant.");
+        }
         bool Matches(string type) => type switch {
             "object" => value is JsonObject,
             "array" => value is JsonArray,

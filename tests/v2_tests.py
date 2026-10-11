@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import sys
 import unittest
+from jsonschema import ValidationError
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'training'))
@@ -68,7 +69,7 @@ class V2Tests(unittest.TestCase):
                 'exposures': [{'exposure_seconds': 60, 'count': 10}], 'dither_every': 32}
         validate_call('add_target', plan, ['add_target'])
         plan['dither_every'] = 33
-        with self.assertRaises(ValueError): validate_call('add_target', plan, ['add_target'])
+        with self.assertRaises((ValueError, ValidationError)): validate_call('add_target', plan, ['add_target'])
         for filename in ('session.template', 'session.TEMPLATE.json'):
             with self.assertRaises(ValueError): validate_call('save_sequence', {'name': filename}, ['save_sequence'])
 

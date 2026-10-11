@@ -3,7 +3,7 @@
     {
       "name": "get_status",
       "title": "Get observatory status",
-      "description": "Snapshot of the whole observatory: every device slot (camera, mount, focuser, filter_wheel, guider, rotator, flat_device, dome, switch, weather, safety_monitor) with connected flag, device name and key readings (e.g. camera temperature in °C and cooler power, mount RA in hours / Dec in degrees, altitude, tracking, park state, focuser position in steps, current filter, guider state and RMS in arcsec), whether the advanced sequence is running and which items run, and all running background jobs. Fast and side-effect free; it does not wait for hardware. Call it first in every session, before acting on hardware, and to monitor progress.",
+      "description": "Snapshot of the whole observatory: every device slot (camera, mount, focuser, filter_wheel, guider, rotator, flat_device, dome, switch, weather, safety_monitor) with connected flag, device name and key readings (e.g. camera temperature in °C and cooler power, mount RA in hours / Dec in degrees (J2000; the mount's native epoch values are in raHoursMount/decDegreesMount), altitude, tracking, park state, focuser position in steps, current filter, guider state (e.g. Guiding, Looping, Calibrating, Stopped) and RMS in arcsec), whether the advanced sequence is running and which items run, and all running background jobs. Fast and side-effect free; it does not wait for hardware. Call it first in every session, before acting on hardware, and to monitor progress.",
       "inputSchema": {
         "type": "object",
         "properties": {},
@@ -118,7 +118,7 @@
             "type": "number",
             "description": "Seconds to wait for the job to finish before returning (0-120, default 0 = return immediately).",
             "minimum": 0,
-            "maximum": 120,
+            "maximum": 55,
             "default": 0
           }
         },
@@ -155,7 +155,7 @@
     {
       "name": "stop_all",
       "title": "Stop everything",
-      "description": "Emergency stop. In this order: stops the advanced sequence (so it cannot start its next item), cancels every background job, aborts the running camera exposure, stops a mount slew and halts the focuser. Every step runs even if an earlier one fails; the result lists each step. It does NOT park the mount, stop tracking, stop guiding, warm the camera or disconnect anything. Safe to repeat. Use it whenever the user says stop/abort or something looks wrong (unexpected movement, collision risk, clouds/rain). This tool is never refused: it is the one changing tool that stays available in read-only mode, and it needs no force while a sequence runs. Afterwards check get_status.",
+      "description": "Emergency stop. In this order: stops the advanced sequence (so it cannot start its next item), cancels every background job, aborts the running camera exposure, stops the mount if it is slewing and halts a focuser move started over MCP. Every step runs even if an earlier one fails; the result lists each step. It does NOT park the mount, stop guiding, warm the camera or disconnect anything; an idle mount is left alone (note that aborting a slew stops tracking on some mount drivers). Safe to repeat. Use it whenever the user says stop/abort or something looks wrong (unexpected movement, collision risk, clouds/rain). This tool is never refused: together with cancel_job it stays available in read-only mode, and it needs no force while a sequence runs. Afterwards check get_status.",
       "inputSchema": {
         "type": "object",
         "properties": {},
@@ -186,7 +186,7 @@
             "type": "number",
             "description": "Seconds to wait for the job to end after the cancel request (0-120, default 10).",
             "minimum": 0,
-            "maximum": 120,
+            "maximum": 55,
             "default": 10
           }
         },
@@ -229,9 +229,9 @@
         "properties": {
           "wait_seconds": {
             "type": "number",
-            "description": "Seconds to wait for the operation to finish before returning (0-120, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
             "minimum": 0,
-            "maximum": 120,
+            "maximum": 55,
             "default": 30
           },
           "force": {
@@ -276,9 +276,9 @@
           },
           "wait_seconds": {
             "type": "number",
-            "description": "Seconds to wait for the operation to finish before returning (0-120, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
             "minimum": 0,
-            "maximum": 120,
+            "maximum": 55,
             "default": 30
           },
           "force": {
@@ -303,7 +303,7 @@
     {
       "name": "disconnect_device",
       "title": "Disconnect device",
-      "description": "Disconnects one device slot. Disconnecting a cooled camera stops its cooler abruptly: run warm_camera first (refused while a cool_camera or warm_camera job runs). Disconnecting the mount does not park it: run park_mount first when ending a session. Runs as a background job holding that device.",
+      "description": "Disconnects one device slot. Disconnecting a cooled camera stops its cooler abruptly: run warm_camera first (refused while a cool_camera or warm_camera job runs). Refused while a job uses the device indirectly (focuser or filter wheel during a capture/autofocus job, mount during a guiding start). Disconnecting the mount does not park it: run park_mount first when ending a session. Runs as a background job holding that device.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -326,9 +326,9 @@
           },
           "wait_seconds": {
             "type": "number",
-            "description": "Seconds to wait for the operation to finish before returning (0-120, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
             "minimum": 0,
-            "maximum": 120,
+            "maximum": 55,
             "default": 30
           },
           "force": {
@@ -353,33 +353,45 @@
     {
       "name": "slew_mount",
       "title": "Slew mount",
-      "description": "Slews the mount to J2000 coordinates (plain goto: no plate solving or centering; add_target with slew_and_center does that in a sequence). The mount must be connected and unparked (unpark_mount). Moves the telescope: make sure the user expects it. Runs as a background job holding the mount; stop it with cancel_job or stop_all. Afterwards check the position with get_status.",
+      "description": "Slews the mount to J2000 coordinates (plain goto: no plate solving or centering; add_target with slew_and_center does that in a sequence). The mount must be connected and unparked (unpark_mount). Moves the telescope: make sure the user expects it. If guiding is active, stop_guiding first (the guide star is lost during the slew). Runs as a background job holding the mount; stop it with cancel_job or stop_all. Afterwards check the position with get_status.",
       "inputSchema": {
         "type": "object",
         "properties": {
           "ra": {
-            "type": [
-              "number",
-              "string"
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "exclusiveMaximum": 24
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              }
             ],
-            "description": "J2000 right ascension in HOURS (0 <= ra < 24): a number like 5.5883 or a sexagesimal string like \"05h35m17.3s\", \"5:35:17.3\" or \"5 35 17.3\". Degrees are not accepted: divide degrees by 15.",
-            "minimum": 0,
-            "exclusiveMaximum": 24
+            "description": "J2000 right ascension in HOURS (0 <= ra < 24): a number like 5.5883 or a sexagesimal string like \"05h35m17.3s\", \"5:35:17.3\" or \"5 35 17.3\". Degrees are not accepted: divide degrees by 15."
           },
           "dec": {
-            "type": [
-              "number",
-              "string"
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": -90,
+                "maximum": 90
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              }
             ],
-            "description": "J2000 declination in DEGREES (-90..90): a number like -5.391 or a sexagesimal string like \"-05°23'28\\\"\", \"-5:23:28\", \"-5d23m28s\" or \"-5 23 28\". The sign applies to the whole value (\"-00:30:00\" is -0.5°).",
-            "minimum": -90,
-            "maximum": 90
+            "description": "J2000 declination in DEGREES (-90..90): a number like -5.391 or a sexagesimal string like \"-05°23'28\\\"\", \"-5:23:28\", \"-5d23m28s\" or \"-5 23 28\". The sign applies to the whole value (\"-00:30:00\" is -0.5°)."
           },
           "wait_seconds": {
             "type": "number",
-            "description": "Seconds to wait for the operation to finish before returning (0-120, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
             "minimum": 0,
-            "maximum": 120,
+            "maximum": 55,
             "default": 30
           },
           "force": {
@@ -405,15 +417,15 @@
     {
       "name": "park_mount",
       "title": "Park mount",
-      "description": "Moves the mount to its park position and stops tracking (end of session, bad weather). Moves the telescope. Runs as a background job holding the mount. Use unpark_mount before the next slew.",
+      "description": "Moves the mount to its park position and stops tracking (end of session, bad weather). Moves the telescope; stop_guiding first if guiding is active. Runs as a background job holding the mount. Use unpark_mount before the next slew.",
       "inputSchema": {
         "type": "object",
         "properties": {
           "wait_seconds": {
             "type": "number",
-            "description": "Seconds to wait for the operation to finish before returning (0-120, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
             "minimum": 0,
-            "maximum": 120,
+            "maximum": 55,
             "default": 30
           },
           "force": {
@@ -441,9 +453,9 @@
         "properties": {
           "wait_seconds": {
             "type": "number",
-            "description": "Seconds to wait for the operation to finish before returning (0-120, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
             "minimum": 0,
-            "maximum": 120,
+            "maximum": 55,
             "default": 30
           },
           "force": {
@@ -471,9 +483,9 @@
         "properties": {
           "wait_seconds": {
             "type": "number",
-            "description": "Seconds to wait for the operation to finish before returning (0-120, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
             "minimum": 0,
-            "maximum": 120,
+            "maximum": 55,
             "default": 30
           },
           "force": {
@@ -525,7 +537,7 @@
     {
       "name": "capture_image",
       "title": "Capture image",
-      "description": "Takes one exposure with the imaging camera (changing the filter first when 'filter' is set) and returns its statistics in outcome.data (HFR in pixels, star count, mean/median ADU, file path when saved). Use it for test frames: framing, focus check, exposure check. By default the frame is analysed but not saved; save: true writes it like a normal LIGHT frame. Omitted gain/offset/binning keep the camera's current settings. Runs as a background job holding the camera; the default wait covers short exposures, poll get_job for long ones. For many frames build a sequence with add_target instead.",
+      "description": "Takes one exposure with the imaging camera (changing the filter first when 'filter' is set) and returns its statistics in outcome.data (HFR in pixels, star count, mean/median ADU). The frame is also added to the image history (get_recent_images). Use it for test frames: framing, focus check, exposure check. By default the frame is analysed but not saved; save: true writes it like a normal LIGHT frame (the file path appears in get_recent_images once it is written). Omitted gain/offset use the profile defaults; omitted binning keeps the camera's current binning. Runs as a background job holding the camera and refused while a focuser move or filter change runs; the default wait covers short exposures, poll get_job for long ones. For many frames build a sequence with add_target instead.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -543,13 +555,13 @@
           },
           "gain": {
             "type": "integer",
-            "description": "Camera gain (driver units). Omit to keep the current gain.",
+            "description": "Camera gain (driver units). Omit for the profile default gain.",
             "minimum": 0,
             "maximum": 100000
           },
           "offset": {
             "type": "integer",
-            "description": "Camera offset (driver units). Omit to keep the current offset.",
+            "description": "Camera offset (driver units). Omit for the profile default offset.",
             "minimum": 0,
             "maximum": 100000
           },
@@ -566,9 +578,9 @@
           },
           "wait_seconds": {
             "type": "number",
-            "description": "Seconds to wait for the operation to finish before returning (0-120, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
             "minimum": 0,
-            "maximum": 120,
+            "maximum": 55,
             "default": 30
           },
           "force": {
@@ -612,9 +624,9 @@
           },
           "wait_seconds": {
             "type": "number",
-            "description": "Seconds to wait for the operation to finish before returning (0-120, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
             "minimum": 0,
-            "maximum": 120,
+            "maximum": 55,
             "default": 30
           },
           "force": {
@@ -652,9 +664,9 @@
           },
           "wait_seconds": {
             "type": "number",
-            "description": "Seconds to wait for the operation to finish before returning (0-120, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
             "minimum": 0,
-            "maximum": 120,
+            "maximum": 55,
             "default": 30
           },
           "force": {
@@ -687,9 +699,9 @@
           },
           "wait_seconds": {
             "type": "number",
-            "description": "Seconds to wait for the operation to finish before returning (0-120, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
             "minimum": 0,
-            "maximum": 120,
+            "maximum": 55,
             "default": 30
           },
           "force": {
@@ -720,9 +732,9 @@
         "properties": {
           "wait_seconds": {
             "type": "number",
-            "description": "Seconds to wait for the operation to finish before returning (0-120, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
             "minimum": 0,
-            "maximum": 120,
+            "maximum": 55,
             "default": 30
           },
           "force": {
@@ -762,9 +774,9 @@
           },
           "wait_seconds": {
             "type": "number",
-            "description": "Seconds to wait for the operation to finish before returning (0-120, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
             "minimum": 0,
-            "maximum": 120,
+            "maximum": 55,
             "default": 30
           },
           "force": {
@@ -797,9 +809,9 @@
           },
           "wait_seconds": {
             "type": "number",
-            "description": "Seconds to wait for the operation to finish before returning (0-120, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
             "minimum": 0,
-            "maximum": 120,
+            "maximum": 55,
             "default": 30
           },
           "force": {
@@ -837,9 +849,9 @@
           },
           "wait_seconds": {
             "type": "number",
-            "description": "Seconds to wait for the operation to finish before returning (0-120, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
             "minimum": 0,
-            "maximum": 120,
+            "maximum": 55,
             "default": 30
           },
           "force": {
@@ -884,7 +896,7 @@
       "annotations": {
         "title": "Load sequence",
         "readOnlyHint": false,
-        "destructiveHint": false,
+        "destructiveHint": true,
         "idempotentHint": false,
         "openWorldHint": false
       }
@@ -903,22 +915,34 @@
             "maxLength": 100
           },
           "ra": {
-            "type": [
-              "number",
-              "string"
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "exclusiveMaximum": 24
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              }
             ],
-            "description": "J2000 right ascension in HOURS (0 <= ra < 24): a number like 5.5883 or a sexagesimal string like \"05h35m17.3s\", \"5:35:17.3\" or \"5 35 17.3\". Degrees are not accepted: divide degrees by 15.",
-            "minimum": 0,
-            "exclusiveMaximum": 24
+            "description": "J2000 right ascension in HOURS (0 <= ra < 24): a number like 5.5883 or a sexagesimal string like \"05h35m17.3s\", \"5:35:17.3\" or \"5 35 17.3\". Degrees are not accepted: divide degrees by 15."
           },
           "dec": {
-            "type": [
-              "number",
-              "string"
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": -90,
+                "maximum": 90
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              }
             ],
-            "description": "J2000 declination in DEGREES (-90..90): a number like -5.391 or a sexagesimal string like \"-05°23'28\\\"\", \"-5:23:28\", \"-5d23m28s\" or \"-5 23 28\". The sign applies to the whole value (\"-00:30:00\" is -0.5°).",
-            "minimum": -90,
-            "maximum": 90
+            "description": "J2000 declination in DEGREES (-90..90): a number like -5.391 or a sexagesimal string like \"-05°23'28\\\"\", \"-5:23:28\", \"-5d23m28s\" or \"-5 23 28\". The sign applies to the whole value (\"-00:30:00\" is -0.5°)."
           },
           "rotation_degrees": {
             "type": "number",
@@ -1001,9 +1025,9 @@
           },
           "dither_every": {
             "type": "integer",
-            "description": "Exposure plan only: dither after every N frames (0 = never, max 100). Default 0.",
+            "description": "Exposure plan only: dither after every N frames (0 = never, max 32 like NINA). Default 0.",
             "minimum": 0,
-            "maximum": 100,
+            "maximum": 32,
             "default": 0
           },
           "force": {
@@ -1039,7 +1063,7 @@
       "annotations": {
         "title": "Clear sequence targets",
         "readOnlyHint": false,
-        "destructiveHint": false,
+        "destructiveHint": true,
         "idempotentHint": false,
         "openWorldHint": false
       }
@@ -1047,7 +1071,7 @@
     {
       "name": "save_sequence",
       "title": "Save sequence",
-      "description": "Saves the current advanced sequence to the profile's sequence folder under 'name' (without extension; it appears in list_saved_sequences and can be loaded later with load_sequence). Names may contain letters, digits, spaces, '-', '_' and '.', no path separators. An existing file with that name is only replaced with overwrite: true.",
+      "description": "Saves the current advanced sequence to the profile's sequence folder under 'name' (without extension; it appears in list_saved_sequences and can be loaded later with load_sequence). Names may contain letters, digits, spaces, '-', '_' and '.', no path separators. An existing file with that name is only replaced with overwrite: true. Allowed while the sequence runs (it only writes a file).",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1060,11 +1084,6 @@
           "overwrite": {
             "type": "boolean",
             "description": "Replace an existing sequence with the same name. Default false.",
-            "default": false
-          },
-          "force": {
-            "type": "boolean",
-            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
             "default": false
           }
         },
@@ -1084,7 +1103,7 @@
     {
       "name": "start_sequence",
       "title": "Start sequence",
-      "description": "Starts the advanced sequence that is loaded (load_sequence) or built (add_target) and returns as soon as it runs; it then runs on its own for hours, moving the mount, camera, focuser and guider. NINA validates the sequence first (devices connected, filters exist, ...) and refuses with the issues listed; skip_validation bypasses that check (not recommended). While it runs, other hardware and change tools are refused unless force is passed. Monitor with get_status, get_sequence and get_recent_images; stop with stop_sequence (or stop_all). Finished items are skipped on a new start: reset_sequence first to run everything again.",
+      "description": "Starts the advanced sequence that is loaded (load_sequence) or built (add_target) and returns as soon as it runs; it then runs on its own for hours, moving the mount, camera, focuser and guider. NINA validates the sequence first (devices connected, filters exist, ...) and refuses with the issues listed; skip_validation bypasses that check (not recommended). While it runs, other hardware and change tools are refused unless force is passed. Monitor with get_status, get_sequence and get_recent_images; stop with stop_sequence (or stop_all). Finished items are skipped on a new start: reset_sequence first to run everything again. Refused while a job started over MCP (slew, capture, autofocus, focuser move, filter change, guiding start, switch) still runs: wait for it with get_job or stop it with cancel_job. A running camera cooling job does not block the start.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1116,7 +1135,7 @@
       "annotations": {
         "title": "Reset sequence progress",
         "readOnlyHint": false,
-        "destructiveHint": false,
+        "destructiveHint": true,
         "idempotentHint": false,
         "openWorldHint": false
       }

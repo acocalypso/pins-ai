@@ -12,5 +12,6 @@ artifacts/
 *.pt
 *.pth
 *.ckpt
+qwen3-pins-*.zip
 training/runs/
 PINS_MCP_AI_Training_v2/data/sft_*.jsonl

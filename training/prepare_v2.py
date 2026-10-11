@@ -12,6 +12,7 @@ def main():
     parser.add_argument('--base', type=Path, default=ROOT / '.local/training/base')
     parser.add_argument('--output', type=Path, default=ROOT / 'artifacts/v2/sft')
     parser.add_argument('--max-tokens', type=int, default=0)
+    parser.add_argument('--curriculum', action='store_true', help='Train-only v3 contrasts; validation stays unchanged')
     args = parser.parse_args()
     from transformers import AutoTokenizer
     tokenizer = AutoTokenizer.from_pretrained(args.base, local_files_only=True, trust_remote_code=False)
@@ -19,10 +20,13 @@ def main():
               'contractSha256': sha256(VERIFIED), 'auditSha256': sha256(PACKAGE / 'data/contract-audit.json'),
               'adapterContractSha256': sha256(ADAPTER),
               'maxTokens': args.max_tokens, 'skipped': 0, 'splits': {}}
+    if args.curriculum:
+        from curriculum_v3 import PROFILE, curriculum_rows
+        report.update(sourceProfile=PROFILE, curriculumSha256=sha256(ROOT / 'training/curriculum_v3.py'))
     groups = set()
     for split in ('train', 'validation'):
         source = PACKAGE / 'data/audited' / f'{split}.jsonl'
-        rows = read_jsonl(source)
+        rows = curriculum_rows(split) if args.curriculum else read_jsonl(source)
         current_groups = {r['group'] for r in rows}
         if groups & current_groups:
             raise ValueError('Train/validation scenario leak')
@@ -37,6 +41,7 @@ def main():
         write_jsonl(path, converted)
         report['splits'][split] = {'conversations': len(rows), 'assistantTurns': len(converted),
                 'sourceSha256': sha256(source), 'sha256': sha256(path), 'languages': dict(Counter(r['locale'] for r in converted)),
+                'sourceRowsSha256': fingerprint(rows),
                 'tools': dict(calls), 'tokens': {'min': lengths[0], 'median': lengths[len(lengths)//2],
                                               'p95': lengths[int(.95*(len(lengths)-1))], 'max': lengths[-1]}}
     write_json(args.output / 'manifest.json', report)

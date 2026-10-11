@@ -1,5 +1,6 @@
 """Load Drive dataset bytes only after checking them against the Git checkout."""
 import hashlib
+import json
 from pathlib import Path
 import subprocess
 import zipfile
@@ -12,6 +13,10 @@ def use_drive_data(project, drive_folder):
         ['git', 'ls-files', '--', prefix], cwd=project, text=True).splitlines()
     if not tracked or prefix + 'contract-audit.json' not in tracked:
         raise RuntimeError('Git checkout lacks the audited dataset contracts.')
+    # Drive provides immutable original inputs. Audited schemas and derived data
+    # come from the current Git code, so MCP updates require no stale ZIP upload.
+    manifest = json.loads((project / prefix / 'manifest.json').read_text(encoding='utf-8'))
+    tracked = [prefix + 'manifest.json', *[prefix + n for n in manifest['sha256']]]
     folders = [drive_folder / 'PINS_MCP_AI_Training_v2/data', drive_folder / 'data']
     folder = next((p for p in folders if (p / 'manifest.json').is_file()), None)
     bundle = drive_folder / 'pins-ai-training-0.1.0.zip'
@@ -37,4 +42,4 @@ def use_drive_data(project, drive_folder):
                              'Update the Drive data to match; do not train mixed revisions.')
     for name, content in payloads.items():
         (project / name).write_bytes(content)
-    return {**origin, 'verifiedFiles': len(payloads)}
+    return {**origin, 'verifiedFiles': len(payloads), 'contractsSource': 'current Git checkout'}

@@ -5,6 +5,8 @@ import tempfile
 from pathlib import Path
 import unittest
 import zipfile
+import json
+import hashlib
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'training'))
 from colab_workspace import use_drive_data
@@ -22,6 +24,8 @@ class DriveDataTests(unittest.TestCase):
         self.data.mkdir(parents=True)
         for name in ('manifest.json', 'contract-audit.json', 'train.jsonl'):
             (self.data / name).write_text('{}\n', encoding='utf-8')
+        (self.data / 'manifest.json').write_text(json.dumps({'sha256': {
+            'train.jsonl': hashlib.sha256((self.data / 'train.jsonl').read_bytes()).hexdigest()}}), encoding='utf-8')
         subprocess.run(['git', 'init', '--quiet', str(self.project)], check=True)
         subprocess.run(['git', 'add', '.'], cwd=self.project, check=True, capture_output=True)
 
@@ -35,7 +39,7 @@ class DriveDataTests(unittest.TestCase):
     def test_zip_uses_only_matching_data(self):
         self.make_bundle()
         result = use_drive_data(self.project, self.drive)
-        self.assertEqual(result['verifiedFiles'], 3)
+        self.assertEqual(result['verifiedFiles'], 2)
         self.assertEqual(result['kind'], 'zip')
         self.assertFalse((self.project / 'training/train.py').exists())
 
