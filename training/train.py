@@ -17,9 +17,12 @@ def main():
     parser.add_argument('--config', type=Path, default=CONFIG)
     parser.add_argument('--method', choices=('lora', 'qlora'))
     parser.add_argument('--max-steps', type=int, help='Positive development smoke limit; never marked a completed specialization')
+    parser.add_argument('--logging-steps', type=int, default=5, help='Report training loss every N optimizer steps (default: 5)')
     args = parser.parse_args()
     if args.max_steps is not None and args.max_steps < 1:
         parser.error('--max-steps must be positive')
+    if args.logging_steps < 1:
+        parser.error('--logging-steps must be positive')
     if args.output.exists() and any(args.output.iterdir()):
         parser.error('Use a new output directory; existing runs are never overwritten')
     config = json.loads(args.config.read_text(encoding='utf-8-sig'))
@@ -51,10 +54,11 @@ def main():
     import torch
     from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
     from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, Trainer, TrainingArguments, set_seed
+    from metrics import TrainingMetrics
     set_seed(config['seed'])
     precision = config['precision']
     if precision == 'auto':
-        precision = 'bf16' if torch.cuda.is_bf16_supported() else 'fp16'
+        precision = 'bf16' if torch.cuda.is_bf16_supported(including_emulation=False) else 'fp16'
     if precision not in ('bf16', 'fp16', 'fp32'):
         raise ValueError('precision must be auto/bf16/fp16/fp32')
     dtype = {'bf16': torch.bfloat16, 'fp16': torch.float16, 'fp32': torch.float32}[precision]
@@ -90,7 +94,8 @@ def main():
     run = {'status': 'started', 'config': config, 'method': method, 'precision': precision,
            'hardware': hardware, 'packages': versions, 'dataset': data_info, 'base': base_info,
            'promptSha256': fingerprint(policy()), 'templateSha256': fingerprint(tokenizer.chat_template),
-           'completionOnly': True, 'enableThinking': False, 'smokeOnly': args.max_steps is not None}
+           'completionOnly': True, 'enableThinking': False, 'smokeOnly': args.max_steps is not None,
+           'loggingSteps': args.logging_steps}
     write_json(args.output / 'training-run.json', run)
     (args.output / 'pip-freeze.txt').write_text(subprocess.check_output([os.sys.executable, '-m', 'pip', 'freeze'], text=True))
     training_args = TrainingArguments(output_dir=str(args.output / 'checkpoints'),
@@ -99,17 +104,22 @@ def main():
         per_device_eval_batch_size=1, gradient_accumulation_steps=config['gradientAccumulation'],
         gradient_checkpointing=True, gradient_checkpointing_kwargs={'use_reentrant': False},
         fp16=precision == 'fp16', bf16=precision == 'bf16', optim='adamw_torch',
-        eval_strategy='epoch', save_strategy='epoch', save_total_limit=2, logging_steps=5,
+        eval_strategy='epoch', save_strategy='epoch', save_total_limit=2, logging_steps=args.logging_steps,
         warmup_ratio=0.05, weight_decay=0.01, max_grad_norm=1.0, seed=config['seed'], data_seed=config['seed'],
         report_to=[], dataloader_num_workers=0, remove_unused_columns=False, prediction_loss_only=True,
         load_best_model_at_end=True, metric_for_best_model='eval_loss', greater_is_better=False)
+    metrics = TrainingMetrics(args.output)
     trainer = Trainer(model=model, args=training_args, train_dataset=Rows(train_rows),
-                      eval_dataset=Rows(validation_rows), data_collator=collate, processing_class=tokenizer)
+                      eval_dataset=Rows(validation_rows), data_collator=collate, processing_class=tokenizer,
+                      callbacks=[metrics])
     try:
         result = trainer.train()
         trainer.save_model(str(args.output / 'adapter'))
         tokenizer.save_pretrained(args.output / 'adapter')
-        run.update(status='completed', metrics=result.metrics,
+        run.update(status='completed', metrics={**result.metrics,
+                   'eval_loss': trainer.state.best_metric, 'final_eval_loss': metrics.latest.get('eval_loss')},
+                   bestModelCheckpoint=trainer.state.best_model_checkpoint,
+                   monitoring=metrics.latest,
                    maxGpuAllocatedMiB=torch.cuda.max_memory_allocated() / 1048576)
         write_json(args.output / 'training-run.json', run)
     except Exception as ex:

@@ -23,7 +23,8 @@ def inspect(method='qlora'):
     free, total = torch.cuda.mem_get_info()
     report['gpu'] = {'name': device.name, 'computeCapability': list(torch.cuda.get_device_capability()),
                      'totalMiB': total // 1048576, 'freeMiB': free // 1048576, 'cuda': torch.version.cuda,
-                     'torchArchitectures': torch.cuda.get_arch_list(), 'bf16Supported': torch.cuda.is_bf16_supported()}
+                     'torchArchitectures': torch.cuda.get_arch_list(),
+                     'bf16Supported': torch.cuda.is_bf16_supported(including_emulation=False)}
     # Executing a tiny kernel catches wheels that no longer support Pascal.
     try:
         torch.ones(2, device='cuda').sum().item()

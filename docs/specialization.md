@@ -127,6 +127,40 @@ checkpoint and saves the adapter. Metadata retains dataset/source hashes,
 model revision, prompt/template hashes, settings, package versions, GPU details,
 metrics and `pip freeze`. Interrupted/failed runs cannot be exported as completed.
 
+## Monitor training loss
+
+Training prints flushed `[metrics]` lines with step, epoch and explicitly named
+`train_loss` every five optimizer steps (configure with `--logging-steps N`).
+This is the recent logging-window average, not a whole-epoch average. At each
+epoch end, `eval_loss` is printed with its change from the previous validation
+measurement and the best value so far. Lower loss is better; training-window
+fluctuations are normal and do not by themselves establish overfitting.
+The final `train_loss_overall` averages the entire run.
+
+Each run directory contains an incrementally flushed `metrics.jsonl` history
+and an atomically replaced `metrics-latest.json` snapshot. The snapshot retains
+the latest training loss, latest validation loss, best validation loss and,
+once available, whole-run training loss. No GPU or network service is needed
+to watch the files. For example, in a second PowerShell terminal:
+
+```powershell
+Get-Content .local/training/runs/qwen3-pins-v1-20261011/metrics.jsonl -Tail 5 -Wait
+```
+
+Completed `training-run.json` metadata also records the selected checkpoint's
+`metrics.eval_loss`, `metrics.final_eval_loss`, the overall `metrics.train_loss`
+and a monitoring snapshot. Selected best and final validation loss can differ.
+For older runs, regenerate the monitoring files from the final checkpoint's
+`trainer_state.json` without retraining or altering original run metadata:
+
+```powershell
+.local/training-venv/Scripts/python.exe training/metrics.py --from-state .local/training/runs/qwen3-pins-v1-20261011/checkpoints/checkpoint-63/trainer_state.json --output .local/training/runs/qwen3-pins-v1-20261011
+```
+
+Replay output is explicitly labelled `recorded_trainer_history`; existing metric
+files are never overwritten. Loss monitoring does not replace held-out answer
+evaluation or the Pi regression gate.
+
 ## GGUF export on the development workstation
 
 Check out/build llama.cpp at the **same commit as the Pi runtime**, recorded in
