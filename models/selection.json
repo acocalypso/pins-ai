@@ -1,0 +1,7 @@
+{
+  "workingBaseline": "qwen3-0.6b-q4",
+  "reason": "User selected Qwen3 0.6B as the current baseline for specialization",
+  "productionReady": false,
+  "specializationStatus": "pipeline prepared; model not yet trained",
+  "mcpAvailable": false
+}

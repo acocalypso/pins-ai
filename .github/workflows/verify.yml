@@ -1,0 +1,27 @@
+name: Verify inference contracts
+on:
+  push:
+  pull_request:
+
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: dotnet run --project tests/Pins.AI.Tests/Pins.AI.Tests.csproj -c Release
+      - run: dotnet format src/Pins.AI.Runtime/Pins.AI.Runtime.csproj --no-restore --verify-no-changes
+      - run: python -m py_compile scripts/install-assets.py scripts/benchmark.py tests/fake-llama.py tests/runtime-smoke.py
+      - run: gcc -std=c11 -O2 -Wall -Wextra -Werror native/pins-ai-exec.c -o /tmp/pins-ai-exec
+      - run: bash -n scripts/install-plugin.sh
+      - run: python -m pip install jsonschema==4.25.1
+      - run: python training/prepare.py
+      - run: python tests/training_tests.py
+      - run: python -m compileall -q training tests/training_tests.py
+      # Plugin compatibility is verified separately against real installed PINS
+      # contracts; CI neither invents host stubs nor downloads models.

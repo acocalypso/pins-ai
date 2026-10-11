@@ -1,0 +1,578 @@
+{
+  "measuredAtUtc": "2026-10-06T09:27:58.711107+00:00",
+  "piModel": "Raspberry Pi 5 Model B Rev 1.1",
+  "os": "PRETTY_NAME=\"Debian GNU/Linux 13 (trixie)\"\nNAME=\"Debian GNU/Linux\"\nVERSION_ID=\"13\"\nVERSION=\"13 (trixie)\"\nVERSION_CODENAME=trixie\nDEBIAN_VERSION_FULL=13.7\nID=debian\nHOME_URL=\"https://www.debian.org/\"\nSUPPORT_URL=\"https://www.debian.org/support\"\nBUG_REPORT_URL=\"https://bugs.debian.org/\"\n",
+  "uname": "Linux pins-ce29c 6.18.50+rpt-rpi-2712 #1 SMP PREEMPT Debian 1:6.18.50-1+rpt1 (2026-09-11) aarch64 GNU/Linux",
+  "runtime": {
+    "repository": "https://github.com/ggml-org/llama.cpp",
+    "commit": "8345f333951c661d166b00e6f9362e553768f292",
+    "release": "v0.6.0",
+    "license": "MIT"
+  },
+  "host": {
+    "pid": 6978,
+    "rss_kib": 407488,
+    "swap_kib": 0,
+    "ticks": 2238
+  },
+  "baseline": {
+    "available_kib": 3214880,
+    "system_swap_used_kib": 0,
+    "temperature_c": 69.95,
+    "throttled": "throttled=0xe0000",
+    "load": [
+      0.08154296875,
+      0.19482421875,
+      0.11962890625
+    ]
+  },
+  "workload": "PINS and PHD2 running; no active imaging or guiding session",
+  "mcp": "unavailable; no tool accuracy or hardware execution measured",
+  "sessions": [
+    {
+      "model": {
+        "id": "qwen3.5-0.8b-q4",
+        "profile": "standard",
+        "repository": "unsloth/Qwen3.5-0.8B-GGUF",
+        "revision": "6ab461498e2023f6e3c1baea90a8f0fe38ab64d0",
+        "file": "Qwen3.5-0.8B-Q4_K_M.gguf",
+        "bytes": 532517120,
+        "sha256": "bd258782e35f7f458f8aced1adc053e6e92e89bc735ba3be89d38a06121dc517",
+        "license": "Apache-2.0",
+        "upstream": "https://huggingface.co/Qwen/Qwen3.5-0.8B"
+      },
+      "config": {
+        "enabled": true,
+        "lazyLoad": true,
+        "mode": "standard",
+        "modelId": "qwen3.5-0.8b-q4",
+        "modelPath": "/home/pi/.local/share/pins-ai/models/Qwen3.5-0.8B-Q4_K_M.gguf",
+        "modelSha256": "bd258782e35f7f458f8aced1adc053e6e92e89bc735ba3be89d38a06121dc517",
+        "runtimePath": "/home/pi/.local/share/pins-ai/llama.cpp/build/bin/llama-server",
+        "launcherPath": "/home/pi/.local/share/pins-ai/pins-ai-exec",
+        "contextTokens": 512,
+        "threads": 1,
+        "maxOutputTokens": 8,
+        "temperature": 0.2,
+        "inferenceTimeoutSeconds": 60,
+        "startupTimeoutSeconds": 90,
+        "minAvailableMemoryMiB": 768,
+        "maxResidentMemoryMiB": 1200,
+        "maxProcessSwapMiB": 64,
+        "apiPort": 4783,
+        "logLevel": "Warning",
+        "maxTemperatureC": 80
+      },
+      "loadSeconds": 4.411759738000001,
+      "status": {
+        "state": "ready",
+        "enabled": true,
+        "modelId": "qwen3.5-0.8b-q4",
+        "processId": 7450,
+        "error": null,
+        "memory": {
+          "availableMiB": 2513,
+          "residentMiB": 1123,
+          "swapMiB": 0
+        },
+        "mcpAvailable": false,
+        "toolExecutionEnabled": false,
+        "capability": "informational-text-only",
+        "version": "0.1.0"
+      },
+      "before": {
+        "available_kib": 3223328,
+        "system_swap_used_kib": 0,
+        "temperature_c": 67.75,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.07470703125,
+          0.19140625,
+          0.11865234375
+        ]
+      },
+      "afterLoad": {
+        "available_kib": 2574064,
+        "system_swap_used_kib": 0,
+        "temperature_c": 72.7,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.14892578125,
+          0.205078125,
+          0.12353515625
+        ]
+      }
+    }
+  ],
+  "samples": [
+    {
+      "model": "qwen3.5-0.8b-q4",
+      "threads": 1,
+      "case": "units-en",
+      "repetition": 0,
+      "input": {
+        "id": "units-en",
+        "locale": "en",
+        "messages": [
+          {
+            "role": "user",
+            "content": "How many minutes of exposure is 30 times 120 seconds? Give only the result."
+          }
+        ]
+      },
+      "before": {
+        "available_kib": 2574064,
+        "system_swap_used_kib": 0,
+        "temperature_c": 72.7,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.14892578125,
+          0.205078125,
+          0.12353515625
+        ]
+      },
+      "characters": 75,
+      "totalSeconds": 5.087007275000019,
+      "firstContentSeconds": 4.440594052999927,
+      "output": "30 times 120 seconds",
+      "metrics": [
+        {
+          "cache_n": 0,
+          "prompt_n": 138,
+          "prompt_ms": 4407.744,
+          "prompt_per_token_ms": 31.940173913043477,
+          "prompt_per_second": 31.308533344949254,
+          "predicted_n": 8,
+          "predicted_ms": 652.54,
+          "predicted_per_token_ms": 93.22,
+          "predicted_per_second": 10.72731173567904
+        }
+      ],
+      "completed": true,
+      "error": null,
+      "after": {
+        "available_kib": 2513184,
+        "system_swap_used_kib": 0,
+        "temperature_c": 76.0,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.21728515625,
+          0.21875,
+          0.12841796875
+        ]
+      },
+      "telemetry": [
+        {
+          "time": 1023.608814147,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1150016,
+            "swap_kib": 0,
+            "ticks": 328
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 408768,
+            "swap_kib": 0,
+            "ticks": 2604
+          }
+        },
+        {
+          "time": 1023.809771295,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1158784,
+            "swap_kib": 0,
+            "ticks": 345
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 408960,
+            "swap_kib": 0,
+            "ticks": 2608
+          }
+        },
+        {
+          "time": 1024.010320647,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 365
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409168,
+            "swap_kib": 0,
+            "ticks": 2620
+          }
+        },
+        {
+          "time": 1024.21082311,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 385
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2620
+          }
+        },
+        {
+          "time": 1024.41132098,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 405
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2621
+          }
+        },
+        {
+          "time": 1024.611837887,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 426
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2621
+          }
+        },
+        {
+          "time": 1024.812354017,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 446
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2622
+          }
+        },
+        {
+          "time": 1025.012847646,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 466
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2622
+          }
+        },
+        {
+          "time": 1025.213330016,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 486
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2622
+          }
+        },
+        {
+          "time": 1025.413847998,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 506
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2623
+          }
+        },
+        {
+          "time": 1025.614329553,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 526
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2623
+          }
+        },
+        {
+          "time": 1025.814860979,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 546
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2623
+          }
+        },
+        {
+          "time": 1026.015389553,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1178672,
+            "swap_kib": 0,
+            "ticks": 566
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2624
+          }
+        },
+        {
+          "time": 1026.215902553,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1178672,
+            "swap_kib": 0,
+            "ticks": 587
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2624
+          }
+        },
+        {
+          "time": 1026.416431738,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1178672,
+            "swap_kib": 0,
+            "ticks": 607
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2624
+          }
+        },
+        {
+          "time": 1026.61693496,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1178672,
+            "swap_kib": 0,
+            "ticks": 627
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2625
+          }
+        },
+        {
+          "time": 1026.817572071,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1178672,
+            "swap_kib": 0,
+            "ticks": 647
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2626
+          }
+        },
+        {
+          "time": 1027.018086812,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1198400,
+            "swap_kib": 0,
+            "ticks": 667
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2627
+          }
+        },
+        {
+          "time": 1027.218602349,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1198400,
+            "swap_kib": 0,
+            "ticks": 687
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2627
+          }
+        },
+        {
+          "time": 1027.419085274,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1198400,
+            "swap_kib": 0,
+            "ticks": 707
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2627
+          }
+        },
+        {
+          "time": 1027.619620737,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1198400,
+            "swap_kib": 0,
+            "ticks": 727
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2627
+          }
+        },
+        {
+          "time": 1027.820261163,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1198400,
+            "swap_kib": 0,
+            "ticks": 747
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2627
+          }
+        },
+        {
+          "time": 1028.020811292,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1218128,
+            "swap_kib": 0,
+            "ticks": 767
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409200,
+            "swap_kib": 0,
+            "ticks": 2628
+          }
+        },
+        {
+          "time": 1028.221360237,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1221040,
+            "swap_kib": 0,
+            "ticks": 787
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409184,
+            "swap_kib": 0,
+            "ticks": 2629
+          }
+        },
+        {
+          "time": 1028.421923459,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1221040,
+            "swap_kib": 0,
+            "ticks": 807
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409232,
+            "swap_kib": 0,
+            "ticks": 2632
+          }
+        },
+        {
+          "time": 1028.622477218,
+          "llama": {
+            "pid": 7450,
+            "rss_kib": 1221040,
+            "swap_kib": 0,
+            "ticks": 827
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 409232,
+            "swap_kib": 0,
+            "ticks": 2634
+          }
+        }
+      ],
+      "peakRssMiB": 1192.421875,
+      "peakSwapMiB": 0.0,
+      "llamaCpuPercentOneCore": 99.5280282965766,
+      "pinsCpuPercentOneCore": 5.983648995786167,
+      "outputTokensPerSecond": 10.72731173567904,
+      "promptTokens": 138
+    }
+  ],
+  "casePauseSeconds": 30,
+  "baselinePinsCpuPercentOneCore": 3.9996680299534,
+  "summaries": [
+    {
+      "model": "qwen3.5-0.8b-q4",
+      "threads": 1,
+      "n": 1,
+      "firstContentP50Seconds": 4.440594052999927,
+      "firstContentP95Seconds": 4.440594052999927,
+      "medianOutputTokensPerSecond": 10.72731173567904,
+      "peakRssMiB": 1192.421875,
+      "peakSwapMiB": 0.0
+    }
+  ]
+}

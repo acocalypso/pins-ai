@@ -1,0 +1,178 @@
+{
+  "measuredAtUtc": "2026-10-06T09:17:39.270791+00:00",
+  "piModel": "Raspberry Pi 5 Model B Rev 1.1",
+  "os": "PRETTY_NAME=\"Debian GNU/Linux 13 (trixie)\"\nNAME=\"Debian GNU/Linux\"\nVERSION_ID=\"13\"\nVERSION=\"13 (trixie)\"\nVERSION_CODENAME=trixie\nDEBIAN_VERSION_FULL=13.7\nID=debian\nHOME_URL=\"https://www.debian.org/\"\nSUPPORT_URL=\"https://www.debian.org/support\"\nBUG_REPORT_URL=\"https://bugs.debian.org/\"\n",
+  "uname": "Linux pins-ce29c 6.18.50+rpt-rpi-2712 #1 SMP PREEMPT Debian 1:6.18.50-1+rpt1 (2026-09-11) aarch64 GNU/Linux",
+  "runtime": {
+    "repository": "https://github.com/ggml-org/llama.cpp",
+    "commit": "8345f333951c661d166b00e6f9362e553768f292",
+    "release": "v0.6.0",
+    "license": "MIT"
+  },
+  "host": {
+    "pid": 5345,
+    "rss_kib": 416320,
+    "swap_kib": 0,
+    "ticks": 1890
+  },
+  "baseline": {
+    "available_kib": 3248144,
+    "system_swap_used_kib": 0,
+    "temperature_c": 67.75,
+    "throttled": "throttled=0xe0000",
+    "load": [
+      0.04052734375,
+      0.076171875,
+      0.0361328125
+    ]
+  },
+  "workload": "PINS and PHD2 running; no active imaging or guiding session",
+  "mcp": "unavailable; no tool accuracy or hardware execution measured",
+  "sessions": [
+    {
+      "model": {
+        "id": "qwen3.5-0.8b-q4",
+        "profile": "standard",
+        "repository": "unsloth/Qwen3.5-0.8B-GGUF",
+        "revision": "6ab461498e2023f6e3c1baea90a8f0fe38ab64d0",
+        "file": "Qwen3.5-0.8B-Q4_K_M.gguf",
+        "bytes": 532517120,
+        "sha256": "bd258782e35f7f458f8aced1adc053e6e92e89bc735ba3be89d38a06121dc517",
+        "license": "Apache-2.0",
+        "upstream": "https://huggingface.co/Qwen/Qwen3.5-0.8B"
+      },
+      "config": {
+        "enabled": true,
+        "lazyLoad": true,
+        "mode": "standard",
+        "modelId": "qwen3.5-0.8b-q4",
+        "modelPath": "/home/pi/.local/share/pins-ai/models/Qwen3.5-0.8B-Q4_K_M.gguf",
+        "modelSha256": "bd258782e35f7f458f8aced1adc053e6e92e89bc735ba3be89d38a06121dc517",
+        "runtimePath": "/home/pi/.local/share/pins-ai/llama.cpp/build/bin/llama-server",
+        "launcherPath": "/home/pi/.local/share/pins-ai/pins-ai-exec",
+        "contextTokens": 2048,
+        "threads": 1,
+        "maxOutputTokens": 64,
+        "temperature": 0.2,
+        "inferenceTimeoutSeconds": 60,
+        "startupTimeoutSeconds": 90,
+        "minAvailableMemoryMiB": 768,
+        "maxResidentMemoryMiB": 1200,
+        "maxProcessSwapMiB": 64,
+        "apiPort": 4783,
+        "logLevel": "Warning",
+        "maxTemperatureC": 80
+      },
+      "loadSeconds": 4.974473348999993,
+      "status": {
+        "state": "ready",
+        "enabled": true,
+        "modelId": "qwen3.5-0.8b-q4",
+        "processId": 5625,
+        "error": null,
+        "memory": {
+          "availableMiB": 2444,
+          "residentMiB": 1146,
+          "swapMiB": 0
+        },
+        "mcpAvailable": false,
+        "toolExecutionEnabled": false,
+        "capability": "informational-text-only",
+        "version": "0.1.0"
+      },
+      "before": {
+        "available_kib": 3247120,
+        "system_swap_used_kib": 0,
+        "temperature_c": 69.95,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.037109375,
+          0.07470703125,
+          0.03564453125
+        ]
+      },
+      "afterLoad": {
+        "available_kib": 2503312,
+        "system_swap_used_kib": 0,
+        "temperature_c": 73.25,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.1943359375,
+          0.10693359375,
+          0.04638671875
+        ]
+      }
+    }
+  ],
+  "samples": [
+    {
+      "model": "qwen3.5-0.8b-q4",
+      "threads": 1,
+      "case": "guiding-en",
+      "repetition": 0,
+      "input": {
+        "id": "guiding-en",
+        "locale": "en",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Explain autoguiding in two short sentences."
+          }
+        ]
+      },
+      "before": {
+        "available_kib": 2499968,
+        "system_swap_used_kib": 0,
+        "temperature_c": 73.25,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.1943359375,
+          0.10693359375,
+          0.04638671875
+        ]
+      },
+      "characters": 43,
+      "totalSeconds": 0.07190600000001268,
+      "firstContentSeconds": null,
+      "output": "",
+      "metrics": [],
+      "completed": false,
+      "error": {
+        "status": 503,
+        "error": "Inference rejected request (HTTP 500); shorten the history or inspect runtime diagnostics."
+      },
+      "after": {
+        "available_kib": 3119856,
+        "system_swap_used_kib": 0,
+        "temperature_c": 74.9,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.1943359375,
+          0.10693359375,
+          0.04638671875
+        ]
+      },
+      "telemetry": [
+        {
+          "time": 404.729209997,
+          "llama": {
+            "pid": 5625,
+            "rss_kib": 1174112,
+            "swap_kib": 0,
+            "ticks": 355
+          },
+          "pins": {
+            "pid": 5345,
+            "rss_kib": 417040,
+            "swap_kib": 0,
+            "ticks": 2282
+          }
+        }
+      ],
+      "peakRssMiB": 1146.59375,
+      "peakSwapMiB": 0.0
+    }
+  ],
+  "casePauseSeconds": 30,
+  "baselinePinsCpuPercentOneCore": 3.1997253822891634
+}

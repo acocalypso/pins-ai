@@ -1,0 +1,4 @@
+[
+  {"id":"short-units-en","locale":"en","messages":[{"role":"user","content":"30 * 120 seconds in minutes? Answer only the number."}]},
+  {"id":"short-units-de","locale":"de","messages":[{"role":"user","content":"20 * 180 Sekunden in Minuten? Antworte nur mit der Zahl."}]}
+]

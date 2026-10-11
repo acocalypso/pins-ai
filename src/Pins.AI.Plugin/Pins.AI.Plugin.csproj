@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Pins.AI.Plugin</AssemblyName>
+    <Version>0.1.0</Version>
+    <AssemblyTitle>PINS Local AI</AssemblyTitle>
+    <Description>Plugin-owned local GGUF inference; informational chat and benchmarks</Description>
+    <Company>PI.N.S. contributors</Company>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Pins.AI.Runtime/Pins.AI.Runtime.csproj" />
+    <Reference Include="NINA.Plugin"><HintPath>$(HostDirectory)/NINA.Plugin.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="NINA.Core"><HintPath>$(HostDirectory)/NINA.Core.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="System.ComponentModel.Composition"><HintPath>$(HostDirectory)/System.ComponentModel.Composition.dll</HintPath><Private>false</Private></Reference>
+    <AssemblyMetadata Include="MinimumApplicationVersion" Value="3.3.0.1000" />
+    <AssemblyMetadata Include="License" Value="MIT" />
+    <AssemblyMetadata Include="LicenseURL" Value="https://opensource.org/license/mit" />
+    <AssemblyMetadata Include="Repository" Value="https://github.com/acocalypso/pins-ai" />
+    <AssemblyMetadata Include="Tags" Value="AI,GGUF,Local" />
+  </ItemGroup>
+  <Target Name="RequireHostReferences" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(HostDirectory)/NINA.Plugin.dll')" Text="Set HostDirectory to the actual PINS installation (NINA.Plugin.dll, NINA.Core.dll, System.ComponentModel.Composition.dll). See README." />
+  </Target>
+</Project>

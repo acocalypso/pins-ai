@@ -1,0 +1,15 @@
+**/bin/
+**/obj/
+.local/
+.tools/
+*.gguf
+*.partial
+__pycache__/
+*.deb
+artifacts/
+**/.venv/
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+training/runs/

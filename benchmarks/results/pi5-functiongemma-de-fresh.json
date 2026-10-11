@@ -1,0 +1,355 @@
+{
+  "measuredAtUtc": "2026-10-06T09:31:51.620537+00:00",
+  "piModel": "Raspberry Pi 5 Model B Rev 1.1",
+  "os": "PRETTY_NAME=\"Debian GNU/Linux 13 (trixie)\"\nNAME=\"Debian GNU/Linux\"\nVERSION_ID=\"13\"\nVERSION=\"13 (trixie)\"\nVERSION_CODENAME=trixie\nDEBIAN_VERSION_FULL=13.7\nID=debian\nHOME_URL=\"https://www.debian.org/\"\nSUPPORT_URL=\"https://www.debian.org/support\"\nBUG_REPORT_URL=\"https://bugs.debian.org/\"\n",
+  "uname": "Linux pins-ce29c 6.18.50+rpt-rpi-2712 #1 SMP PREEMPT Debian 1:6.18.50-1+rpt1 (2026-09-11) aarch64 GNU/Linux",
+  "runtime": {
+    "repository": "https://github.com/ggml-org/llama.cpp",
+    "commit": "8345f333951c661d166b00e6f9362e553768f292",
+    "release": "v0.6.0",
+    "license": "MIT"
+  },
+  "host": {
+    "pid": 6978,
+    "rss_kib": 415936,
+    "swap_kib": 0,
+    "ticks": 3717
+  },
+  "baseline": {
+    "available_kib": 3214992,
+    "system_swap_used_kib": 0,
+    "temperature_c": 69.4,
+    "throttled": "throttled=0xe0000",
+    "load": [
+      0.087890625,
+      0.18310546875,
+      0.13134765625
+    ]
+  },
+  "workload": "PINS and PHD2 running; no active imaging or guiding session",
+  "mcp": "unavailable; no tool accuracy or hardware execution measured",
+  "sessions": [
+    {
+      "model": {
+        "id": "functiongemma-270m-q4",
+        "profile": "lite",
+        "repository": "unsloth/functiongemma-270m-it-GGUF",
+        "revision": "1de0f7fc7cae0062012c2e91ef02e642c161aa57",
+        "file": "functiongemma-270m-it-Q4_K_M.gguf",
+        "bytes": 253127904,
+        "sha256": "7474135cf63b5de86bd29d2feb92c644d48e9df5e1ac31550662af373c67d0fc",
+        "license": "Gemma",
+        "licenseUrl": "https://ai.google.dev/gemma/terms",
+        "upstream": "https://huggingface.co/google/functiongemma-270m-it",
+        "capabilityNote": "Function-calling specialist; loader/transport probes only until real MCP schemas exist. Not a general dialogue candidate."
+      },
+      "config": {
+        "enabled": true,
+        "lazyLoad": true,
+        "mode": "lite",
+        "modelId": "functiongemma-270m-q4",
+        "modelPath": "/home/pi/.local/share/pins-ai/models/functiongemma-270m-it-Q4_K_M.gguf",
+        "modelSha256": "7474135cf63b5de86bd29d2feb92c644d48e9df5e1ac31550662af373c67d0fc",
+        "runtimePath": "/home/pi/.local/share/pins-ai/llama.cpp/build/bin/llama-server",
+        "launcherPath": "/home/pi/.local/share/pins-ai/pins-ai-exec",
+        "contextTokens": 512,
+        "threads": 1,
+        "maxOutputTokens": 16,
+        "temperature": 0.2,
+        "inferenceTimeoutSeconds": 60,
+        "startupTimeoutSeconds": 90,
+        "minAvailableMemoryMiB": 768,
+        "maxResidentMemoryMiB": 1200,
+        "maxProcessSwapMiB": 64,
+        "apiPort": 4783,
+        "logLevel": "Warning",
+        "maxTemperatureC": 80
+      },
+      "loadSeconds": 2.268032739000091,
+      "status": {
+        "state": "ready",
+        "enabled": true,
+        "modelId": "functiongemma-270m-q4",
+        "processId": 8047,
+        "error": null,
+        "memory": {
+          "availableMiB": 2880,
+          "residentMiB": 501,
+          "swapMiB": 0
+        },
+        "mcpAvailable": false,
+        "toolExecutionEnabled": false,
+        "capability": "informational-text-only",
+        "version": "0.1.0"
+      },
+      "before": {
+        "available_kib": 3229104,
+        "system_swap_used_kib": 0,
+        "temperature_c": 69.4,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.08056640625,
+          0.1796875,
+          0.13037109375
+        ]
+      },
+      "afterLoad": {
+        "available_kib": 2949552,
+        "system_swap_used_kib": 0,
+        "temperature_c": 73.25,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.08056640625,
+          0.1796875,
+          0.13037109375
+        ]
+      }
+    }
+  ],
+  "samples": [
+    {
+      "model": "functiongemma-270m-q4",
+      "threads": 1,
+      "case": "short-units-de",
+      "repetition": 0,
+      "input": {
+        "id": "short-units-de",
+        "locale": "de",
+        "messages": [
+          {
+            "role": "user",
+            "content": "20 * 180 Sekunden in Minuten? Antworte nur mit der Zahl."
+          }
+        ]
+      },
+      "before": {
+        "available_kib": 2949552,
+        "system_swap_used_kib": 0,
+        "temperature_c": 73.25,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.08056640625,
+          0.1796875,
+          0.13037109375
+        ]
+      },
+      "characters": 56,
+      "totalSeconds": 2.0239952580000136,
+      "firstContentSeconds": 1.5739252210000814,
+      "output": "I cannot assist with answering trivia questions or providing explanations. My available tools are for",
+      "metrics": [
+        {
+          "cache_n": 0,
+          "prompt_n": 133,
+          "prompt_ms": 1561.288,
+          "prompt_per_token_ms": 11.739007518796992,
+          "prompt_per_second": 85.18607713631309,
+          "predicted_n": 16,
+          "predicted_ms": 451.365,
+          "predicted_per_token_ms": 30.091,
+          "predicted_per_second": 33.232527998404834
+        }
+      ],
+      "completed": true,
+      "error": null,
+      "after": {
+        "available_kib": 2947824,
+        "system_swap_used_kib": 0,
+        "temperature_c": 76.0,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.154296875,
+          0.193359375,
+          0.13525390625
+        ]
+      },
+      "telemetry": [
+        {
+          "time": 1254.375421806,
+          "llama": {
+            "pid": 8047,
+            "rss_kib": 513712,
+            "swap_kib": 0,
+            "ticks": 172
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 416160,
+            "swap_kib": 0,
+            "ticks": 3891
+          }
+        },
+        {
+          "time": 1254.576618472,
+          "llama": {
+            "pid": 8047,
+            "rss_kib": 514736,
+            "swap_kib": 0,
+            "ticks": 192
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 416240,
+            "swap_kib": 0,
+            "ticks": 3896
+          }
+        },
+        {
+          "time": 1254.777087676,
+          "llama": {
+            "pid": 8047,
+            "rss_kib": 514736,
+            "swap_kib": 0,
+            "ticks": 212
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 416240,
+            "swap_kib": 0,
+            "ticks": 3896
+          }
+        },
+        {
+          "time": 1254.977558398,
+          "llama": {
+            "pid": 8047,
+            "rss_kib": 514736,
+            "swap_kib": 0,
+            "ticks": 232
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 416240,
+            "swap_kib": 0,
+            "ticks": 3896
+          }
+        },
+        {
+          "time": 1255.178027305,
+          "llama": {
+            "pid": 8047,
+            "rss_kib": 515712,
+            "swap_kib": 0,
+            "ticks": 252
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 416240,
+            "swap_kib": 0,
+            "ticks": 3897
+          }
+        },
+        {
+          "time": 1255.378530713,
+          "llama": {
+            "pid": 8047,
+            "rss_kib": 515712,
+            "swap_kib": 0,
+            "ticks": 272
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 416240,
+            "swap_kib": 0,
+            "ticks": 3897
+          }
+        },
+        {
+          "time": 1255.578996009,
+          "llama": {
+            "pid": 8047,
+            "rss_kib": 515712,
+            "swap_kib": 0,
+            "ticks": 292
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 416240,
+            "swap_kib": 0,
+            "ticks": 3898
+          }
+        },
+        {
+          "time": 1255.77945999,
+          "llama": {
+            "pid": 8047,
+            "rss_kib": 517312,
+            "swap_kib": 0,
+            "ticks": 312
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 416240,
+            "swap_kib": 0,
+            "ticks": 3898
+          }
+        },
+        {
+          "time": 1255.979963471,
+          "llama": {
+            "pid": 8047,
+            "rss_kib": 522320,
+            "swap_kib": 0,
+            "ticks": 333
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 416224,
+            "swap_kib": 0,
+            "ticks": 3900
+          }
+        },
+        {
+          "time": 1256.180559379,
+          "llama": {
+            "pid": 8047,
+            "rss_kib": 522320,
+            "swap_kib": 0,
+            "ticks": 353
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 416576,
+            "swap_kib": 0,
+            "ticks": 3903
+          }
+        },
+        {
+          "time": 1256.381363379,
+          "llama": {
+            "pid": 8047,
+            "rss_kib": 522320,
+            "swap_kib": 0,
+            "ticks": 373
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 416576,
+            "swap_kib": 0,
+            "ticks": 3907
+          }
+        }
+      ],
+      "peakRssMiB": 510.078125,
+      "peakSwapMiB": 0.0,
+      "llamaCpuPercentOneCore": 100.20232029958666,
+      "pinsCpuPercentOneCore": 7.976304103449686,
+      "outputTokensPerSecond": 33.232527998404834,
+      "promptTokens": 133
+    }
+  ],
+  "casePauseSeconds": 30,
+  "baselinePinsCpuPercentOneCore": 1.3998831156393794,
+  "summaries": [
+    {
+      "model": "functiongemma-270m-q4",
+      "threads": 1,
+      "n": 1,
+      "firstContentP50Seconds": 1.5739252210000814,
+      "firstContentP95Seconds": 1.5739252210000814,
+      "medianOutputTokensPerSecond": 33.232527998404834,
+      "peakRssMiB": 510.078125,
+      "peakSwapMiB": 0.0
+    }
+  ]
+}

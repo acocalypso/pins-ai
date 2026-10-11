@@ -1,0 +1,1519 @@
+{
+  "measuredAtUtc": "2026-10-06T09:29:21.723444+00:00",
+  "piModel": "Raspberry Pi 5 Model B Rev 1.1",
+  "os": "PRETTY_NAME=\"Debian GNU/Linux 13 (trixie)\"\nNAME=\"Debian GNU/Linux\"\nVERSION_ID=\"13\"\nVERSION=\"13 (trixie)\"\nVERSION_CODENAME=trixie\nDEBIAN_VERSION_FULL=13.7\nID=debian\nHOME_URL=\"https://www.debian.org/\"\nSUPPORT_URL=\"https://www.debian.org/support\"\nBUG_REPORT_URL=\"https://bugs.debian.org/\"\n",
+  "uname": "Linux pins-ce29c 6.18.50+rpt-rpi-2712 #1 SMP PREEMPT Debian 1:6.18.50-1+rpt1 (2026-09-11) aarch64 GNU/Linux",
+  "runtime": {
+    "repository": "https://github.com/ggml-org/llama.cpp",
+    "commit": "8345f333951c661d166b00e6f9362e553768f292",
+    "release": "v0.6.0",
+    "license": "MIT"
+  },
+  "host": {
+    "pid": 6978,
+    "rss_kib": 409664,
+    "swap_kib": 0,
+    "ticks": 2802
+  },
+  "baseline": {
+    "available_kib": 3200608,
+    "system_swap_used_kib": 0,
+    "temperature_c": 69.4,
+    "throttled": "throttled=0xe0000",
+    "load": [
+      0.189453125,
+      0.2138671875,
+      0.13134765625
+    ]
+  },
+  "workload": "PINS and PHD2 running; no active imaging or guiding session",
+  "mcp": "unavailable; no tool accuracy or hardware execution measured",
+  "sessions": [
+    {
+      "model": {
+        "id": "qwen3.5-0.8b-q4",
+        "profile": "standard",
+        "repository": "unsloth/Qwen3.5-0.8B-GGUF",
+        "revision": "6ab461498e2023f6e3c1baea90a8f0fe38ab64d0",
+        "file": "Qwen3.5-0.8B-Q4_K_M.gguf",
+        "bytes": 532517120,
+        "sha256": "bd258782e35f7f458f8aced1adc053e6e92e89bc735ba3be89d38a06121dc517",
+        "license": "Apache-2.0",
+        "upstream": "https://huggingface.co/Qwen/Qwen3.5-0.8B"
+      },
+      "config": {
+        "enabled": true,
+        "lazyLoad": true,
+        "mode": "standard",
+        "modelId": "qwen3.5-0.8b-q4",
+        "modelPath": "/home/pi/.local/share/pins-ai/models/Qwen3.5-0.8B-Q4_K_M.gguf",
+        "modelSha256": "bd258782e35f7f458f8aced1adc053e6e92e89bc735ba3be89d38a06121dc517",
+        "runtimePath": "/home/pi/.local/share/pins-ai/llama.cpp/build/bin/llama-server",
+        "launcherPath": "/home/pi/.local/share/pins-ai/pins-ai-exec",
+        "contextTokens": 512,
+        "threads": 1,
+        "maxOutputTokens": 16,
+        "temperature": 0.2,
+        "inferenceTimeoutSeconds": 60,
+        "startupTimeoutSeconds": 90,
+        "minAvailableMemoryMiB": 768,
+        "maxResidentMemoryMiB": 1200,
+        "maxProcessSwapMiB": 64,
+        "apiPort": 4783,
+        "logLevel": "Warning",
+        "maxTemperatureC": 80
+      },
+      "loadSeconds": 4.348343792999913,
+      "status": {
+        "state": "ready",
+        "enabled": true,
+        "modelId": "qwen3.5-0.8b-q4",
+        "processId": 7704,
+        "error": null,
+        "memory": {
+          "availableMiB": 2527,
+          "residentMiB": 1123,
+          "swapMiB": 0
+        },
+        "mcpAvailable": false,
+        "toolExecutionEnabled": false,
+        "capability": "informational-text-only",
+        "version": "0.1.0"
+      },
+      "before": {
+        "available_kib": 3222640,
+        "system_swap_used_kib": 0,
+        "temperature_c": 68.85,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.173828125,
+          0.2099609375,
+          0.13037109375
+        ]
+      },
+      "afterLoad": {
+        "available_kib": 2588000,
+        "system_swap_used_kib": 0,
+        "temperature_c": 73.8,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.240234375,
+          0.22314453125,
+          0.13525390625
+        ]
+      }
+    },
+    {
+      "model": {
+        "id": "functiongemma-270m-q4",
+        "profile": "lite",
+        "repository": "unsloth/functiongemma-270m-it-GGUF",
+        "revision": "1de0f7fc7cae0062012c2e91ef02e642c161aa57",
+        "file": "functiongemma-270m-it-Q4_K_M.gguf",
+        "bytes": 253127904,
+        "sha256": "7474135cf63b5de86bd29d2feb92c644d48e9df5e1ac31550662af373c67d0fc",
+        "license": "Gemma",
+        "licenseUrl": "https://ai.google.dev/gemma/terms",
+        "upstream": "https://huggingface.co/google/functiongemma-270m-it",
+        "capabilityNote": "Function-calling specialist; loader/transport probes only until real MCP schemas exist. Not a general dialogue candidate."
+      },
+      "config": {
+        "enabled": true,
+        "lazyLoad": true,
+        "mode": "lite",
+        "modelId": "functiongemma-270m-q4",
+        "modelPath": "/home/pi/.local/share/pins-ai/models/functiongemma-270m-it-Q4_K_M.gguf",
+        "modelSha256": "7474135cf63b5de86bd29d2feb92c644d48e9df5e1ac31550662af373c67d0fc",
+        "runtimePath": "/home/pi/.local/share/pins-ai/llama.cpp/build/bin/llama-server",
+        "launcherPath": "/home/pi/.local/share/pins-ai/pins-ai-exec",
+        "contextTokens": 512,
+        "threads": 1,
+        "maxOutputTokens": 16,
+        "temperature": 0.2,
+        "inferenceTimeoutSeconds": 60,
+        "startupTimeoutSeconds": 90,
+        "minAvailableMemoryMiB": 768,
+        "maxResidentMemoryMiB": 1200,
+        "maxProcessSwapMiB": 64,
+        "apiPort": 4783,
+        "logLevel": "Warning",
+        "maxTemperatureC": 80
+      },
+      "loadSeconds": 2.289658572999997,
+      "status": {
+        "state": "ready",
+        "enabled": true,
+        "modelId": "functiongemma-270m-q4",
+        "processId": 7878,
+        "error": null,
+        "memory": {
+          "availableMiB": 2891,
+          "residentMiB": 501,
+          "swapMiB": 0
+        },
+        "mcpAvailable": false,
+        "toolExecutionEnabled": false,
+        "capability": "informational-text-only",
+        "version": "0.1.0"
+      },
+      "before": {
+        "available_kib": 3233328,
+        "system_swap_used_kib": 0,
+        "temperature_c": 68.85,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.1572265625,
+          0.2099609375,
+          0.13720703125
+        ]
+      },
+      "afterLoad": {
+        "available_kib": 2960624,
+        "system_swap_used_kib": 0,
+        "temperature_c": 72.7,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.1572265625,
+          0.2099609375,
+          0.13720703125
+        ]
+      }
+    }
+  ],
+  "samples": [
+    {
+      "model": "qwen3.5-0.8b-q4",
+      "threads": 1,
+      "case": "short-units-en",
+      "repetition": 0,
+      "input": {
+        "id": "short-units-en",
+        "locale": "en",
+        "messages": [
+          {
+            "role": "user",
+            "content": "30 * 120 seconds in minutes? Answer only the number."
+          }
+        ]
+      },
+      "before": {
+        "available_kib": 2587392,
+        "system_swap_used_kib": 0,
+        "temperature_c": 73.8,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.240234375,
+          0.22314453125,
+          0.13525390625
+        ]
+      },
+      "characters": 52,
+      "totalSeconds": 4.498939905000043,
+      "firstContentSeconds": 4.208851145999915,
+      "output": "120",
+      "metrics": [
+        {
+          "cache_n": 0,
+          "prompt_n": 133,
+          "prompt_ms": 4200.587,
+          "prompt_per_token_ms": 31.58336090225564,
+          "prompt_per_second": 31.662241491486782,
+          "predicted_n": 4,
+          "predicted_ms": 290.497,
+          "predicted_per_token_ms": 96.83233333333334,
+          "predicted_per_second": 10.327129023707645
+        }
+      ],
+      "completed": true,
+      "error": null,
+      "after": {
+        "available_kib": 2509824,
+        "system_swap_used_kib": 0,
+        "temperature_c": 78.2,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.30126953125,
+          0.236328125,
+          0.14013671875
+        ]
+      },
+      "telemetry": [
+        {
+          "time": 1106.556095857,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1150016,
+            "swap_kib": 0,
+            "ticks": 327
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410272,
+            "swap_kib": 0,
+            "ticks": 3157
+          }
+        },
+        {
+          "time": 1106.756848301,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1158784,
+            "swap_kib": 0,
+            "ticks": 347
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410272,
+            "swap_kib": 0,
+            "ticks": 3159
+          }
+        },
+        {
+          "time": 1106.95738006,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 367
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410272,
+            "swap_kib": 0,
+            "ticks": 3159
+          }
+        },
+        {
+          "time": 1107.157897356,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 387
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410272,
+            "swap_kib": 0,
+            "ticks": 3160
+          }
+        },
+        {
+          "time": 1107.358365634,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 407
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410272,
+            "swap_kib": 0,
+            "ticks": 3160
+          }
+        },
+        {
+          "time": 1107.558888264,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 427
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410272,
+            "swap_kib": 0,
+            "ticks": 3160
+          }
+        },
+        {
+          "time": 1107.759417245,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 447
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410272,
+            "swap_kib": 0,
+            "ticks": 3160
+          }
+        },
+        {
+          "time": 1107.95999256,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 467
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410272,
+            "swap_kib": 0,
+            "ticks": 3161
+          }
+        },
+        {
+          "time": 1108.160503245,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 487
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410272,
+            "swap_kib": 0,
+            "ticks": 3162
+          }
+        },
+        {
+          "time": 1108.360978022,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 507
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410272,
+            "swap_kib": 0,
+            "ticks": 3162
+          }
+        },
+        {
+          "time": 1108.561720744,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1158944,
+            "swap_kib": 0,
+            "ticks": 527
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410272,
+            "swap_kib": 0,
+            "ticks": 3163
+          }
+        },
+        {
+          "time": 1108.762547133,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1178672,
+            "swap_kib": 0,
+            "ticks": 548
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410304,
+            "swap_kib": 0,
+            "ticks": 3163
+          }
+        },
+        {
+          "time": 1108.963042985,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1178672,
+            "swap_kib": 0,
+            "ticks": 568
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410304,
+            "swap_kib": 0,
+            "ticks": 3164
+          }
+        },
+        {
+          "time": 1109.163556022,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1178672,
+            "swap_kib": 0,
+            "ticks": 588
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410304,
+            "swap_kib": 0,
+            "ticks": 3164
+          }
+        },
+        {
+          "time": 1109.364074225,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1178672,
+            "swap_kib": 0,
+            "ticks": 608
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410304,
+            "swap_kib": 0,
+            "ticks": 3164
+          }
+        },
+        {
+          "time": 1109.564585355,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1178672,
+            "swap_kib": 0,
+            "ticks": 628
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410304,
+            "swap_kib": 0,
+            "ticks": 3165
+          }
+        },
+        {
+          "time": 1109.765097596,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1178672,
+            "swap_kib": 0,
+            "ticks": 648
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410304,
+            "swap_kib": 0,
+            "ticks": 3165
+          }
+        },
+        {
+          "time": 1109.965611521,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1198400,
+            "swap_kib": 0,
+            "ticks": 668
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410304,
+            "swap_kib": 0,
+            "ticks": 3167
+          }
+        },
+        {
+          "time": 1110.166117651,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1198400,
+            "swap_kib": 0,
+            "ticks": 688
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410304,
+            "swap_kib": 0,
+            "ticks": 3167
+          }
+        },
+        {
+          "time": 1110.36663404,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1198400,
+            "swap_kib": 0,
+            "ticks": 708
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410304,
+            "swap_kib": 0,
+            "ticks": 3167
+          }
+        },
+        {
+          "time": 1110.567136799,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1198400,
+            "swap_kib": 0,
+            "ticks": 728
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410304,
+            "swap_kib": 0,
+            "ticks": 3167
+          }
+        },
+        {
+          "time": 1110.767698651,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1221040,
+            "swap_kib": 0,
+            "ticks": 748
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410288,
+            "swap_kib": 0,
+            "ticks": 3168
+          }
+        },
+        {
+          "time": 1110.968701576,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1221040,
+            "swap_kib": 0,
+            "ticks": 768
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410384,
+            "swap_kib": 0,
+            "ticks": 3178
+          }
+        }
+      ],
+      "peakRssMiB": 1192.421875,
+      "peakSwapMiB": 0.0,
+      "llamaCpuPercentOneCore": 99.9409482930031,
+      "pinsCpuPercentOneCore": 4.75909277585729,
+      "outputTokensPerSecond": 10.327129023707645,
+      "promptTokens": 133
+    },
+    {
+      "model": "qwen3.5-0.8b-q4",
+      "threads": 1,
+      "case": "short-units-de",
+      "repetition": 0,
+      "input": {
+        "id": "short-units-de",
+        "locale": "de",
+        "messages": [
+          {
+            "role": "user",
+            "content": "20 * 180 Sekunden in Minuten? Antworte nur mit der Zahl."
+          }
+        ]
+      },
+      "before": {
+        "available_kib": 2538128,
+        "system_swap_used_kib": 0,
+        "temperature_c": 69.95,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.24951171875,
+          0.22900390625,
+          0.14013671875
+        ]
+      },
+      "characters": 56,
+      "totalSeconds": 5.7806062740000925,
+      "firstContentSeconds": 4.371272146000138,
+      "output": "20 * 180 Sekunden in Minuten = 3600",
+      "metrics": [
+        {
+          "cache_n": 0,
+          "prompt_n": 135,
+          "prompt_ms": 4362.877,
+          "prompt_per_token_ms": 32.31760740740741,
+          "prompt_per_second": 30.942884706582376,
+          "predicted_n": 16,
+          "predicted_ms": 1411.441,
+          "predicted_per_token_ms": 94.09606666666667,
+          "predicted_per_second": 10.627436782692298
+        }
+      ],
+      "completed": true,
+      "error": null,
+      "after": {
+        "available_kib": 2530656,
+        "system_swap_used_kib": 0,
+        "temperature_c": 76.55,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.31005859375,
+          0.2421875,
+          0.14501953125
+        ]
+      },
+      "telemetry": [
+        {
+          "time": 1141.05765604,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1221040,
+            "swap_kib": 0,
+            "ticks": 776
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410512,
+            "swap_kib": 0,
+            "ticks": 3254
+          }
+        },
+        {
+          "time": 1141.258376484,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1159168,
+            "swap_kib": 0,
+            "ticks": 797
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3262
+          }
+        },
+        {
+          "time": 1141.45886804,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1159168,
+            "swap_kib": 0,
+            "ticks": 817
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3263
+          }
+        },
+        {
+          "time": 1141.659394299,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1159168,
+            "swap_kib": 0,
+            "ticks": 837
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3263
+          }
+        },
+        {
+          "time": 1141.859864984,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1159168,
+            "swap_kib": 0,
+            "ticks": 857
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3263
+          }
+        },
+        {
+          "time": 1142.060411299,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1159168,
+            "swap_kib": 0,
+            "ticks": 877
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3264
+          }
+        },
+        {
+          "time": 1142.260939595,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1159168,
+            "swap_kib": 0,
+            "ticks": 897
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3264
+          }
+        },
+        {
+          "time": 1142.461430539,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1159168,
+            "swap_kib": 0,
+            "ticks": 917
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3265
+          }
+        },
+        {
+          "time": 1142.661938206,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1159168,
+            "swap_kib": 0,
+            "ticks": 937
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3265
+          }
+        },
+        {
+          "time": 1142.86240715,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1159168,
+            "swap_kib": 0,
+            "ticks": 957
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3265
+          }
+        },
+        {
+          "time": 1143.062908483,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1159168,
+            "swap_kib": 0,
+            "ticks": 977
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3266
+          }
+        },
+        {
+          "time": 1143.263451353,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1178768,
+            "swap_kib": 0,
+            "ticks": 997
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3266
+          }
+        },
+        {
+          "time": 1143.463950613,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1178768,
+            "swap_kib": 0,
+            "ticks": 1017
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3268
+          }
+        },
+        {
+          "time": 1143.66446602,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1178768,
+            "swap_kib": 0,
+            "ticks": 1037
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3268
+          }
+        },
+        {
+          "time": 1143.864975853,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1178768,
+            "swap_kib": 0,
+            "ticks": 1057
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3269
+          }
+        },
+        {
+          "time": 1144.065479631,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1178768,
+            "swap_kib": 0,
+            "ticks": 1077
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3269
+          }
+        },
+        {
+          "time": 1144.265989834,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1178768,
+            "swap_kib": 0,
+            "ticks": 1097
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3269
+          }
+        },
+        {
+          "time": 1144.466521056,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1198496,
+            "swap_kib": 0,
+            "ticks": 1118
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3269
+          }
+        },
+        {
+          "time": 1144.667015371,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1198496,
+            "swap_kib": 0,
+            "ticks": 1138
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3270
+          }
+        },
+        {
+          "time": 1144.867499075,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1198496,
+            "swap_kib": 0,
+            "ticks": 1158
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3270
+          }
+        },
+        {
+          "time": 1145.068028278,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1198496,
+            "swap_kib": 0,
+            "ticks": 1178
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3271
+          }
+        },
+        {
+          "time": 1145.268558,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1218224,
+            "swap_kib": 0,
+            "ticks": 1198
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410640,
+            "swap_kib": 0,
+            "ticks": 3272
+          }
+        },
+        {
+          "time": 1145.469064519,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1221136,
+            "swap_kib": 0,
+            "ticks": 1218
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410672,
+            "swap_kib": 0,
+            "ticks": 3276
+          }
+        },
+        {
+          "time": 1145.669744296,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1221136,
+            "swap_kib": 0,
+            "ticks": 1238
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410688,
+            "swap_kib": 0,
+            "ticks": 3280
+          }
+        },
+        {
+          "time": 1145.870314278,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1221136,
+            "swap_kib": 0,
+            "ticks": 1258
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410736,
+            "swap_kib": 0,
+            "ticks": 3283
+          }
+        },
+        {
+          "time": 1146.070907741,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1221136,
+            "swap_kib": 0,
+            "ticks": 1278
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410736,
+            "swap_kib": 0,
+            "ticks": 3284
+          }
+        },
+        {
+          "time": 1146.271474574,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1221136,
+            "swap_kib": 0,
+            "ticks": 1298
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410736,
+            "swap_kib": 0,
+            "ticks": 3285
+          }
+        },
+        {
+          "time": 1146.472051407,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1221136,
+            "swap_kib": 0,
+            "ticks": 1318
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410736,
+            "swap_kib": 0,
+            "ticks": 3287
+          }
+        },
+        {
+          "time": 1146.672778814,
+          "llama": {
+            "pid": 7704,
+            "rss_kib": 1221136,
+            "swap_kib": 0,
+            "ticks": 1338
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 410752,
+            "swap_kib": 0,
+            "ticks": 3289
+          }
+        }
+      ],
+      "peakRssMiB": 1192.515625,
+      "peakSwapMiB": 0.0,
+      "llamaCpuPercentOneCore": 100.0868587597524,
+      "pinsCpuPercentOneCore": 6.233167360482801,
+      "outputTokensPerSecond": 10.627436782692298,
+      "promptTokens": 135
+    },
+    {
+      "model": "functiongemma-270m-q4",
+      "threads": 1,
+      "case": "short-units-en",
+      "repetition": 0,
+      "input": {
+        "id": "short-units-en",
+        "locale": "en",
+        "messages": [
+          {
+            "role": "user",
+            "content": "30 * 120 seconds in minutes? Answer only the number."
+          }
+        ]
+      },
+      "before": {
+        "available_kib": 2960624,
+        "system_swap_used_kib": 0,
+        "temperature_c": 72.7,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.1572265625,
+          0.2099609375,
+          0.13720703125
+        ]
+      },
+      "characters": 52,
+      "totalSeconds": 1.9815831280000111,
+      "firstContentSeconds": 1.5292499989998305,
+      "output": "I apologize, but I cannot assist with answering this question. My available tools are",
+      "metrics": [
+        {
+          "cache_n": 0,
+          "prompt_n": 130,
+          "prompt_ms": 1516.246,
+          "prompt_per_token_ms": 11.66343076923077,
+          "prompt_per_second": 85.7380662504633,
+          "predicted_n": 16,
+          "predicted_ms": 453.621,
+          "predicted_per_token_ms": 30.2414,
+          "predicted_per_second": 33.06725217747855
+        }
+      ],
+      "completed": true,
+      "error": null,
+      "after": {
+        "available_kib": 2960992,
+        "system_swap_used_kib": 0,
+        "temperature_c": 75.45,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.22509765625,
+          0.22314453125,
+          0.14208984375
+        ]
+      },
+      "telemetry": [
+        {
+          "time": 1189.229930011,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 513712,
+            "swap_kib": 0,
+            "ticks": 174
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 413184,
+            "swap_kib": 0,
+            "ticks": 3583
+          }
+        },
+        {
+          "time": 1189.430799326,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 514736,
+            "swap_kib": 0,
+            "ticks": 194
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 413232,
+            "swap_kib": 0,
+            "ticks": 3585
+          }
+        },
+        {
+          "time": 1189.631292937,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 514736,
+            "swap_kib": 0,
+            "ticks": 214
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 413232,
+            "swap_kib": 0,
+            "ticks": 3586
+          }
+        },
+        {
+          "time": 1189.83178677,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 514736,
+            "swap_kib": 0,
+            "ticks": 234
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 413232,
+            "swap_kib": 0,
+            "ticks": 3586
+          }
+        },
+        {
+          "time": 1190.032296622,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 515680,
+            "swap_kib": 0,
+            "ticks": 254
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 413232,
+            "swap_kib": 0,
+            "ticks": 3587
+          }
+        },
+        {
+          "time": 1190.232787548,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 515680,
+            "swap_kib": 0,
+            "ticks": 274
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 413232,
+            "swap_kib": 0,
+            "ticks": 3587
+          }
+        },
+        {
+          "time": 1190.433267677,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 515680,
+            "swap_kib": 0,
+            "ticks": 294
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 413232,
+            "swap_kib": 0,
+            "ticks": 3587
+          }
+        },
+        {
+          "time": 1190.633740455,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 517264,
+            "swap_kib": 0,
+            "ticks": 314
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 413232,
+            "swap_kib": 0,
+            "ticks": 3588
+          }
+        },
+        {
+          "time": 1190.834247381,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 522224,
+            "swap_kib": 0,
+            "ticks": 334
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 413232,
+            "swap_kib": 0,
+            "ticks": 3589
+          }
+        },
+        {
+          "time": 1191.03514788,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 522224,
+            "swap_kib": 0,
+            "ticks": 354
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 415760,
+            "swap_kib": 0,
+            "ticks": 3594
+          }
+        }
+      ],
+      "peakRssMiB": 509.984375,
+      "peakSwapMiB": 0.0,
+      "llamaCpuPercentOneCore": 99.71095627350068,
+      "pinsCpuPercentOneCore": 6.093447327825042,
+      "outputTokensPerSecond": 33.06725217747855,
+      "promptTokens": 130
+    },
+    {
+      "model": "functiongemma-270m-q4",
+      "threads": 1,
+      "case": "short-units-de",
+      "repetition": 0,
+      "input": {
+        "id": "short-units-de",
+        "locale": "de",
+        "messages": [
+          {
+            "role": "user",
+            "content": "20 * 180 Sekunden in Minuten? Antworte nur mit der Zahl."
+          }
+        ]
+      },
+      "before": {
+        "available_kib": 2970896,
+        "system_swap_used_kib": 0,
+        "temperature_c": 68.85,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.13525390625,
+          0.2001953125,
+          0.13623046875
+        ]
+      },
+      "characters": 56,
+      "totalSeconds": 1.4210633879999932,
+      "firstContentSeconds": null,
+      "output": "",
+      "metrics": [],
+      "completed": false,
+      "error": {
+        "status": 503,
+        "error": "The response ended prematurely. (ResponseEnded)"
+      },
+      "after": {
+        "available_kib": 3227776,
+        "system_swap_used_kib": 0,
+        "temperature_c": 72.15,
+        "throttled": "throttled=0xe0000",
+        "load": [
+          0.13525390625,
+          0.2001953125,
+          0.13623046875
+        ]
+      },
+      "telemetry": [
+        {
+          "time": 1221.214983288,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 522224,
+            "swap_kib": 0,
+            "ticks": 372
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 415856,
+            "swap_kib": 0,
+            "ticks": 3666
+          }
+        },
+        {
+          "time": 1221.415990381,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 522416,
+            "swap_kib": 0,
+            "ticks": 392
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 415856,
+            "swap_kib": 0,
+            "ticks": 3668
+          }
+        },
+        {
+          "time": 1221.616465751,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 522416,
+            "swap_kib": 0,
+            "ticks": 412
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 415856,
+            "swap_kib": 0,
+            "ticks": 3668
+          }
+        },
+        {
+          "time": 1221.816921158,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 522416,
+            "swap_kib": 0,
+            "ticks": 432
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 415856,
+            "swap_kib": 0,
+            "ticks": 3668
+          }
+        },
+        {
+          "time": 1222.017399788,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 522416,
+            "swap_kib": 0,
+            "ticks": 452
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 415856,
+            "swap_kib": 0,
+            "ticks": 3669
+          }
+        },
+        {
+          "time": 1222.217885788,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 522416,
+            "swap_kib": 0,
+            "ticks": 472
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 415856,
+            "swap_kib": 0,
+            "ticks": 3669
+          }
+        },
+        {
+          "time": 1222.418371565,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 522416,
+            "swap_kib": 0,
+            "ticks": 492
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 415856,
+            "swap_kib": 0,
+            "ticks": 3669
+          }
+        },
+        {
+          "time": 1222.618905862,
+          "llama": {
+            "pid": 7878,
+            "rss_kib": 522416,
+            "swap_kib": 0,
+            "ticks": 512
+          },
+          "pins": {
+            "pid": 6978,
+            "rss_kib": 415856,
+            "swap_kib": 0,
+            "ticks": 3670
+          }
+        }
+      ],
+      "runtimeDiagnostics": {
+        "lines": [
+          "warning: no usable GPU found, --gpu-layers option will be ignored",
+          "warning: one possible reason is that llama.cpp was compiled without GPU support",
+          "warning: consult docs/build.md for compilation instructions",
+          "0.00.003.009 W Setting 'enable_thinking' via --chat-template-kwargs is deprecated. Use --reasoning on / --reasoning off instead.",
+          "warning: no usable GPU found, --gpu-layers option will be ignored",
+          "warning: one possible reason is that llama.cpp was compiled without GPU support",
+          "warning: consult docs/build.md for compilation instructions",
+          "0.00.002.902 W Setting 'enable_thinking' via --chat-template-kwargs is deprecated. Use --reasoning on / --reasoning off instead.",
+          "warning: no usable GPU found, --gpu-layers option will be ignored",
+          "warning: one possible reason is that llama.cpp was compiled without GPU support",
+          "warning: consult docs/build.md for compilation instructions",
+          "0.00.002.831 W Setting 'enable_thinking' via --chat-template-kwargs is deprecated. Use --reasoning on / --reasoning off instead.",
+          "0.01.196.885 W load: control-looking token:    212 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden"
+        ]
+      },
+      "failureStatus": {
+        "state": "unloaded",
+        "enabled": true,
+        "modelId": "functiongemma-270m-q4",
+        "processId": null,
+        "error": null,
+        "memory": {
+          "availableMiB": 3152,
+          "residentMiB": 0,
+          "swapMiB": 0
+        },
+        "mcpAvailable": false,
+        "toolExecutionEnabled": false,
+        "capability": "informational-text-only",
+        "version": "0.1.0"
+      },
+      "peakRssMiB": 510.171875,
+      "peakSwapMiB": 0.0,
+      "llamaCpuPercentOneCore": 99.72059897941105,
+      "pinsCpuPercentOneCore": 2.849159970840316
+    }
+  ],
+  "casePauseSeconds": 30,
+  "baselinePinsCpuPercentOneCore": 1.599864687924309
+}

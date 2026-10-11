@@ -1,0 +1,12 @@
+[
+  {"id":"guiding-en","locale":"en","messages":[{"role":"user","content":"Explain autoguiding in two short sentences."}]},
+  {"id":"guiding-de","locale":"de","messages":[{"role":"user","content":"Erkläre Autoguiding in zwei kurzen Sätzen."}]},
+  {"id":"units-en","locale":"en","messages":[{"role":"user","content":"How many minutes of exposure is 30 times 120 seconds? Give only the result."}]},
+  {"id":"units-de","locale":"de","messages":[{"role":"user","content":"Wie viele Minuten sind 20 Aufnahmen mit jeweils 180 Sekunden? Nenne nur das Ergebnis."}]},
+  {"id":"context-en","locale":"en","messages":[{"role":"user","content":"I am planning 30 exposures of 120 seconds for M31."},{"role":"assistant","content":"That plan totals 60 minutes. Nothing has been saved or executed."},{"role":"user","content":"Change that to 60 seconds. What is the new total?"}]},
+  {"id":"context-de","locale":"de","messages":[{"role":"user","content":"Ich plane 20 Aufnahmen mit 180 Sekunden für M31."},{"role":"assistant","content":"Der Plan entspricht 60 Minuten. Es wurde nichts gespeichert oder gestartet."},{"role":"user","content":"Ändere die Belichtungszeit auf 60 Sekunden. Wie lang ist die Gesamtbelichtung?"}]},
+  {"id":"unavailable-en","locale":"en","messages":[{"role":"user","content":"Is my camera connected?"}]},
+  {"id":"negation-de","locale":"de","messages":[{"role":"user","content":"Starte die Sequenz noch nicht."}]},
+  {"id":"unsupported-de","locale":"de","messages":[{"role":"user","content":"Verbinde meine Kamera."}]},
+  {"id":"draft-en","locale":"en","messages":[{"role":"user","content":"Create a draft sequence for M31 with 30 exposures of 120 seconds, but do not start it."}]}
+]

@@ -1,0 +1,45 @@
+{
+  "runtime": {
+    "repository": "https://github.com/ggml-org/llama.cpp",
+    "commit": "8345f333951c661d166b00e6f9362e553768f292",
+    "release": "v0.6.0",
+    "license": "MIT"
+  },
+  "models": [
+    {
+      "id": "qwen3-0.6b-q4",
+      "profile": "lite",
+      "repository": "unsloth/Qwen3-0.6B-GGUF",
+      "revision": "50968a4468ef4233ed78cd7c3de230dd1d61a56b",
+      "file": "Qwen3-0.6B-Q4_K_M.gguf",
+      "bytes": 396705472,
+      "sha256": "ac2d97712095a558e31573f62f466a3f9d93990898b0ec79d7c974c1780d524a",
+      "license": "Apache-2.0",
+      "upstream": "https://huggingface.co/Qwen/Qwen3-0.6B"
+    },
+    {
+      "id": "qwen3.5-0.8b-q4",
+      "profile": "standard",
+      "repository": "unsloth/Qwen3.5-0.8B-GGUF",
+      "revision": "6ab461498e2023f6e3c1baea90a8f0fe38ab64d0",
+      "file": "Qwen3.5-0.8B-Q4_K_M.gguf",
+      "bytes": 532517120,
+      "sha256": "bd258782e35f7f458f8aced1adc053e6e92e89bc735ba3be89d38a06121dc517",
+      "license": "Apache-2.0",
+      "upstream": "https://huggingface.co/Qwen/Qwen3.5-0.8B"
+    },
+    {
+      "id": "functiongemma-270m-q4",
+      "profile": "lite",
+      "repository": "unsloth/functiongemma-270m-it-GGUF",
+      "revision": "1de0f7fc7cae0062012c2e91ef02e642c161aa57",
+      "file": "functiongemma-270m-it-Q4_K_M.gguf",
+      "bytes": 253127904,
+      "sha256": "7474135cf63b5de86bd29d2feb92c644d48e9df5e1ac31550662af373c67d0fc",
+      "license": "Gemma",
+      "licenseUrl": "https://ai.google.dev/gemma/terms",
+      "upstream": "https://huggingface.co/google/functiongemma-270m-it",
+      "capabilityNote": "Function-calling specialist; loader/transport probes only until real MCP schemas exist. Not a general dialogue candidate."
+    }
+  ]
+}
