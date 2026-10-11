@@ -1,0 +1,381 @@
+{
+  "sourceRevision": "d9b5dc6ba3874113589f58d88c20909cff599b45",
+  "verification": "compiled existing dispatcher tools/list; no live endpoint/hardware",
+  "added": [],
+  "removed": [],
+  "schemaChanges": [
+    "stop_guiding"
+  ],
+  "annotations": {
+    "get_status": {
+      "title": "Get observatory status",
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "get_recent_images": {
+      "title": "Get recent images",
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "get_sequence": {
+      "title": "Get advanced sequence",
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "list_saved_sequences": {
+      "title": "List saved sequences",
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "list_target_templates": {
+      "title": "List target templates",
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "get_job": {
+      "title": "Get background job",
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "list_jobs": {
+      "title": "List background jobs",
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "stop_all": {
+      "title": "Stop everything",
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "cancel_job": {
+      "title": "Cancel background job",
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "stop_sequence": {
+      "title": "Stop sequence",
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "stop_guiding": {
+      "title": "Stop guiding",
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "connect_device": {
+      "title": "Connect device",
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "disconnect_device": {
+      "title": "Disconnect device",
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "slew_mount": {
+      "title": "Slew mount",
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "park_mount": {
+      "title": "Park mount",
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "unpark_mount": {
+      "title": "Unpark mount",
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "home_mount": {
+      "title": "Find mount home",
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "set_tracking": {
+      "title": "Set mount tracking",
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "capture_image": {
+      "title": "Capture image",
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "cool_camera": {
+      "title": "Cool camera",
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "warm_camera": {
+      "title": "Warm camera",
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "move_focuser": {
+      "title": "Move focuser",
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "run_autofocus": {
+      "title": "Run autofocus",
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "change_filter": {
+      "title": "Change filter",
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "start_guiding": {
+      "title": "Start guiding",
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "set_switch": {
+      "title": "Set switch",
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "load_sequence": {
+      "title": "Load sequence",
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "add_target": {
+      "title": "Add target to sequence",
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "clear_targets": {
+      "title": "Clear sequence targets",
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "save_sequence": {
+      "title": "Save sequence",
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "start_sequence": {
+      "title": "Start sequence",
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    },
+    "reset_sequence": {
+      "title": "Reset sequence progress",
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  "originalHashes": {
+    "eval_gold.jsonl": "e27da77d5596c910ba1969fae944e0b41bd327d20d3fe2599c244730d1148c81",
+    "tool_catalog.json": "19e4543972fd7986cc86674ade89abdecd8a8f973976eb7d4cfcaf24a57dfc51",
+    "hard_gold.jsonl": "da6b7d19d9bdd6424e8c4ca21697e6e5b7e67b3d5ce66f479a99ad50fa2cc85c",
+    "validation.jsonl": "0d5116a63cfcea206e1105faa1e0288341d3eae85e59b0a18f1b1699fa87b280",
+    "train.jsonl": "b59bcfac4cc6758fbc3ab43094c3c23899230ff9b832ef85e561a50ddfa7f2ba",
+    "test.jsonl": "d0490afc3e9e9411173e351aefc62b82c869896940a583188164d1c6d9dd7fce"
+  },
+  "sourceHashes": {
+    "NINA.Mcp/Jobs/IJobManager.cs": "1acb12f992d199be2f1807855b6d631bcc8f99cfd100aff48978ad363bf59f41",
+    "NINA.Mcp/Jobs/JobManager.cs": "0dd343757a0dec0d36960af3e5dcfe5f78eceb3cda38690715e0e05afd1b8192",
+    "NINA.Mcp/McpServerOptions.cs": "81d53723cceaf54a6eddfbdcbc5ff799c2d0e7b5bc09e4f77b248ebca165c40e",
+    "NINA.Mcp/McpServiceCollectionExtensions.cs": "d3d1e3e14e6737818feb30b64c5dc4a4daaafefa6802a40b7878a237626e7e40",
+    "NINA.Mcp/Observatory/IPinsObservatory.cs": "15624fcf56bf8eee2892e3a21c12734e918fc3755e7c133c71e9f9a8e9240fe0",
+    "NINA.Mcp/Protocol/JsonRpc.cs": "b7beeff26ea7b58c3af9e66811173fe35575913025e801e44b8b5569c72dcef7",
+    "NINA.Mcp/Protocol/JsonRpcErrorCodes.cs": "19f757e076170f3d24c56201701cbcdf49b36d45eddbd004b17a9792ec551a43",
+    "NINA.Mcp/Protocol/McpDispatcher.cs": "5785cf35918a5ae844b63bf59f50dfb41c0c6874d737dc8343dc8daf6c76d14b",
+    "NINA.Mcp/Protocol/McpJson.cs": "a2ddd504682fc07a0f28dab0be1b299f2281eecdb8e52407e73af4836185f64e",
+    "NINA.Mcp/Protocol/McpProtocolVersions.cs": "adc8a63cf00d636d4e7c73f1699f99e876bcb4c7ae04085b57be096d152c5c10",
+    "NINA.Mcp/Tools/Catalog/CameraTools.cs": "9e879b1a8fb46ffea6dbf7f4dc21e429856b14b5854c51c61ae93ecf1693e5e0",
+    "NINA.Mcp/Tools/Catalog/ConnectionTools.cs": "ab7c9a7bb99c93ef2fb42d8ac8d4dc5d23a746bb1598e7007099e6b3a946450b",
+    "NINA.Mcp/Tools/Catalog/FocusTools.cs": "d7676a0fb25ce3a5225e77344a249d5c21af86f8f754c8216d72c21daf519566",
+    "NINA.Mcp/Tools/Catalog/GuiderTools.cs": "a1b22c1ab7dd32a97440a201f0a579d745d082afdde12b658309e92c7e614527",
+    "NINA.Mcp/Tools/Catalog/JobTools.cs": "4bb34d95031ffd4873c67c16a17b1e92f89e4f7162036d0a2b009baa3dbf60a9",
+    "NINA.Mcp/Tools/Catalog/MountTools.cs": "5a04c2273080a8f0f7ab849c25adec4784308a38d9d93a4a684c9eefbb7803f1",
+    "NINA.Mcp/Tools/Catalog/SequenceTools.cs": "2571e8a895628140f3e95389de96f31131890587cda347cddb04d7436879c3ff",
+    "NINA.Mcp/Tools/Catalog/StatusTools.cs": "b34aa87cd3757e1bf505ab89e9f1963c24268e1a8c27d82340bea61f0b745202",
+    "NINA.Mcp/Tools/Catalog/StopTools.cs": "2f5646e95270729258746354739c7a920b4a85a01c1abd2e74db92d29ed7dba0",
+    "NINA.Mcp/Tools/CoordinateParser.cs": "f06e5f93f171f9cc08eca4f9e305f814682311b5e78b59ba1d8a5687ca411e06",
+    "NINA.Mcp/Tools/DeviceKinds.cs": "0b290c04d8c2be7e07f58e2def5573abb9c68fdef106b98adb5674e7379b8c99",
+    "NINA.Mcp/Tools/JobPayload.cs": "1ed425bcdc1b9beed4f999ba21e37ba1f3236c8b473f386fe552f51668f4ae77",
+    "NINA.Mcp/Tools/McpServerInstructions.cs": "04d5f3110f08da8209ffd432e1d64a801600eab24aa2394ae7d46f9e1b436b40",
+    "NINA.Mcp/Tools/McpTool.cs": "f46ae3694c9eef2a4b9f28f6ed3e938dbc4a62e0325d65a0f835c75fbe6a6f43",
+    "NINA.Mcp/Tools/ObservatoryTool.cs": "b1aa9750dbf2ed4173295e6c22d1d26ec7f280a43500ee5ccfacce8f8d77ee01",
+    "NINA.Mcp/Tools/PinsInstructions.cs": "731b85f615a6a1134a2395dc13fc8dd8700eb4a0ece2d868c34c4daee959889c",
+    "NINA.Mcp/Tools/ToolArguments.cs": "f4ddc9c6c799ca0323df6b8f3294ffbe9dc54a81ef46b46e8e5d8ac0f3790cee",
+    "NINA.Mcp/Tools/ToolCallResult.cs": "191f681f7c6f5803e597a1ecb03cd867d772db72d57e98335b1d81dcc6b7c894",
+    "NINA.Mcp/Tools/ToolSchema.cs": "56171d5836d6e538237b6f2099a0ecd236e71b689bfb1a181f5d76274f310164",
+    "NINA.Mcp/Tools/ToolServiceCollectionExtensions.cs": "226d662bb4a4300e3451fb4c181286a6f39cd08d5e3aaa6ccc2f0be3a92f8d2e",
+    "NINA.Mcp/Transport/McpBearerToken.cs": "b8afb95321e64cf50f3300186dab16d2bc9a5ab99d9f981e8c843bd4614f3acc",
+    "NINA.Mcp/Transport/McpHttpEndpoint.cs": "d3ee0363de705cc3e1692c90bf2ac649d88ad2605b0f73969fbf2c1fb06394b5",
+    "NINA.Mcp/Transport/McpOriginValidator.cs": "0b01ea7d0545db34e0aeb473c2b5d1ddfd509093e81cbebf1f677b9b7f95f4a4",
+    "NINA.Mcp/Transport/McpSessionStore.cs": "3b3977cbc6347c630ddab87862b86dfa30f369b1635064ba69370de56596ceab",
+    "NINA.Mcp.Adapter/McpAdapterServiceCollectionExtensions.cs": "7a68de9bb4dd4f3d1373fcfd7537783d0f21284bd8cb96683b55e15c52a3c023",
+    "NINA.Mcp.Adapter/NinaObservatory.cs": "96db1a22a2f729f805902e59450214ef69df6ca8c2fb30e0424aa3be4b53519f",
+    "NINA.Mcp.Adapter/NinaObservatory.Equipment.cs": "7cde7c2fc12e436607e7065ae6b4503f81d2583006fac345a8e6ae70c30ecba3",
+    "NINA.Mcp.Adapter/NinaObservatory.Status.cs": "d7d9c55f97e8ec6fb17da2e3bb139729877e3183ac0c01a7bbd360045f30752d",
+    "NINA.Mcp.Adapter/Sequence/NinaSequenceService.cs": "21db36d9d64c4ad9e7a2fd6ccc37ffbed8be4f98dafdf48f72ec5256f5f4fe98",
+    "NINA.Mcp.Adapter/Sequence/NinaSequenceService.Editing.cs": "9d0579c2c47614ffaf1b494cb9201ae4e0e6114d4135bb8896f3180243b5508a",
+    "NINA.Mcp.Adapter/Sequence/NinaSequenceService.Plan.cs": "3c9fd06fa45f63cf75356d653f9ee323bf836097de40c054a55c338f7e0dec4b",
+    "NINA.Mcp.Adapter/Sequence/NinaSequenceService.Snapshot.cs": "14eea233f2d6f40f75b428195597940e906ee0d80c8efa1e9df8db5b7a6a8658"
+  },
+  "runtimeResults": {
+    "envelope": "content + optional structuredContent + isError",
+    "job": "running/succeeded/failed/cancelled plus outcome.success; isError:false is insufficient"
+  },
+  "liveCompatibilityVerified": false,
+  "hostWiring": "NinaObservatory registered and /mcp mapped in Program.cs; deployed compatibility unverified",
+  "adapterContract": {
+    "sourceRevision": "d9b5dc6ba3874113589f58d88c20909cff599b45",
+    "verification": "source inspection; no live endpoint or equipment",
+    "ditherEveryMaximum": 32,
+    "reservedSequenceSuffix": ".template",
+    "switchStepTolerance": 1e-06,
+    "switchIndex": "index in WritableSwitches; read-only switches have no writable index",
+    "sequenceStart": "returns when running, ended immediately, or still preparing; does not wait for imaging completion",
+    "sequenceStop": "requests cancellation including a preparing start; confirm actual status",
+    "captureSave": "save=true queues image saving; result FilePath may be null; file durability is not confirmed",
+    "status": "all eleven device slots; disconnected name null; readings may be null",
+    "hostWiring": "NinaObservatory registered and /mcp mapped in Program.cs; deployed compatibility unverified",
+    "sourceHashes": {
+      "NINA.Mcp.Adapter/Sequence/NinaSequenceService.Plan.cs": "3c9fd06fa45f63cf75356d653f9ee323bf836097de40c054a55c338f7e0dec4b",
+      "NINA.Mcp.Adapter/Sequence/NinaSequenceService.Editing.cs": "9d0579c2c47614ffaf1b494cb9201ae4e0e6114d4135bb8896f3180243b5508a",
+      "NINA.Mcp.Adapter/NinaObservatory.Equipment.cs": "7cde7c2fc12e436607e7065ae6b4503f81d2583006fac345a8e6ae70c30ecba3",
+      "NINA.Mcp.Adapter/NinaObservatory.Status.cs": "d7d9c55f97e8ec6fb17da2e3bb139729877e3183ac0c01a7bbd360045f30752d",
+      "NINA.Mcp.Adapter/Sequence/NinaSequenceService.cs": "21db36d9d64c4ad9e7a2fd6ccc37ffbed8be4f98dafdf48f72ec5256f5f4fe98",
+      "NINA.Mcp.Adapter/McpAdapterServiceCollectionExtensions.cs": "7a68de9bb4dd4f3d1373fcfd7537783d0f21284bd8cb96683b55e15c52a3c023",
+      "NINA/Program.cs": "84a709b0f4ea381ff8b6919bc49c9906d1ace3058f63dd105cbb797a13e1d981"
+    }
+  },
+  "previousAuditRevision": "14b50c4e09ef3904f5c8db5a29f05eb266e863a5",
+  "historyArchive": "artifacts/v2/contract-history/14b50c4e09ef3904f5c8db5a29f05eb266e863a5",
+  "changesSincePreviousAudit": {
+    "added": [],
+    "removed": [],
+    "schemaChanges": [],
+    "annotationChanges": [],
+    "toolsListChanged": false
+  },
+  "repairs": {
+    "stopGuidingJobPayload": [
+      "core-stop_guiding-de-1",
+      "core-stop_guiding-fr-0",
+      "core-stop_guiding-pl-0",
+      "core-stop_guiding-en-1",
+      "core-stop_guiding-es-1",
+      "core-stop_guiding-pt-0",
+      "core-stop_guiding-zh-0",
+      "core-stop_guiding-it-1",
+      "core-stop_guiding-it-0",
+      "core-stop_guiding-zh-1",
+      "core-stop_guiding-de-0",
+      "core-stop_guiding-nl-0",
+      "core-stop_guiding-ja-0",
+      "core-stop_guiding-fr-1",
+      "core-stop_guiding-ja-1",
+      "core-stop_guiding-en-0",
+      "core-stop_guiding-pt-1",
+      "core-stop_guiding-nl-1",
+      "core-stop_guiding-es-0",
+      "core-stop_guiding-de-2",
+      "core-stop_guiding-pl-2",
+      "core-stop_guiding-ja-2",
+      "core-stop_guiding-pt-2",
+      "core-stop_guiding-fr-2",
+      "core-stop_guiding-en-2",
+      "core-stop_guiding-nl-2",
+      "core-stop_guiding-zh-2",
+      "core-stop_guiding-it-2",
+      "core-stop_guiding-es-2",
+      "core-stop_guiding-es-3",
+      "core-stop_guiding-zh-3",
+      "core-stop_guiding-fr-3",
+      "core-stop_guiding-nl-3",
+      "core-stop_guiding-pl-3",
+      "core-stop_guiding-en-3",
+      "core-stop_guiding-pt-3",
+      "core-stop_guiding-de-3",
+      "core-stop_guiding-it-3",
+      "core-stop_guiding-ja-3"
+    ],
+    "schemas": "all declarations replaced with source-generated schemas",
+    "approval": "all modifying tool fixtures have explicit simulated out-of-band approval",
+    "adapterFeedback": {
+      "allStatusDeviceSlots": 164,
+      "stop_sequenceCompletionSemantics": 38,
+      "start_sequenceCompletionSemantics": 39
+    }
+  },
+  "auditedHashes": {
+    "test.jsonl": "60d3ea4ec01b2d65c737cd3aad5ef227552a2725a2c317bba4211648430c14e3",
+    "train.jsonl": "7e11d685cb6a9bc18fb3fb4697620c3452b98fff13c277a76dbc0bac0e8e6492",
+    "validation.jsonl": "7ee9042ba82f5548a0953ec68c0fc2edc02274ad9f39ced9aa50d2cce6a7a207"
+  },
+  "verifiedToolsSha256": "5a45195e9bffacb992000b5dcf9ead4fc82e68d755785fd1efe8c4540a926e1e",
+  "adapterContractSha256": "17a9d7f934617ce0f9d7ac91b0765df0f3e3920421b830d5ed85cc80b5d40a08"
+}

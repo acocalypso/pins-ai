@@ -13,7 +13,11 @@ See [architecture](docs/architecture.md), [API](docs/api.md),
 **Working baseline: Qwen3 0.6B**, selected for off-device specialization. The
 [LoRA/QLoRA pipeline](docs/specialization.md) prepares grouped EN/DE data, trains
 completion-only adapters, exports Q4_K_M GGUF and gates before/after selection.
-The pipeline is implemented; no specialized PINS checkpoint has been trained yet.
+The v1 adapter has been trained; no tuned GGUF is deployed. The [v2 MCP pipeline](docs/v2.md)
+adds source-audited schemas, assistant-only tool supervision and a simulated,
+deterministic gateway. Its local experiment is stopped; live MCP chat remains disabled.
+The [Colab workflow](docs/colab.md) provides a GPU notebook with a fresh smoke test,
+training loss and validation loss monitoring, and persistent Google Drive outputs.
 
 The plugin and resource/lifecycle checks are complete. Initial Qwen3 measurements
 reached about 25 output tokens/s with two threads, but failed basic arithmetic
@@ -34,7 +38,7 @@ reboots that limited benchmarking.
 - `scripts/benchmark.py`: actual plugin-stream measurements and host telemetry.
 - `tests`: offline contract checks and Linux inference-fixture lifecycle tests.
 - `src/Pins.AI.Harness`: optional development-only host, never an installed service.
-- `training`: workstation-only data preparation, LoRA/QLoRA, export and evaluation.
+- `training`: off-device data preparation, LoRA/QLoRA, export and evaluation.
 
 ## Build against the actual PINS host
 
@@ -204,9 +208,11 @@ systemd unit, hardware configuration or system package is modified by this proje
 
 ## Deferred
 
-Actual MCP discovery/schema/auth integration, tool accuracy, authorization and
-confirmations, UI, Pi 4 validation, active imaging/guiding performance, and
-the full GPU training run and tuned-model selection. The development pipeline is
-implemented; actual tool supervision awaits real MCP schemas. None is replaced
+Live MCP compatibility and authenticated plugin chat/gateway binding, tool
+accuracy, UI, Pi 4 validation, active imaging/guiding performance, and
+the completed v2 comparison and tuned-model selection. The development pipeline is
+implemented; source-verified schemas and the simulated gateway are covered in
+[the v2 evidence](docs/v2.md). The updated server source has host wiring; deployed
+compatibility and authenticated plugin binding remain unverified. None is replaced
 by invented APIs, mock hardware claims or a new MCP
 implementation. See the benchmark report for the measured model limitations.

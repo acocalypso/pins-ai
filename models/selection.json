@@ -2,6 +2,6 @@
   "workingBaseline": "qwen3-0.6b-q4",
   "reason": "User selected Qwen3 0.6B as the current baseline for specialization",
   "productionReady": false,
-  "specializationStatus": "pipeline prepared; model not yet trained",
+  "specializationStatus": "v1 adapter trained; v2 candidate verification pending; no tuned GGUF promoted",
   "mcpAvailable": false
 }

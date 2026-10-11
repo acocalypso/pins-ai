@@ -1,0 +1,60 @@
+"""Offline checks for Drive data provenance and Git/Drive separation."""
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+import unittest
+import zipfile
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'training'))
+from colab_workspace import use_drive_data
+
+
+class DriveDataTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.project = Path(self.temp.name) / 'project'
+        self.drive = Path(self.temp.name) / 'drive'
+        self.project.mkdir()
+        self.drive.mkdir()
+        self.data = self.project / 'PINS_MCP_AI_Training_v2/data'
+        self.data.mkdir(parents=True)
+        for name in ('manifest.json', 'contract-audit.json', 'train.jsonl'):
+            (self.data / name).write_text('{}\n', encoding='utf-8')
+        subprocess.run(['git', 'init', '--quiet', str(self.project)], check=True)
+        subprocess.run(['git', 'add', '.'], cwd=self.project, check=True, capture_output=True)
+
+    def make_bundle(self, mismatch=False):
+        with zipfile.ZipFile(self.drive / 'pins-ai-training-0.1.0.zip', 'w') as archive:
+            for path in self.data.iterdir():
+                content = b'changed' if mismatch and path.name == 'train.jsonl' else path.read_bytes()
+                archive.writestr(path.relative_to(self.project).as_posix(), content)
+            archive.writestr('training/train.py', 'untrusted code must not be imported')
+
+    def test_zip_uses_only_matching_data(self):
+        self.make_bundle()
+        result = use_drive_data(self.project, self.drive)
+        self.assertEqual(result['verifiedFiles'], 3)
+        self.assertEqual(result['kind'], 'zip')
+        self.assertFalse((self.project / 'training/train.py').exists())
+
+    def test_mismatch_preserves_checkout(self):
+        self.make_bundle(mismatch=True)
+        before = {p.name: p.read_bytes() for p in self.data.iterdir()}
+        with self.assertRaisesRegex(ValueError, 'Drive data differs'):
+            use_drive_data(self.project, self.drive)
+        self.assertEqual(before, {p.name: p.read_bytes() for p in self.data.iterdir()})
+
+    def test_directory_and_missing_data(self):
+        with self.assertRaises(FileNotFoundError):
+            use_drive_data(self.project, self.drive)
+        folder = self.drive / 'data'
+        folder.mkdir()
+        for path in self.data.iterdir():
+            (folder / path.name).write_bytes(path.read_bytes())
+        self.assertEqual(use_drive_data(self.project, self.drive)['kind'], 'directory')
+
+
+if __name__ == '__main__':
+    unittest.main()

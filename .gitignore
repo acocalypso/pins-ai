@@ -13,3 +13,4 @@ artifacts/
 *.pth
 *.ckpt
 training/runs/
+PINS_MCP_AI_Training_v2/data/sft_*.jsonl

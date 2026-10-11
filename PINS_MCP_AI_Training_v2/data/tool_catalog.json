@@ -1,0 +1,1223 @@
+{
+  "commit": "14b50c4e09ef3904f5c8db5a29f05eb266e863a5",
+  "status": "WIP commit snapshot; MUST RECONCILE against live tools/list before use",
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_status",
+        "description": "Read real-time device connection and properties, current sequence and running jobs.",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      },
+      "title": "Get observatory status",
+      "safety": {
+        "kind": "query",
+        "guard": "none",
+        "requiresGatewayApproval": false,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/StatusTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "get_recent_images",
+        "description": "Read recent captured images and HFR/star statistics.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "description": "1-50 newest image records",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "title": "Get recent images",
+      "safety": {
+        "kind": "query",
+        "guard": "none",
+        "requiresGatewayApproval": false,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/StatusTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "get_sequence",
+        "description": "Read the sequence tree and whether it is running.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "max_depth": {
+              "type": "integer",
+              "description": "Sequence tree depth, 1-10",
+              "default": 4,
+              "minimum": 1,
+              "maximum": 10
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "title": "Get advanced sequence",
+      "safety": {
+        "kind": "query",
+        "guard": "none",
+        "requiresGatewayApproval": false,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/SequenceTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "list_saved_sequences",
+        "description": "List saved sequence names in profile folder.",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      },
+      "title": "List saved sequences",
+      "safety": {
+        "kind": "query",
+        "guard": "none",
+        "requiresGatewayApproval": false,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/SequenceTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "list_target_templates",
+        "description": "List available saved target templates for add_target.",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      },
+      "title": "List target templates",
+      "safety": {
+        "kind": "query",
+        "guard": "none",
+        "requiresGatewayApproval": false,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/SequenceTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "get_job",
+        "description": "Read and optionally wait for a job, including success or failure.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "job_id": {
+              "type": "string",
+              "description": "Job id, e.g. job-7f3a2c",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "wait_seconds": {
+              "type": "number",
+              "description": "Wait 0-120 seconds, default 0",
+              "default": 0,
+              "minimum": 0,
+              "maximum": 120
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "job_id"
+          ]
+        }
+      },
+      "title": "Get background job",
+      "safety": {
+        "kind": "query",
+        "guard": "none",
+        "requiresGatewayApproval": false,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/JobTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "list_jobs",
+        "description": "Read all running and recent background jobs.",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      },
+      "title": "List background jobs",
+      "safety": {
+        "kind": "query",
+        "guard": "none",
+        "requiresGatewayApproval": false,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/JobTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "stop_all",
+        "description": "Request sequence stop, cancel jobs, abort exposure, stop slew and focuser; then verify.",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      },
+      "title": "Emergency stop",
+      "safety": {
+        "kind": "stop",
+        "guard": "none",
+        "requiresGatewayApproval": false,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/StopTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "cancel_job",
+        "description": "Request cancellation for one job.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "job_id": {
+              "type": "string",
+              "description": "Job id",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "wait_seconds": {
+              "type": "number",
+              "description": "Wait 0-120 seconds, default 10",
+              "default": 10,
+              "minimum": 0,
+              "maximum": 120
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "job_id"
+          ]
+        }
+      },
+      "title": "Cancel background job",
+      "safety": {
+        "kind": "stop",
+        "guard": "none",
+        "requiresGatewayApproval": false,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/JobTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "stop_sequence",
+        "description": "Request cancellation of active advanced sequence; does not park or warm camera.",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      },
+      "title": "Stop sequence",
+      "safety": {
+        "kind": "stop",
+        "guard": "none",
+        "requiresGatewayApproval": false,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/SequenceTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "stop_guiding",
+        "description": "Stop guider while mount tracking remains on.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "title": "Stop guiding",
+      "safety": {
+        "kind": "stop",
+        "guard": "forceable",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/GuiderTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "connect_device",
+        "description": "Connect equipment slot selected in active PINS profile.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "device": {
+              "type": "string",
+              "description": "Device slot",
+              "enum": [
+                "camera",
+                "mount",
+                "focuser",
+                "filter_wheel",
+                "guider",
+                "rotator",
+                "flat_device",
+                "dome",
+                "switch",
+                "weather",
+                "safety_monitor"
+              ]
+            },
+            "wait_seconds": {
+              "type": "number",
+              "description": "Seconds to wait, 0-120; if still running poll get_job.",
+              "default": 30,
+              "minimum": 0,
+              "maximum": 120
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "device"
+          ]
+        }
+      },
+      "title": "Connect device",
+      "safety": {
+        "kind": "hardware",
+        "guard": "forceable",
+        "requiresGatewayApproval": false,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/ConnectionTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "disconnect_device",
+        "description": "Disconnect one device; ensure camera warmed and mount parked when appropriate.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "device": {
+              "type": "string",
+              "description": "Device slot",
+              "enum": [
+                "camera",
+                "mount",
+                "focuser",
+                "filter_wheel",
+                "guider",
+                "rotator",
+                "flat_device",
+                "dome",
+                "switch",
+                "weather",
+                "safety_monitor"
+              ]
+            },
+            "wait_seconds": {
+              "type": "number",
+              "description": "Seconds to wait, 0-120; if still running poll get_job.",
+              "default": 30,
+              "minimum": 0,
+              "maximum": 120
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "device"
+          ]
+        }
+      },
+      "title": "Disconnect device",
+      "safety": {
+        "kind": "hardware",
+        "guard": "forceable",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/ConnectionTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "slew_mount",
+        "description": "Move mount to known J2000 coordinates; RA hours and Dec degrees.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "ra": {
+              "type": [
+                "number",
+                "string"
+              ],
+              "description": "J2000 right ascension in HOURS (0 <= ra < 24); number or sexagesimal string, NOT degrees.",
+              "minimum": 0,
+              "exclusiveMaximum": 24
+            },
+            "dec": {
+              "type": [
+                "number",
+                "string"
+              ],
+              "description": "J2000 declination in DEGREES (-90..90); number or sexagesimal string.",
+              "minimum": -90,
+              "maximum": 90
+            },
+            "wait_seconds": {
+              "type": "number",
+              "description": "Seconds to wait, 0-120; if still running poll get_job.",
+              "default": 30,
+              "minimum": 0,
+              "maximum": 120
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "ra",
+            "dec"
+          ]
+        }
+      },
+      "title": "Slew mount",
+      "safety": {
+        "kind": "hardware",
+        "guard": "forceable",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/MountTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "park_mount",
+        "description": "Park mount and stop tracking.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "wait_seconds": {
+              "type": "number",
+              "description": "Seconds to wait, 0-120; if still running poll get_job.",
+              "default": 30,
+              "minimum": 0,
+              "maximum": 120
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "title": "Park mount",
+      "safety": {
+        "kind": "hardware",
+        "guard": "forceable",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/MountTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "unpark_mount",
+        "description": "Unpark mount so slewing/tracking can start.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "wait_seconds": {
+              "type": "number",
+              "description": "Seconds to wait, 0-120; if still running poll get_job.",
+              "default": 30,
+              "minimum": 0,
+              "maximum": 120
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "title": "Unpark mount",
+      "safety": {
+        "kind": "hardware",
+        "guard": "forceable",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/MountTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "home_mount",
+        "description": "Find the physical home position using mount driver.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "wait_seconds": {
+              "type": "number",
+              "description": "Seconds to wait, 0-120; if still running poll get_job.",
+              "default": 30,
+              "minimum": 0,
+              "maximum": 120
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "title": "Home mount",
+      "safety": {
+        "kind": "hardware",
+        "guard": "forceable",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/MountTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "set_tracking",
+        "description": "Set sidereal tracking on or off.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "True to enable sidereal tracking, false to disable"
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "enabled"
+          ]
+        }
+      },
+      "title": "Set mount tracking",
+      "safety": {
+        "kind": "hardware",
+        "guard": "forceable",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/MountTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "capture_image",
+        "description": "Take one test exposure; save=false means analyzed but not saved.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "exposure_seconds": {
+              "type": "number",
+              "description": "Exposure seconds, 0.0001-3600",
+              "minimum": 0.0001,
+              "maximum": 3600
+            },
+            "filter": {
+              "type": "string",
+              "description": "Configured filter name",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "gain": {
+              "type": "integer",
+              "description": "Camera driver gain",
+              "minimum": 0,
+              "maximum": 100000
+            },
+            "offset": {
+              "type": "integer",
+              "description": "Camera driver offset",
+              "minimum": 0,
+              "maximum": 100000
+            },
+            "binning": {
+              "type": "integer",
+              "description": "Symmetric binning 1-4",
+              "minimum": 1,
+              "maximum": 4
+            },
+            "save": {
+              "type": "boolean",
+              "description": "Save frame, default false",
+              "default": false
+            },
+            "wait_seconds": {
+              "type": "number",
+              "description": "Seconds to wait, 0-120; if still running poll get_job.",
+              "default": 30,
+              "minimum": 0,
+              "maximum": 120
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "exposure_seconds"
+          ]
+        }
+      },
+      "title": "Capture single image",
+      "safety": {
+        "kind": "hardware",
+        "guard": "forceable",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/CameraTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "cool_camera",
+        "description": "Ramp camera cooler to requested sensor temperature.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "target_celsius": {
+              "type": "number",
+              "description": "Target sensor temperature °C",
+              "minimum": -50,
+              "maximum": 30
+            },
+            "duration_minutes": {
+              "type": "number",
+              "description": "Ramp time minutes 0-60",
+              "default": 10,
+              "minimum": 0,
+              "maximum": 60
+            },
+            "wait_seconds": {
+              "type": "number",
+              "description": "Seconds to wait, 0-120; if still running poll get_job.",
+              "default": 30,
+              "minimum": 0,
+              "maximum": 120
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "target_celsius"
+          ]
+        }
+      },
+      "title": "Cool camera",
+      "safety": {
+        "kind": "hardware",
+        "guard": "forceable",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/CameraTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "warm_camera",
+        "description": "Ramp sensor to ambient before disconnect.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "duration_minutes": {
+              "type": "number",
+              "description": "Ramp time minutes 0-60",
+              "default": 10,
+              "minimum": 0,
+              "maximum": 60
+            },
+            "wait_seconds": {
+              "type": "number",
+              "description": "Seconds to wait, 0-120; if still running poll get_job.",
+              "default": 30,
+              "minimum": 0,
+              "maximum": 120
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "title": "Warm camera",
+      "safety": {
+        "kind": "hardware",
+        "guard": "forceable",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/CameraTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "move_focuser",
+        "description": "Move to absolute focuser position in steps.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "position": {
+              "type": "integer",
+              "description": "Absolute focuser steps >= 0",
+              "minimum": 0
+            },
+            "wait_seconds": {
+              "type": "number",
+              "description": "Seconds to wait, 0-120; if still running poll get_job.",
+              "default": 30,
+              "minimum": 0,
+              "maximum": 120
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "position"
+          ]
+        }
+      },
+      "title": "Move focuser",
+      "safety": {
+        "kind": "hardware",
+        "guard": "forceable",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/FocusTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "run_autofocus",
+        "description": "Run configured NINA autofocus routine; wait for job completion.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "wait_seconds": {
+              "type": "number",
+              "description": "Seconds to wait, 0-120; if still running poll get_job.",
+              "default": 30,
+              "minimum": 0,
+              "maximum": 120
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "title": "Run autofocus",
+      "safety": {
+        "kind": "hardware",
+        "guard": "forceable",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/FocusTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "change_filter",
+        "description": "Move filter wheel by either configured name OR zero-based position.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Filter name",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "position": {
+              "type": "integer",
+              "description": "Zero-based filter slot 0-100",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "wait_seconds": {
+              "type": "number",
+              "description": "Seconds to wait, 0-120; if still running poll get_job.",
+              "default": 30,
+              "minimum": 0,
+              "maximum": 120
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "title": "Change filter",
+      "safety": {
+        "kind": "hardware",
+        "guard": "forceable",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/FocusTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "start_guiding",
+        "description": "Start guiding; set force_calibration only if requested.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "force_calibration": {
+              "type": "boolean",
+              "description": "True forces a fresh calibration",
+              "default": false
+            },
+            "wait_seconds": {
+              "type": "number",
+              "description": "Seconds to wait, 0-120; if still running poll get_job.",
+              "default": 30,
+              "minimum": 0,
+              "maximum": 120
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "title": "Start guiding",
+      "safety": {
+        "kind": "hardware",
+        "guard": "forceable",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/GuiderTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "set_switch",
+        "description": "Set connected power or heater switch to value within device-provided range.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "index": {
+              "type": "integer",
+              "description": "Zero-based switch index",
+              "minimum": 0,
+              "maximum": 1000
+            },
+            "value": {
+              "type": "number",
+              "description": "Switch value: consult actual device range"
+            },
+            "wait_seconds": {
+              "type": "number",
+              "description": "Seconds to wait, 0-120; if still running poll get_job.",
+              "default": 30,
+              "minimum": 0,
+              "maximum": 120
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "index",
+            "value"
+          ]
+        }
+      },
+      "title": "Set switch",
+      "safety": {
+        "kind": "hardware",
+        "guard": "forceable",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/GuiderTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "load_sequence",
+        "description": "Load saved sequence (replaces current unsaved edits); does not start.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Saved sequence name",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "name"
+          ]
+        }
+      },
+      "title": "Load sequence",
+      "safety": {
+        "kind": "change",
+        "guard": "strict",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/SequenceTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "add_target",
+        "description": "Add target to current advanced sequence (no movement). Requires NAME and known J2000 RA/Dec; choose exactly one template or exposures. Never guess coordinates.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Target name",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "ra": {
+              "type": [
+                "number",
+                "string"
+              ],
+              "description": "J2000 right ascension in HOURS (0 <= ra < 24); number or sexagesimal string, NOT degrees.",
+              "minimum": 0,
+              "exclusiveMaximum": 24
+            },
+            "dec": {
+              "type": [
+                "number",
+                "string"
+              ],
+              "description": "J2000 declination in DEGREES (-90..90); number or sexagesimal string.",
+              "minimum": -90,
+              "maximum": 90
+            },
+            "rotation_degrees": {
+              "type": "number",
+              "description": "Sky position angle degrees 0<=x<360",
+              "exclusiveMaximum": 360,
+              "minimum": 0
+            },
+            "template": {
+              "type": "string",
+              "description": "Saved target template name",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "exposures": {
+              "type": "array",
+              "description": "Exposure plan, 1-20 blocks",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "exposure_seconds": {
+                    "type": "number",
+                    "description": "Exposure length seconds",
+                    "minimum": 0.0001,
+                    "maximum": 3600
+                  },
+                  "count": {
+                    "type": "integer",
+                    "description": "Number of exposures 1-1000",
+                    "minimum": 1,
+                    "maximum": 1000
+                  },
+                  "filter": {
+                    "type": "string",
+                    "description": "Configured filter name",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "gain": {
+                    "type": "integer",
+                    "description": "Gain",
+                    "minimum": 0,
+                    "maximum": 100000
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "description": "Offset",
+                    "minimum": 0,
+                    "maximum": 100000
+                  },
+                  "binning": {
+                    "type": "integer",
+                    "description": "Binning 1-4",
+                    "minimum": 1,
+                    "maximum": 4
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "exposure_seconds",
+                  "count"
+                ]
+              },
+              "minItems": 1,
+              "maxItems": 20
+            },
+            "slew_and_center": {
+              "type": "boolean",
+              "description": "Default true",
+              "default": true
+            },
+            "start_guiding": {
+              "type": "boolean",
+              "description": "Default true",
+              "default": true
+            },
+            "autofocus_at_start": {
+              "type": "boolean",
+              "description": "Default false",
+              "default": false
+            },
+            "dither_every": {
+              "type": "integer",
+              "description": "Dither every N frames; 0=never",
+              "default": 0,
+              "minimum": 0,
+              "maximum": 100
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "ra",
+            "dec"
+          ]
+        }
+      },
+      "title": "Add target",
+      "safety": {
+        "kind": "change",
+        "guard": "forceable",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/SequenceTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "clear_targets",
+        "description": "Remove all targets from sequence; unsaved work is lost.",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      },
+      "title": "Clear targets",
+      "safety": {
+        "kind": "change",
+        "guard": "strict",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/SequenceTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "save_sequence",
+        "description": "Save current advanced sequence to profile folder.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "File name without .json, max 100 chars",
+              "minLength": 1,
+              "maxLength": 105
+            },
+            "overwrite": {
+              "type": "boolean",
+              "description": "True replaces an existing saved sequence",
+              "default": false
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Override active-sequence guard only when user explicitly authorizes it.",
+              "default": false
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "name"
+          ]
+        }
+      },
+      "title": "Save sequence",
+      "safety": {
+        "kind": "change",
+        "guard": "forceable",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/SequenceTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "start_sequence",
+        "description": "Start loaded sequence after validation; skip_validation bypasses checks and should remain false.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "skip_validation": {
+              "type": "boolean",
+              "description": "Bypass validation, not recommended",
+              "default": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "title": "Start sequence",
+      "safety": {
+        "kind": "hardware",
+        "guard": "strict",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/SequenceTools.cs"
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "reset_sequence",
+        "description": "Reset progress of sequence so it runs from beginning (only while idle).",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      },
+      "title": "Reset sequence",
+      "safety": {
+        "kind": "change",
+        "guard": "strict",
+        "requiresGatewayApproval": true,
+        "confirmUser": false
+      },
+      "source": "https://github.com/nitr57/pins/blob/14b50c4e09ef3904f5c8db5a29f05eb266e863a5/NINA.Mcp/Tools/Catalog/SequenceTools.cs"
+    }
+  ],
+  "crossFieldRules": {
+    "add_target": "exactly one of template/exposures; template forbids slew_and_center/start_guiding/autofocus_at_start/dither_every",
+    "change_filter": "exactly one of name/position",
+    "save_sequence": "filename safety and reserved suffix checks",
+    "set_switch": "actual range comes from live device status",
+    "start_sequence": "skip_validation must not be auto-set by the model"
+  }
+}

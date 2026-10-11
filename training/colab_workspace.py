@@ -1,0 +1,40 @@
+"""Load Drive dataset bytes only after checking them against the Git checkout."""
+import hashlib
+from pathlib import Path
+import subprocess
+import zipfile
+
+
+def use_drive_data(project, drive_folder):
+    project, drive_folder = Path(project), Path(drive_folder)
+    prefix = 'PINS_MCP_AI_Training_v2/data/'
+    tracked = subprocess.check_output(
+        ['git', 'ls-files', '--', prefix], cwd=project, text=True).splitlines()
+    if not tracked or prefix + 'contract-audit.json' not in tracked:
+        raise RuntimeError('Git checkout lacks the audited dataset contracts.')
+    folders = [drive_folder / 'PINS_MCP_AI_Training_v2/data', drive_folder / 'data']
+    folder = next((p for p in folders if (p / 'manifest.json').is_file()), None)
+    bundle = drive_folder / 'pins-ai-training-0.1.0.zip'
+    payloads = {}
+    if folder:
+        for name in tracked:
+            relative = name[len(prefix):]
+            payloads[name] = (folder / relative).read_bytes()
+        origin = {'kind': 'directory', 'path': str(folder)}
+    elif bundle.is_file():
+        with zipfile.ZipFile(bundle) as archive:
+            for name in tracked:
+                payloads[name] = archive.read(name)
+        origin = {'kind': 'zip', 'path': str(bundle),
+                  'sha256': hashlib.sha256(bundle.read_bytes()).hexdigest()}
+    else:
+        raise FileNotFoundError(f'No dataset directory or existing training ZIP in {drive_folder}')
+    # Check everything before writing anything. Never import code from Drive.
+    for name, content in payloads.items():
+        expected = hashlib.sha256((project / name).read_bytes()).hexdigest()
+        if hashlib.sha256(content).hexdigest() != expected:
+            raise ValueError(f'Drive data differs from the Git revision: {name}. '
+                             'Update the Drive data to match; do not train mixed revisions.')
+    for name, content in payloads.items():
+        (project / name).write_bytes(content)
+    return {**origin, 'verifiedFiles': len(payloads)}

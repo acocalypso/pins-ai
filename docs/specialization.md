@@ -1,8 +1,9 @@
 # Qwen3 0.6B specialization
 
 The user selected Qwen3 0.6B as the working baseline after the measured quality
-failures. The development pipeline is implemented; **no PINS model has been
-fine-tuned, exported or promoted yet**. Working inference remains independent of
+failures. A **v1 informational adapter has now been trained** on 326 examples for
+three epochs; no tuned GGUF has been exported or promoted. See [v2](v2.md) for
+the subsequent MCP specialization experiment. Working inference remains independent of
 training. This is not training from scratch, and nothing trains on the Pi.
 
 ## Scope and training host
@@ -319,5 +320,7 @@ tokenizer/template and all bootstrap token lengths. One additional tiny random
 Qwen architecture test passed through PEFT LoRA, gradient accumulation, validation
 loss, checkpoint selection and adapter saving on CPU. Its temporary weights were
 discarded; this was a backend integration fixture, not Qwen specialization.
-Full CUDA/QLoRA, adapter merging, GGUF conversion and tuned-model Pi evaluation
-remain unverified pending the real training run.
+The v1 full CUDA/QLoRA run completed on the GTX 1050 Ti using FP16, with final
+whole-run training loss 1.147859 and validation losses 0.865705, 0.720577 and
+0.662217 over three epochs. Checkpoint 63 was selected. Adapter merging, GGUF
+conversion and tuned-model Pi evaluation remain unverified.

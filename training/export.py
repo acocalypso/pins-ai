@@ -40,13 +40,23 @@ def main():
     for filename, expected_hash in (run['base'] if run else base_info)['files'].items():
         if sha256(args.base / filename) != expected_hash:
             raise ValueError('Original base file changed: ' + filename)
-    if run and run['promptSha256'] != fingerprint(policy()):
+    mcp_mode = run is not None and run.get('datasetMode') == 'mcp'
+    if mcp_mode:
+        from v2_contracts import POLICY, VERIFIED, ADAPTER
+        prompt_hash = fingerprint(POLICY)
+        if run['dataset']['contractSha256'] != sha256(VERIFIED):
+            raise ValueError('MCP contract changed since training; re-audit before export')
+        if run['dataset'].get('adapterContractSha256') != sha256(ADAPTER):
+            raise ValueError('MCP adapter behavior changed since training; re-audit before export')
+    else:
+        prompt_hash = fingerprint(policy())
+    if run and run['promptSha256'] != prompt_hash:
         raise ValueError('Plugin policy changed since training; retrain against the intended current policy')
     expected = json.loads((ROOT / 'models/manifest.json').read_text(encoding='utf-8-sig'))['runtime']['commit']
     actual = subprocess.check_output(['git', '-C', str(args.llama_source), 'rev-parse', 'HEAD'], text=True).strip()
     if actual != expected:
         raise ValueError('llama.cpp converter/quantizer must match the pinned runtime commit')
-    stem = 'qwen3-0.6b-training-control' if args.base_only else 'pins-qwen3-0.6b'
+    stem = 'qwen3-0.6b-training-control' if args.base_only else 'pins-qwen3-0.6b-mcp-v2' if mcp_mode else 'pins-qwen3-0.6b'
     converter_commands = commands(args.converter_python, args.llama_source, args.output / 'merged', args.output, stem)
     if not args.converter_python.is_file() or not Path(converter_commands[1][0]).is_file():
         raise ValueError('Install the separate converter environment and build llama-quantize first')
@@ -72,12 +82,15 @@ def main():
     for command in converter_commands:
         subprocess.run(command, check=True)
     target = args.output / (stem + '-Q4_K_M.gguf')
-    model_info = {'id': 'qwen3-0.6b-training-control-q4' if args.base_only else 'pins-qwen3-0.6b-specialized-q4',
+    model_info = {'id': 'qwen3-0.6b-training-control-q4' if args.base_only else 'pins-qwen3-0.6b-mcp-v2-q4' if mcp_mode else 'pins-qwen3-0.6b-specialized-q4',
                   'profile': 'lite', 'file': target.name,
                   'bytes': target.stat().st_size, 'sha256': sha256(target), 'license': 'Apache-2.0',
                   'upstream': 'https://huggingface.co/Qwen/Qwen3-0.6B', 'quantization': 'Q4_K_M',
                   'baseRevision': config['revision'], 'trainingRunSha256': sha256(args.run / 'training-run.json') if run else None,
-                  'promptSha256': fingerprint(policy()), 'templateSha256': fingerprint(tokenizer.chat_template),
+                  'promptSha256': prompt_hash, 'templateSha256': fingerprint(tokenizer.chat_template),
+                  'capabilityMode': 'mcp-tools' if mcp_mode else 'informational-text-only',
+                  'contractSha256': sha256(VERIFIED) if mcp_mode else None,
+                  'adapterContractSha256': sha256(ADAPTER) if mcp_mode else None,
                   'llamaCommit': expected, 'converterSha256': sha256(args.llama_source / 'convert_hf_to_gguf.py'),
                   'quantizerSha256': sha256(Path(converter_commands[1][0])),
                   'smokeOnly': run['smokeOnly'] if run else False, 'untunedControl': args.base_only, 'productionReady': False}

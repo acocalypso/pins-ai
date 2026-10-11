@@ -37,3 +37,17 @@ Google's model card says FunctionGemma is not intended for direct dialogue;
 specialized function routing needs task-specific tuning. German command routing
 and tool accuracy remain unevaluated without the real MCP contract:
 https://ai.google.dev/gemma/docs/functiongemma/model_card.
+# v2 dataset and tool contract
+
+The supplied `PINS_MCP_AI_Training_v2` original examples and generator scripts
+are CC0-1.0 as declared in that package's README. Audited examples remain
+synthetic, with no private observatory logs. New pins-ai implementation code
+uses this repository's MIT licence.
+
+`PINS_MCP_AI_Training_v2/data/verified-tools-list.json` contains source-generated
+tool descriptions/schemas from `nitr57/pins` revision
+`d9b5dc6ba3874113589f58d88c20909cff599b45` (original snapshot
+`14b50c4e09ef3904f5c8db5a29f05eb266e863a5`), whose implementation is MPL-2.0.
+Retain that source attribution and applicable upstream notices. The audit
+harness references the team's existing project without copying or modifying
+its server source. Training dependency versions are unchanged.
