@@ -9,9 +9,12 @@ void Reject(Action operation, string label) { try { operation(); } catch (Argume
 async Task Refuse(Func<Task> operation, string label) { try { await operation(); } catch (ArgumentException) { Check(true, label); return; } throw new Exception("Accepted " + label); }
 var catalog = JsonNode.Parse(await File.ReadAllTextAsync(args[0]))!.AsObject();
 var time = new TestClock();
-var gate = new ToolGateway(catalog, time);
 var rig = new RigContext("rig-a", "chat-a", false, time.GetUtcNow(), new Dictionary<int, (double, double)> { [3] = (0, 1) },
-    new Dictionary<int, double> { [3] = 0.1 });
+    new Dictionary<int, double> { [3] = 0.1 }, "profile-a/session-a/state-1",
+    new Dictionary<string, string> { ["mount"] = "sim-mount", ["switch"] = "sim-hub" },
+    new Dictionary<int, SwitchCapability> { [3] = new("sim-hub/channel-3", true, 0, 1, 0.1) });
+var authority = new TestAuthority(rig, time);
+var gate = new ToolGateway(catalog, time, authority);
 Reject(() => new McpClient(new Uri("http://192.168.1.1/mcp"), new string('x', 32)), "reject non-loopback MCP");
 Reject(() => gate.Validate("invented_tool", new()), "reject unknown tool");
 Reject(() => gate.Validate("capture_image", JsonNode.Parse("{\"exposure_seconds\":true}")!.AsObject()), "reject boolean numeric argument");
@@ -46,18 +49,22 @@ Check(fixture.Mutations == 0, "no mutation from model approval claims");
 var preview = gate.Preview("slew_mount", move, rig);
 Check(preview.Arguments["wait_seconds"]!.GetValue<int>() == 0, "preview binds immediate job return instead of server default wait");
 Reject(() => gate.Confirm(preview.RequestId, "rig-b", "chat-a"), "rig-bound confirmation");
-gate.Confirm(preview.RequestId, "rig-a", "chat-a");
+Reject(() => gate.Confirm(preview.RequestId, "rig-a", "chat-a"), "text confirmation cannot authorize");
+authority.Approve(preview);
 await Refuse(() => gate.InvokeAsync(client, "slew_mount", new JsonObject { ["ra"] = 6, ["dec"] = 2 }, rig, preview.RequestId), "changed parameters invalidate approval");
-preview = gate.Preview("slew_mount", move, rig); gate.Confirm(preview.RequestId, "rig-a", "chat-a");
+preview = gate.Preview("slew_mount", move, rig); authority.Approve(preview);
 var result = await gate.InvokeAndPollAsync(client, "slew_mount", move, rig, preview.RequestId);
 Check(result["completionConfirmed"]!.GetValue<bool>() == false && result["job"]!["state"]!.GetValue<string>() == "failed", "running job polled and failed outcome preserved despite isError false");
 Check(fixture.Mutations == 1 && fixture.Polls == 1, "polling never repeats mutation");
 Check(fixture.LastMutationArguments?["wait_seconds"]?.GetValue<int>() == 0, "approved mutation sends bounded wait exactly as previewed");
 await Refuse(() => gate.InvokeAsync(client, "slew_mount", move, rig, preview.RequestId), "approval replay blocked");
-preview = gate.Preview("slew_mount", move, rig); gate.Confirm(preview.RequestId, "rig-a", "chat-a");
+preview = gate.Preview("slew_mount", move, rig); authority.Approve(preview);
 time.Now = time.Now.AddMinutes(2);
 await Refuse(() => gate.InvokeAsync(client, "slew_mount", move, rig with { ObservedAt = time.Now }, preview.RequestId), "expired approval blocked");
 Check(ToolGateway.Normalize(JsonNode.Parse("{\"isError\":true,\"structuredContent\":{\"success\":true}}")!.AsObject())["isError"]!.GetValue<bool>(), "MCP envelope failure dominates payload");
+rig = rig with { ObservedAt = time.Now };
+authority.Context = rig;
+await SafetyRegressions.Run(gate, client, fixture, authority, rig, time, Check, Reject, Refuse);
 Console.WriteLine($"{checks} gateway checks passed; all observatory operations simulated.");
 
 // Replay observed model proposals through the real gateway, with no operator
@@ -107,7 +114,19 @@ sealed class TestClock : TimeProvider {
     public DateTimeOffset Now { get; set; } = DateTimeOffset.UtcNow;
     public override DateTimeOffset GetUtcNow() => Now;
 }
+sealed class TestAuthority(RigContext context, TimeProvider time) : IOperatorAuthority {
+    public RigContext Context { get; set; } = context;
+    public OperatorApproval? Approval { get; set; }
+    public void Approve(ToolPreview preview) => Approval = new(OperatorDecision.Approved, preview.RequestId,
+        "authenticated-simulated-operator", preview.RigId, preview.ChatId, preview.Tool,
+        (JsonObject)preview.Arguments.DeepClone(), time.GetUtcNow().AddSeconds(30));
+    public Task<RigContext> RefreshAsync(string rigId, string chatId, CancellationToken ct) => Task.FromResult(Context);
+    public Task<OperatorApproval?> GetApprovalAsync(string requestId, CancellationToken ct) => Task.FromResult(Approval);
+}
 sealed class ProtocolFixture(JsonObject catalog) : HttpMessageHandler {
+    public JsonObject? Status { get; set; }
+    public JsonObject? Sequence { get; set; }
+    public bool ContractChanged { get; set; }
     public bool Initialized { get; private set; }
     public int Mutations { get; private set; }
     public int Polls { get; private set; }
@@ -120,7 +139,14 @@ sealed class ProtocolFixture(JsonObject catalog) : HttpMessageHandler {
         if (method == "notifications/initialized") { Initialized = true; return new(HttpStatusCode.Accepted); }
         JsonObject result;
         if (method == "initialize") result = new() { ["protocolVersion"] = "2025-11-25" };
-        else if (method == "tools/list") result = (JsonObject)catalog.DeepClone();
+        else if (method == "tools/list") {
+            result = (JsonObject)catalog.DeepClone();
+            if (ContractChanged) result["tools"]!.AsArray().First(t => t!["name"]!.GetValue<string>() == "set_switch")!["description"] = "Changed contract";
+        }
+        else if (body["params"]?["name"]?.GetValue<string>() is "get_status" or "get_sequence") {
+            var payload = body["params"]!["name"]!.GetValue<string>() == "get_status" ? Status : Sequence;
+            result = new() { ["structuredContent"] = payload?.DeepClone(), ["isError"] = payload is null };
+        }
         else {
             var name = body["params"]!["name"]!.GetValue<string>();
             if (name == "get_job") Polls++;

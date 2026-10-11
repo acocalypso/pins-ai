@@ -1,0 +1,197 @@
+{
+  "date": "2026-10-11",
+  "mcpSourceRevision": "e6d13f916cdf1f29a52703e5e7c893a113b2e531",
+  "hardwareExecution": false,
+  "inferenceExecuted": false,
+  "productionMcpIntegrationEnabled": false,
+  "tests": {
+    "gatewayChecks": 122,
+    "runtimeChecks": 24,
+    "trainingTests": 16,
+    "v2Tests": 6,
+    "curriculumTests": 4,
+    "colabImportTests": 3
+  },
+  "pi": {
+    "elapsedSeconds": 0.618,
+    "maxRssKiB": 67424,
+    "cpuUserSeconds": 0.264,
+    "cpuSystemSeconds": 0.016,
+    "temperatureBeforeC": 62.25,
+    "temperatureAfterC": 62.8,
+    "peakTemperatureC": 63.35,
+    "pinsService": "active",
+    "mcpReadOnlyGetStatus": 404,
+    "cutoff": null
+  },
+  "predictionReplay": {
+    "hardwareExecution": false,
+    "approvalSource": "none; every mutation must be refused",
+    "reports": [
+      {
+        "report": "_v2.json",
+        "cases": 120,
+        "noToolOutputs": 23,
+        "invalidOrRejectedProposals": 2,
+        "validReadProposals": 29,
+        "mutationProposals": 66,
+        "deniedMutationProposals": 66,
+        "unauthorizedSimulatedActions": 0
+      },
+      {
+        "report": "_base.json",
+        "cases": 120,
+        "noToolOutputs": 35,
+        "invalidOrRejectedProposals": 43,
+        "validReadProposals": 9,
+        "mutationProposals": 33,
+        "deniedMutationProposals": 33,
+        "unauthorizedSimulatedActions": 0
+      }
+    ],
+    "falseCompletionClaims": "human review pending"
+  },
+  "binarySha256": {
+    "Mcp.GatewayTests": "74852b1e063a396d9a65ab4b0236fdab9261200382d55664d5774e190a9fdd31",
+    "Mcp.GatewayTests.dll": "d4233420085e9799dd524519014bdb3b2cab9a9a8d8284358c30c145119199e7",
+    "Pins.AI.Runtime.dll": "12deea466f82d17a902fa8abf8e969db6c172654d72ab843ec2d61a30a427f23"
+  },
+  "sft": {
+    "templateSha256": "41d5929bf73796beb66809ac700b2cf3ff81694f933e5c14d52b7fd6963c947d",
+    "policySha256": "e0f1d15b9e0e3f661166ffdd2aefa84c127858316447e6d9ac979e8659ba903f",
+    "contractSha256": "b58ba2ea821d798232440fe8a07f968f0f67d255b3f704b9c0ccfa45214ad21a",
+    "auditSha256": "ea9a46b677f18646ac3e67c9bee7a87e1aa4a581ea09dda7af415fa04fe02e9f",
+    "adapterContractSha256": "7da1d63d133118678385066b87081ca4cfbcafe1ed3e6dad6f41822a95d73d53",
+    "maxTokens": 1536,
+    "skipped": 0,
+    "splits": {
+      "train": {
+        "conversations": 2669,
+        "assistantTurns": 4508,
+        "sourceSha256": "157039bcac56e806dfb62eb682f687d07ac153a89867056c6082ceea9d220607",
+        "sha256": "2d70327ebcf59fe70f36ab4f6006f8f441c5546c6ff38dcd87ded303987176ca",
+        "languages": {
+          "zh": 453,
+          "pl": 449,
+          "pt": 445,
+          "fr": 453,
+          "es": 455,
+          "de": 449,
+          "it": 445,
+          "nl": 455,
+          "ja": 451,
+          "en": 453
+        },
+        "sourceRowsSha256": "c1bb752559ba97359e2f9370b92eea2da439101af96f49f00a90b2fe9a266356",
+        "tools": {
+          "disconnect_device": 459,
+          "get_job": 189,
+          "set_switch": 69,
+          "list_jobs": 38,
+          "reset_sequence": 38,
+          "start_guiding": 48,
+          "get_status": 112,
+          "park_mount": 48,
+          "get_sequence": 39,
+          "capture_image": 48,
+          "add_target": 48,
+          "cancel_job": 39,
+          "unpark_mount": 48,
+          "clear_targets": 39,
+          "stop_sequence": 38,
+          "list_saved_sequences": 39,
+          "stop_guiding": 39,
+          "change_filter": 49,
+          "load_sequence": 38,
+          "set_tracking": 39,
+          "get_recent_images": 48,
+          "stop_all": 48,
+          "save_sequence": 49,
+          "slew_mount": 49,
+          "start_sequence": 39,
+          "connect_device": 459,
+          "home_mount": 49,
+          "run_autofocus": 49,
+          "list_target_templates": 39,
+          "warm_camera": 48,
+          "cool_camera": 49,
+          "move_focuser": 49
+        },
+        "tokens": {
+          "min": 200,
+          "median": 714,
+          "p95": 1060,
+          "max": 1347
+        }
+      },
+      "validation": {
+        "conversations": 583,
+        "assistantTurns": 1236,
+        "sourceSha256": "bfafb3845095e220286789d6ab3acebdd467c71711e5b18256ba15b9e6a9fd1a",
+        "sha256": "85f6e8158a066fd9f426c963405e8e5ab18ee399bd70e950b11a93c0d86ecd30",
+        "languages": {
+          "ja": 123,
+          "pt": 123,
+          "es": 123,
+          "en": 125,
+          "zh": 123,
+          "de": 123,
+          "fr": 123,
+          "nl": 123,
+          "it": 125,
+          "pl": 125
+        },
+        "sourceRowsSha256": "5f01b5c7f681824f761a46a7a353246493757f0ac8586b18472e7daef2b161f9",
+        "tools": {
+          "warm_camera": 20,
+          "get_job": 150,
+          "capture_image": 20,
+          "move_focuser": 20,
+          "park_mount": 20,
+          "clear_targets": 10,
+          "start_sequence": 10,
+          "start_guiding": 20,
+          "set_switch": 20,
+          "stop_sequence": 10,
+          "run_autofocus": 20,
+          "save_sequence": 10,
+          "cancel_job": 10,
+          "change_filter": 20,
+          "set_tracking": 10,
+          "connect_device": 20,
+          "slew_mount": 20,
+          "home_mount": 20,
+          "get_recent_images": 20,
+          "unpark_mount": 20,
+          "list_saved_sequences": 11,
+          "stop_all": 10,
+          "load_sequence": 10,
+          "disconnect_device": 20,
+          "reset_sequence": 10,
+          "get_status": 50,
+          "stop_guiding": 10,
+          "get_sequence": 10,
+          "cool_camera": 20,
+          "list_target_templates": 10,
+          "list_jobs": 12,
+          "add_target": 10
+        },
+        "tokens": {
+          "min": 201,
+          "median": 640,
+          "p95": 1005,
+          "max": 1277
+        }
+      }
+    },
+    "sourceProfile": "v3-contrastive",
+    "curriculumSha256": "f6ea2790f97e9c6c4b5b75ce245043d06987a5af05b1fbf1e60094cf17907a22"
+  },
+  "notVerified": [
+    "live MCP integration",
+    "trained GGUF inference on Pi",
+    "v3 GPU training and model accuracy",
+    "supervised hardware tests",
+    "concurrent imaging/guiding performance"
+  ]
+}

@@ -7,7 +7,9 @@ namespace Pins.AI.Runtime;
 
 public sealed record RigContext(string RigId, string ChatId, bool SequenceRunning, DateTimeOffset ObservedAt,
     IReadOnlyDictionary<int, (double Minimum, double Maximum)> SwitchRanges,
-    IReadOnlyDictionary<int, double>? SwitchSteps = null);
+    IReadOnlyDictionary<int, double>? SwitchSteps = null,
+    string? StateRevision = null, IReadOnlyDictionary<string, string>? DeviceIds = null,
+    IReadOnlyDictionary<int, SwitchCapability>? SwitchCapabilities = null);
 public sealed record ToolPreview(string RequestId, string Tool, JsonObject Arguments, string RigId, string ChatId, DateTimeOffset Expires);
 
 // No caller/model-provided system string can authorize this gateway.
@@ -15,11 +17,13 @@ public sealed class ToolGateway {
     private static readonly HashSet<string> Reads = ["get_status", "get_recent_images", "get_sequence", "list_saved_sequences", "list_target_templates", "get_job", "list_jobs"];
     private static readonly HashSet<string> Allowed = [.. Reads, "stop_all", "cancel_job", "stop_sequence", "stop_guiding", "connect_device", "disconnect_device", "slew_mount", "park_mount", "unpark_mount", "home_mount", "set_tracking", "capture_image", "cool_camera", "warm_camera", "move_focuser", "run_autofocus", "change_filter", "start_guiding", "set_switch", "load_sequence", "add_target", "clear_targets", "save_sequence", "start_sequence", "reset_sequence"];
     private readonly Dictionary<string, JsonObject> catalog;
-    private readonly Dictionary<string, (ToolPreview Preview, string Digest, bool Approved)> pending = [];
+    private readonly Dictionary<string, (ToolPreview Preview, string Digest, string State)> pending = [];
+    private readonly IOperatorAuthority? authority;
     private readonly TimeProvider clock;
     private readonly SemaphoreSlim calls = new(1, 1);
-    public ToolGateway(JsonObject toolsList, TimeProvider? clock = null) {
+    public ToolGateway(JsonObject toolsList, TimeProvider? clock = null, IOperatorAuthority? authority = null) {
         this.clock = clock ?? TimeProvider.System;
+        this.authority = authority;
         catalog = [];
         foreach (var item in toolsList["tools"]?.AsArray() ?? throw new ArgumentException("Missing tools/list")) {
             var tool = item!.AsObject();
@@ -65,18 +69,65 @@ public sealed class ToolGateway {
         lock (pending) {
             foreach (var expired in pending.Where(p => p.Value.Preview.Expires <= clock.GetUtcNow()).Select(p => p.Key).ToArray()) pending.Remove(expired);
             if (pending.Count >= 32) throw new ArgumentException("Too many pending confirmations.");
-            pending.Add(preview.RequestId, (preview with { Arguments = (JsonObject)preview.Arguments.DeepClone() }, Digest(arguments), false));
+            pending.Add(preview.RequestId, (preview with { Arguments = (JsonObject)preview.Arguments.DeepClone() }, Digest(arguments), StateDigest(context)));
         }
         return preview;
     }
 
-    // Invoke only from an authenticated operator approval handler, never an LLM/tool output.
+    // Kept for source compatibility, but text/IDs alone cannot grant authority.
     public void Confirm(string requestId, string rigId, string chatId) {
+        throw new ArgumentException("Confirmation requires the trusted application authority, not supplied strings.");
+    }
+
+    public async Task<ToolPreview> PreviewAsync(string name, JsonObject arguments, string rigId, string chatId, CancellationToken ct = default) {
+        if (authority is null) throw new ArgumentException("Trusted application authority is unavailable.");
+        var context = await authority.RefreshAsync(rigId, chatId, ct);
+        if (context.RigId != rigId || context.ChatId != chatId) throw new ArgumentException("Application context identity changed.");
+        return Preview(name, arguments, context);
+    }
+
+    // Read-only revalidation while the mutation semaphore is held. The MCP
+    // client serializes transport without recursively acquiring this gateway.
+    internal async Task<JsonObject> QueryStateAsync(McpClient client, string name, JsonObject arguments, CancellationToken ct) {
+        if (name is not ("get_status" or "get_sequence")) throw new ArgumentException("Only state queries are allowed here.");
+        Validate(name, arguments);
+        return Normalize(await client.CallAsync(name, (JsonObject)arguments.DeepClone(), ct));
+    }
+
+    public async Task<JsonObject> ExecuteApprovedAsync(McpClient client, string requestId, CancellationToken ct = default) {
+        if (authority is null) throw new ArgumentException("Trusted application authority is unavailable.");
+        ToolPreview preview;
         lock (pending) {
-            if (!pending.TryGetValue(requestId, out var item) || item.Preview.Expires <= clock.GetUtcNow() || item.Preview.RigId != rigId || item.Preview.ChatId != chatId)
-                throw new ArgumentException("Confirmation expired or belongs to another rig/chat.");
-            pending[requestId] = (item.Preview, item.Digest, true);
+            if (!pending.TryGetValue(requestId, out var item)) throw new ArgumentException("Unknown or consumed preview.");
+            preview = item.Preview with { Arguments = (JsonObject)item.Preview.Arguments.DeepClone() };
         }
+        var context = await authority.RefreshAsync(preview.RigId, preview.ChatId, ct);
+        return await InvokeAsync(client, preview.Tool, preview.Arguments, context, requestId, ct);
+    }
+
+    // Safe proposal catalog: exposure is not authorization. No bypass fields.
+    public JsonObject ExposedTools(RigContext context, bool proposals = false) {
+        var tools = new JsonArray();
+        var age = clock.GetUtcNow() - context.ObservedAt;
+        var canPropose = proposals && authority is not null && age >= TimeSpan.Zero && age <= TimeSpan.FromSeconds(10);
+        try { _ = StateDigest(context); } catch (ArgumentException) { canPropose = false; }
+        foreach (var (name, tool) in catalog) {
+            if (!Reads.Contains(name) && (!canPropose ||
+                context.SequenceRunning && name is not ("stop_all" or "stop_sequence" or "cancel_job") ||
+                name == "set_switch" && context.SwitchCapabilities?.Values.Any(c => c.Writable) != true)) continue;
+            var copy = (JsonObject)tool.DeepClone();
+            var schema = copy["inputSchema"]!.AsObject();
+            foreach (var field in new[] { "force", "skip_validation", "overwrite" }) schema["properties"]!.AsObject().Remove(field);
+            if (schema["properties"]?["wait_seconds"] is JsonObject wait) { wait["maximum"] = 5; wait["default"] = 0; }
+            foreach (var coordinate in new[] { "ra", "dec" }) {
+                if (schema["properties"]?[coordinate] is JsonObject value && value["anyOf"] is JsonArray variants) {
+                    var numeric = variants.First(v => v?["type"]?.GetValue<string>() == "number")!;
+                    schema["properties"]![coordinate] = numeric.DeepClone();
+                }
+            }
+            tools.Add(copy);
+        }
+        return new() { ["tools"] = tools };
     }
 
     public void Clear(string chatId) {
@@ -90,18 +141,47 @@ public sealed class ToolGateway {
         try {
             Validate(name, arguments); ValidateContext(name, arguments, context);
             if (!Reads.Contains(name)) {
+                if (authority is null) throw new ArgumentException("Trusted application authority is unavailable; mutation disabled.");
+                (ToolPreview Preview, string Digest, string State) item;
                 lock (pending) {
-                    if (approvalId is null || !pending.Remove(approvalId, out var item) || !item.Approved ||
+                    if (approvalId is null || !pending.Remove(approvalId, out item) ||
                         item.Preview.Expires <= clock.GetUtcNow() || item.Preview.Tool != name || item.Preview.RigId != context.RigId ||
                         item.Preview.ChatId != context.ChatId || item.Digest != Digest(arguments))
                         throw new ArgumentException("Exact, unexpired operator confirmation is required.");
                 }
+                var liveCatalog = await client.DiscoverAsync(ct);
+                var liveTool = liveCatalog["tools"]?.AsArray().FirstOrDefault(t => t?["name"]?.GetValue<string>() == name);
+                if (liveTool is null || Digest(liveTool) != Digest(catalog[name]))
+                    throw new ArgumentException("Published tool contract changed; re-audit before execution.");
+                // Re-read state after approval and immediately before the MCP call.
+                context = await authority.RefreshAsync(context.RigId, context.ChatId, ct);
+                ValidateContext(name, arguments, context);
+                if (context.RigId != item.Preview.RigId || context.ChatId != item.Preview.ChatId ||
+                    item.State != StateDigest(context) || item.Preview.Expires <= clock.GetUtcNow())
+                    throw new ArgumentException("Device, session or state changed; obtain a new preview and approval.");
+                // Authentication is refreshed last, after potentially slow MCP
+                // queries, so revocation during those queries cannot authorize a call.
+                var approval = await authority.GetApprovalAsync(approvalId, ct);
+                if (approval is null || approval.Decision != OperatorDecision.Approved || string.IsNullOrWhiteSpace(approval.OperatorId) ||
+                    approval.RequestId != approvalId || approval.Expires <= clock.GetUtcNow() ||
+                    approval.RigId != context.RigId || approval.ChatId != context.ChatId || approval.Tool != name ||
+                    Digest(EffectiveArguments(name, approval.ReviewedArguments)) != item.Digest ||
+                    item.Preview.Expires <= clock.GetUtcNow())
+                    throw new ArgumentException("Authenticated explicit approval for this exact operation is required.");
+                Validate(name, arguments);
+                ValidateContext(name, arguments, context);
+                if (item.State != StateDigest(context)) throw new ArgumentException("State changed during approval verification.");
             }
             // Clone before awaiting so caller mutation cannot alter authorized parameters.
             return Normalize(await client.CallAsync(name, (JsonObject)arguments.DeepClone(), ct));
         }
         finally { calls.Release(); }
     }
+
+    // Called directly by the authenticated host control, without inference.
+    // It uses the same explicit, exact, single-use application approval.
+    public Task<JsonObject> EmergencyStopAsync(McpClient client, RigContext context, string approvalId, CancellationToken ct = default) =>
+        InvokeAsync(client, "stop_all", new(), context, approvalId, ct);
 
     public async Task<JsonObject> InvokeAndPollAsync(McpClient client, string name, JsonObject arguments, RigContext context,
         string? approvalId = null, CancellationToken ct = default) {
@@ -126,6 +206,12 @@ public sealed class ToolGateway {
         if (context.SequenceRunning && name is not ("stop_all" or "stop_sequence" or "cancel_job")) throw new ArgumentException("Sequence is running; AI mutation refused.");
         if (name == "set_switch") {
             var index = arguments["index"]!.GetValue<int>(); var value = arguments["value"]!.GetValue<double>();
+            if (context.SwitchCapabilities is null || !context.SwitchCapabilities.TryGetValue(index, out var capability) ||
+                !capability.Writable || string.IsNullOrWhiteSpace(capability.DeviceId) ||
+                capability.Minimum > capability.Maximum || capability.Minimum != context.SwitchRanges.GetValueOrDefault(index).Minimum ||
+                capability.Maximum != context.SwitchRanges.GetValueOrDefault(index).Maximum ||
+                context.SwitchSteps?.GetValueOrDefault(index, double.NaN) != capability.Step)
+                throw new ArgumentException("A verified writable channel and device identity are required.");
             if (!context.SwitchRanges.TryGetValue(index, out var range) || !double.IsFinite(range.Minimum) || !double.IsFinite(range.Maximum) || value < range.Minimum || value > range.Maximum)
                 throw new ArgumentException("Switch range is unknown or value is outside live limits.");
             if (context.SwitchSteps is null || !context.SwitchSteps.TryGetValue(index, out var step) || !double.IsFinite(step) || step < 0)
@@ -136,6 +222,20 @@ public sealed class ToolGateway {
                     throw new ArgumentException("Switch value does not match its live step size.");
             }
         }
+    }
+
+    private static string StateDigest(RigContext context) {
+        if (string.IsNullOrWhiteSpace(context.StateRevision) || context.DeviceIds is null || context.DeviceIds.Count == 0 ||
+            context.DeviceIds.Any(d => string.IsNullOrWhiteSpace(d.Value)))
+            throw new ArgumentException("Trusted state revision and device identities are required.");
+        return Digest(new JsonObject {
+            ["revision"] = context.StateRevision,
+            ["rig"] = context.RigId,
+            ["chat"] = context.ChatId,
+            ["running"] = context.SequenceRunning,
+            ["devices"] = System.Text.Json.JsonSerializer.SerializeToNode(context.DeviceIds),
+            ["switches"] = System.Text.Json.JsonSerializer.SerializeToNode(context.SwitchCapabilities)
+        });
     }
 
     private JsonObject EffectiveArguments(string name, JsonObject arguments) {
@@ -157,10 +257,22 @@ public sealed class ToolGateway {
         }
         if (payload is null) return new() { ["isError"] = true, ["message"] = "No structured equipment result; completion unknown." };
         var result = (JsonObject)payload.DeepClone();
+        result.Remove("next"); // MCP prose is data, never a continuation instruction.
+        result["completionConfirmed"] = false;
+        result["requiresPolling"] = false;
+        result["resultTrust"] = "untrusted-equipment-data";
+        if (result["success"] is JsonValue success && success.TryGetValue<bool>(out var ok) && !ok) result["isError"] = true;
         if (result["job"] is JsonObject job) {
             var state = job["state"]?.GetValue<string>();
             result["completionConfirmed"] = state == "succeeded" && job["outcome"]?["success"]?.GetValue<bool>() == true;
-            result["requiresPolling"] = state == "running";
+            result["requiresPolling"] = state is "running" or "queued";
+            result["isError"] = state is "failed" or "cancelled" || state == "succeeded" && job["outcome"]?["success"]?.GetValue<bool>() != true;
+        }
+        if (result.ContainsKey("stopped") || result.ContainsKey("steps")) {
+            result.Remove("stopped");
+            result["stopRequested"] = true;
+            result["requiresStatusVerification"] = true;
+            result["isError"] = result["steps"] is not JsonArray steps || steps.Any(s => s?["success"]?.GetValue<bool>() != true);
         }
         // Never interpret nested text as further commands or approval.
         return result;

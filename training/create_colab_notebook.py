@@ -17,9 +17,13 @@ def main():
 
         Use a hosted **GPU** Colab kernel in VS Code. The notebook delegates to the
         existing FP16/NF4 QLoRA scripts and audited MCP contracts at `e6d13f9`.
-        Train-only device contrasts and competing tool lists extend the originals;
+        Train-only device contrasts, safety classes and competing tool lists extend the originals;
         validation remains separate. Gold suites are never training inputs.
         No MCP connection, equipment operation or Pi deployment occurs.
+
+        Training starts from the pinned **Qwen/Qwen3-0.6B base model** with a
+        fresh LoRA adapter. `PRIOR_ADAPTER` is only for optional comparison;
+        the preserved v2 adapter is not used to initialize training.
 
         Code is cloned/pulled from `acocalypso/pins-ai` on GitHub. Existing data
         in your Google Drive folder `pins-ai` is checked against that Git revision.
@@ -27,7 +31,8 @@ def main():
         **Select Kernel → Colab → Auto Connect**, select a GPU runtime, then run
         the setup cells. Sign-in and Drive authorization occur in your session.
 
-        Training is enabled for the requested cloud run. A fresh smoke
+        Training is disabled while the revised safety curriculum is reviewed. Set
+        `RUN_TRAINING = True` deliberately to start a new cloud run. A fresh smoke
         and adapter reload must pass before the full run. No speedup or Colab GPU
         compatibility has been measured yet. GPU availability and runtime lifetime
         depend on Colab allocation. Use a new run name for each attempt.
@@ -42,7 +47,7 @@ def main():
         subprocess.run(['nvidia-smi', '--query-gpu=name,memory.total,driver_version',
                         '--format=csv,noheader'], check=True)
 
-        RUN_TRAINING = True  # Authorized cloud run; set False for validation only.
+        RUN_TRAINING = False  # Review/preflight first; enable explicitly for a new cloud run.
         RUN_EVALUATION = False  # Enable after training; no tuning against gold scores.
         RUN_FINAL_GOLD = False  # Final release measurement only, never an iterative tuning loop.
         DRIVE_FOLDER = Path('/content/drive/MyDrive/pins-ai')

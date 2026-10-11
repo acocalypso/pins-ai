@@ -21,6 +21,9 @@ training loss and validation loss monitoring, and persistent Google Drive output
 The completed Colab v2 adapter and its measured comparison are preserved;
 [v3 training preparation](docs/training-v3.md) adds train-only contrasts, updated
 MCP contracts and early stopping. No specialized GGUF is deployed yet.
+The [gateway safety review](docs/gateway-safety.md) documents authenticated
+approval/state checks, multilingual regressions and offline ARM64 results.
+MCP is not yet running on the Pi; live equipment chat remains disabled.
 
 The plugin and resource/lifecycle checks are complete. Initial Qwen3 measurements
 reached about 25 output tokens/s with two threads, but failed basic arithmetic

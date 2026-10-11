@@ -40,12 +40,15 @@ ignored `artifacts/v2/contract-history/d9b5dc6...`.
 `curriculum_v3.py` reads only audited train/validation and the original phrase
 generator. It extends **train only** with device-name/identifier contrasts,
 corrections in chat history, permission/no-permission pairs and competing tools.
+It now also adds 110 newly authored multilingual safety scenarios: role spoofing,
+explicit denial, exact switch indices/values and missing selectors, Unicode names,
+decimal commas, missing coordinates, malicious MCP prose and partial-stop feedback.
 All published device enum values and ten languages are covered. Existing
 validation examples remain the selection set, with refreshed MCP schemas.
 No test, eval_gold or hard_gold examples are augmentation seeds.
 Translations and template-family diversity still need independent human review.
 
-Verified preparation:2559 train conversations/4358 assistant turns and583
+Verified preparation:2669 train conversations/4508 assistant turns and583
 validation conversations/1236 assistant turns; all32 tools and ten languages,
 zero skipped examples. Maximum lengths are1347 train/1277 validation tokens.
 
@@ -70,7 +73,7 @@ old Drive catalog/audit snapshots are not imported. No data ZIP re-upload is
 needed. Prepared data stays on the VM; checkpoints, metrics and logs persist
 in `My Drive/pins-ai/runs/qwen3-pins-v3-colab-<timestamp>`.
 
-Training has **not** been started by this agent. T4 compatibility of the v3
+Training defaults to disabled in the notebook and has **not** been started by this agent. T4 compatibility of the v3
 recipe, runtime, resulting losses and accuracy must be measured by the new run.
 
 ## Initial prompt still open
@@ -80,6 +83,8 @@ adapter merge/Q4_K_M export and equivalent quantized evaluation, the plugin's
 complete bounded model-to-MCP-to-grounded-response loop, confirmation integration,
 and Pi performance while PINS runs. The Pi was read-only inspected: its current
 PINS host returns404 for `/mcp`; no live MCP endpoint is installed there yet.
-No Pi deployment, PINS restart or equipment mutation occurred in this task.
+The gateway-only ARM64 fixture has now run on the Pi; see
+[gateway safety review and measured results](gateway-safety.md).
+The production plugin and model were not redeployed; no PINS restart or equipment mutation occurred.
 An independently authored multilingual acceptance set and Pi4 measurements
 remain unverified. No production model is promoted based on low loss alone.

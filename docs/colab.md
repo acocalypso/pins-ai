@@ -4,6 +4,13 @@ Prepared notebook: [pins-ai-v2-colab.ipynb](../output/jupyter-notebook/pins-ai-v
 This is cloud **training** only. Pi inference still belongs to the PINS plugin;
 there is no cloud equipment access or MCP server in the notebook.
 
+Start this v3 experiment from the pinned **Qwen/Qwen3-0.6B base model** with a
+fresh LoRA adapter. The notebook already does this; it does not continue training
+the v2 adapter. `PRIOR_ADAPTER` is used only for the optional comparison after
+training. Preserve v2 as the baseline. The updated data passed local contract,
+tokenizer and isolation checks; the new T4 smoke/reload must still pass before
+full training. MCP does not need to be running on the Pi for this cloud run.
+
 When switching from the older ZIP-based notebook, run this revised notebook from
 the top on the connected T4. It uses a fresh Git directory and run name; existing
 Drive data and prior outputs remain available. Future code updates need only a
@@ -20,8 +27,9 @@ notebook refresh and a new run, with Git pulling the current branch.
    Original dataset files must match Git checksums. Updated audited contracts stay in Git;
    old contract files in the Drive bundle are ignored.
    Code is never imported from Drive. Adjust `DRIVE_FOLDER` if your data lives elsewhere.
-   Training is enabled (`RUN_TRAINING = True`) for the authorized cloud run;
-   set it to `False` for validation only. Approve Drive mounting in your session.
+   Training defaults to disabled (`RUN_TRAINING = False`) while the revised safety
+   curriculum is reviewed. Set it to `True` explicitly for a new cloud run after
+   preflight. Approve Drive mounting in your session.
 4. Run the cells in order. They install an isolated Python 3.11 environment,
    torch 2.7.1/cu126 and the existing pinned training requirements. The explicit
    base-download cell accepts the Apache-2.0 checkpoint license and verifies the

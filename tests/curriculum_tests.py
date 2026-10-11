@@ -43,6 +43,21 @@ class CurriculumTests(unittest.TestCase):
             self.assertFalse(any(m.get('tool_calls') for m in row['messages']))
             self.assertIsNone(row['expected']['first_tool'])
 
+    def test_new_safety_matrix_and_exact_arguments(self):
+        cases = [r for r in self.train if r['id'].startswith('curriculum-safety-')]
+        self.assertEqual(len(cases), 110)
+        self.assertEqual(len({(r['locale'], r['category']) for r in cases}), 110)
+        for row in cases:
+            answer = row['messages'][-1]
+            if row['expected']['first_tool'] is None:
+                self.assertFalse(answer.get('tool_calls'))
+            else:
+                fn = answer['tool_calls'][0]['function']
+                self.assertEqual(fn['arguments'], row['expected']['arguments'])
+                if row['category'] == 'safety_target_unicode_decimal':
+                    self.assertIn(fn['arguments']['name'], row['messages'][-2]['content'])
+                    self.assertNotEqual(fn['name'], 'start_sequence')
+
 
 if __name__ == '__main__':
     unittest.main()
