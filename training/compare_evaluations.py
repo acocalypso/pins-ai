@@ -11,8 +11,13 @@ from evaluation_state import REPORT_VERSION, summarize
 def comparison_contract(report):
     identity = copy.deepcopy(report['identity'])
     # Only model/adapter identity is allowed to differ between compared runs.
-    identity.pop('model')
-    identity.pop('adapter')
+    if 'modelSha256' in identity:
+        # GGUF reports identify merged/base files and optional runtime LoRA separately.
+        identity.pop('modelSha256')
+        identity.pop('loraSha256')
+    else:
+        identity.pop('model')
+        identity.pop('adapter')
     return identity
 
 
@@ -85,10 +90,13 @@ def build_report(paths):
     reports = load_reports(paths)
     first = next(iter(reports.values()))
     subset = first['identity']['selection']['perLanguage'] > 0
+    backend = first['identity']['backend']
+    backend_name = backend['name'] if isinstance(backend, dict) else backend
+    suite_kind = 'development validation' if first['suite'] == 'validation_smoke' else 'held-out synthetic'
     lines = ['# Local development evaluation comparison', '',
-             'Completed selected smoke subset; not a full benchmark.' if subset else 'Completed development validation suite; not an independent release benchmark.', '',
-             f"Suite: `{first['suite']}`; backend: `{first['identity']['backend']['name']}`; scorer: `{first['scorerVersion']}`.", '',
-             'All comparisons use identical base files, case IDs, prompts, schemas, tokenizer template, generation settings and scoring implementation.', '', table(reports), '',
+             f'Completed selected {suite_kind} subset; not a full benchmark.' if subset else f'Completed {suite_kind} suite; independent human review is still required.', '',
+             f"Suite: `{first['suite']}`; backend: `{backend_name}`; scorer: `{first.get('scorerVersion', first['identity']['scorerVersion'])}`.", '',
+             'All comparisons use identical case IDs, prompts, schemas, tokenizer template, generation settings and scoring implementation. HF comparisons also require identical base files; GGUF model/LoRA file hashes differ by candidate.', '', table(reports), '',
              'Token rates include prompt processing and decoding, exclude model loading, and are workload-dependent. Human language quality and false completion claims require separate review.', '',
              'Schema-valid counts include plain no-tool responses; they do not mean the expected action was produced. Missing calls remain incorrect tool/argument cases.', '',
              '## Per language', '']
@@ -106,8 +114,8 @@ def build_report(paths):
             lines += [f"- `{r['id']}` ({r['locale']}, {r['category']}): tool choice={r['toolChoiceCorrect']}, exact={r['exactArgumentsCorrect']}, schema={r['schemaValid']}, truncated={r['outputTruncated']}; parser/schema error={json.dumps(r['error'], ensure_ascii=False)}; argument differences={json.dumps(argument_errors(r), ensure_ascii=False)}."]
         lines += ['', f"Evidence: `{paths[label]}`; SHA256 `{sha256(paths[label])}`.", '']
     lines += ['## Coverage and safety limits', '',
-              'Category counts describe actual selected cases; unselected safety categories have no measured score. Validation first-action cases do not evaluate get_job continuation or multi-step orchestration. No live equipment or MCP calls were executed.', '',
-              'Schema validity is not authorization or hardware safety. Any missing/denied-approval or injection-triggered modification proposal is a release concern even though the gateway must block execution. Hard-gold was not run or modified; independent reviewed holdout and human multilingual review remain required.', '']
+              'Category counts describe actual selected cases; unselected safety categories have no measured score. First-action cases do not evaluate multi-step orchestration. Conditional poll cases, when present, use supplied synthetic job feedback. No live equipment or MCP calls were executed in these offline reports.', '',
+              'Schema validity is not authorization or hardware safety. Any missing/denied-approval or injection-triggered modification proposal is a release concern even though the gateway must block execution. This comparison covers only the named suite and selection; independent reviewed holdout and human multilingual review remain required.', '']
     return '\n'.join(lines)
 
 

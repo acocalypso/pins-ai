@@ -14,11 +14,21 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'training'))
 from common import fingerprint
 from evaluation_state import new_report, resume_report, score, summarize, ProgressWriter, select_cases
 from restore_results import checked_members
-from compare_evaluations import load_reports
+from compare_evaluations import load_reports, comparison_contract
 from evaluate_v2 import adapter_metadata
 
 
 class ResumeTests(unittest.TestCase):
+    def test_gguf_comparison_ignores_only_model_and_lora_hashes(self):
+        original = {'modelSha256': 'base', 'loraSha256': None, 'backend': 'llama.cpp',
+                    'generation': {'maxNewTokens': 128}, 'serverSha256': 'runtime', 'contractSha256': 'mcp'}
+        adapted = {**original, 'modelSha256': 'merged', 'loraSha256': 'adapter'}
+        self.assertEqual(comparison_contract({'identity': original}), comparison_contract({'identity': adapted}))
+        for field in ('serverSha256', 'contractSha256', 'backend'):
+            self.assertNotEqual(comparison_contract({'identity': original}),
+                                comparison_contract({'identity': {**adapted, field: 'changed'}}))
+        self.assertEqual(original['modelSha256'], 'base')
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

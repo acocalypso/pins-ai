@@ -312,6 +312,43 @@ Keep `model-provenance.json`, hashes and licenses. An export is a **candidate**,
 automatic promotion. Re-evaluate the quantized model with the same frozen suites
 and conservative Pi probes before updating `plugin/models/bundled.json` and Git
 LFS assets. Never overwrite the known baseline or deployment model during training.
+
+For an interrupted run, explicitly select its metadata-recorded best saved
+checkpoint. The regular `--run` path still rejects unfinished runs. This creates
+a diagnostic candidate with checkpoint hashes and step counts; it does not make
+the training run complete or make the model production-ready:
+
+```bash
+python training/export.py --base .local/training/base \
+  --checkpoint "$RUN/full/checkpoints/checkpoint-400" \
+  --llama-source .local/llama.cpp --converter-python .local/converter-venv/bin/python \
+  --output artifacts/export-checkpoint400
+```
+
+Build `llama-server` from the same pinned source for **off-device, offline** GGUF
+evaluation. This temporary workstation test process only generates proposals;
+it has no MCP connection. Use the existing PINS plugin for actual Pi inference.
+Evaluation reports are written after each case; keep separate outputs for each
+model. The full hard-gold suite contains 120 cases. A positive `--per-language`
+selects a deterministic subset, not a full gold evaluation. On `eval_gold`,
+`--job-continuations` also evaluates supplied synthetic job feedback; no actual
+hardware job is started or polled.
+
+```bash
+cmake -S .local/llama.cpp -B .local/llama.cpp/build \
+  -DCMAKE_BUILD_TYPE=Release -DLLAMA_BUILD_SERVER=ON
+cmake --build .local/llama.cpp/build --target llama-server -j 2
+python training/evaluate_gguf.py \
+  --model artifacts/export-checkpoint400/pins-qwen3-0.6b-checkpoint-400-diagnostic-Q4_K_M.gguf \
+  --server .local/llama.cpp/build/bin/llama-server --llama-source .local/llama.cpp \
+  --suite hard_gold --output artifacts/evaluation-checkpoint400/gguf-hard-gold.json
+```
+
+Repeat the same selected cases against the pinned base and previous adapter
+(add `--lora plugin/models/bundled/checkpoint-700-lora-f16.gguf` for the prior
+deployment). Do not compare scores from different subsets as if they were
+matched measurements. First-action accuracy is separate from argument accuracy,
+language quality, false claims, and enforced gateway authorization.
 See [plugin build instructions](../plugin/README.md), [gateway safety](../docs/gateway-safety.md),
 and [measured Pi results](../docs/pi-sequence-chat-verification.md).
 

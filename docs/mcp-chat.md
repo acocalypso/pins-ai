@@ -113,3 +113,22 @@ Session checks and exact equipment-action approvals remain enforced.
 Test access also requires the caller IP in `mcpChatTrustedClients`, e.g.
 `["192.168.178.31", "127.0.0.1"]`. Other LAN clients still need the token.
 Listed clients intentionally have operator access without bearer authentication.
+
+## Explicit device connection plans
+
+Exact English/German requests such as `Verbinde die Kamera und die Montierung`
+are converted into bounded proposals without relying on the diagnostic model.
+Questions, negations, duplicate/unknown devices and qualified instructions fall
+back to inference. This parser is intent routing, never equipment authorization.
+Each operation needs its own exact approval; the next preview is created only
+after the previous job confirms success. Rejection, cancellation, failure or a
+host profile change stops the remaining plan. `remainingActions` previews the
+queue; `nextApproval` supplies a fresh approval; `continuationError` explains a
+stopped plan while preserving the completed result. A new chat request replaces
+pending previews. Stale approval attempts cannot revoke a newer preview.
+
+MCP inference prioritizes the latest user's language, with the validated caller
+locale as fallback. `/status` and `/diagnostics` probe actual MCP discovery and
+report availability separately from runtime readiness. The informational API
+retains its separate capability flags. No model checkpoint is promoted by these
+routing/lifecycle changes; unconstrained model responses remain diagnostic.

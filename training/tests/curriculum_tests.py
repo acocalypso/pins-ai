@@ -60,7 +60,7 @@ class CurriculumTests(unittest.TestCase):
 
     def test_sequence_plans_are_train_only_and_never_start_or_clear(self):
         cases = [row for row in self.train if row['category'] == 'sequence_plan']
-        self.assertEqual(len(cases), 20)
+        self.assertEqual(len(cases), 22)
         self.assertFalse(any(row['category'] == 'sequence_plan' for row in self.validation))
         for row in cases:
             self.assertFalse(row['provenance']['hardwareExecution'])
@@ -73,6 +73,12 @@ class CurriculumTests(unittest.TestCase):
         self.assertEqual(exact['expected']['arguments']['exposures'], [{'exposure_seconds': 300, 'count': 300}])
         missing = next(row for row in cases if row['id'] == 'sequence-plan-m31-missing-coordinates-en')
         self.assertIsNone(missing['expected']['first_tool'])
+        mixed = next(row for row in cases if row['id'] == 'sequence-plan-m31-mixed-language-missing-coordinates-de')
+        self.assertIsNone(mixed['expected']['first_tool'])
+        self.assertFalse(mixed['messages'][-1].get('tool_calls'))
+        followup = next(row for row in cases if row['id'] == 'sequence-plan-m31-mixed-language-followup-de')
+        self.assertEqual(followup['expected']['arguments']['exposures'], [{'exposure_seconds': 300, 'count': 300}])
+        self.assertNotIn('template', followup['expected']['arguments'])
 
 
 if __name__ == '__main__':

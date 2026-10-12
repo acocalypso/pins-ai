@@ -36,7 +36,7 @@ public static class ChatToolRouter {
         ("stop_guiding", @"\b(stop|stoppe|beende)\b.*\b(guiding|autoguiding)\b"),
         ("set_switch", @"\b(switch|relay|schalter|relais)\b"),
         ("load_sequence", @"\b(load|lade|laden)\b.*\b(sequence|sequenz)\b"),
-        ("add_target", @"\b(add.*target|fuge.*ziel|ziel.*hinzu|append.*(?:sequence|target)|erganze.*(?:sequenz|ziel)|(?:create|build|prepare|make).*sequence|(?:erstelle|erzeuge|plane).*sequenz|(?:shoot|image|photograph).*\b(?:m\s*\d+|ngc\s*\d+))\b"),
+        ("add_target", @"\b(add.*target|fuge.*ziel|ziel.*hinzu|append.*(?:sequence|target)|erganze.*(?:sequenz|sequence|ziel)|(?:create|build|prepare|make).*sequence|(?:erstelle|erzeuge|plane).*(?:sequenz|sequence)|(?:shoot|image|photograph).*\b(?:m\s*\d+|ngc\s*\d+))\b"),
         ("clear_targets", @"\b(clear.*targets|remove.*targets|losche.*ziele|entferne.*ziele)\b"),
         ("save_sequence", @"\b(save|speichere|speichern)\b.*\b(sequence|sequenz)\b"),
         ("start_sequence", @"\b(start|resume|starte|fortsetzen)\b.*\b(sequence|sequenz)\b"),

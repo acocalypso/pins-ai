@@ -17,6 +17,7 @@ python training/tests/comprehensive_tests.py
 python training/tests/colab_tests.py
 python training/tests/training_resume_tests.py
 python training/tests/evaluation_tests.py
+python training/tests/export_tests.py
 python training/tests/preflight_tests.py
 ```
 

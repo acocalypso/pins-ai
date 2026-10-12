@@ -43,6 +43,15 @@ def examples():
         request = ('create a sequence i want to shoot 300 5min exposure no filter of M31' if en else
                    'Erstelle eine Sequenz: 300 Aufnahmen von M31 mit je 5 Minuten, ohne Filter.')
         emit(locale, 'm31-missing-coordinates', request, missing)
+        if not en:
+            # Newly supplied user report, not a held-out evaluation case.
+            mixed_request = 'Erstelle eine Sequence mit 300x 300s aufnahmen für M31'
+            emit(locale, 'm31-mixed-language-missing-coordinates', mixed_request, missing)
+            emit(locale, 'm31-mixed-language-followup',
+                 'Zur geladenen Sequenz hinzufügen, nicht ersetzen. Verwende meine verifizierten J2000-Koordinaten: RA 0.7123 Stunden, Dec 41.2688 Grad.',
+                 arguments={'name': 'M31', 'ra': 0.7123, 'dec': 41.2688,
+                            'exposures': [{'exposure_seconds': 300, 'count': 300}]},
+                 history=[{'role': 'user', 'content': mixed_request}, {'role': 'assistant', 'content': missing}])
         emit(locale, 'unknown-target-no-coordinate-guess',
              'Prepare 300 five-minute images of my new target without coordinates.' if en else
              'Plane 300 Fünf-Minuten-Aufnahmen meines neuen Ziels ohne Koordinaten.', missing)

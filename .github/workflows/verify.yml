@@ -30,6 +30,7 @@ jobs:
       - run: python training/tests/preflight_tests.py
       - run: python training/tests/training_resume_tests.py
       - run: python training/tests/evaluation_tests.py
+      - run: python training/tests/export_tests.py
       - run: python training/tests/local_inference_tests.py
       - run: python plugin/tests/readonly_probe_tests.py
       - run: dotnet run --project plugin/tests/Mcp.GatewayTests -- training/datasets/mcp-v2/data/verified-tools-list.json
