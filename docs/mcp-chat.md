@@ -86,7 +86,7 @@ directly. The checkpoint remains diagnostic and can still misinterpret results.
 
 ## Build and verification
 
-`scripts/build-debian.sh <host-publish> <core-version> <output> <ai-version>` runs
+`plugin/scripts/build-debian.sh <host-publish> <core-version> <output> <ai-version>` runs
 on ARM64, compiles against that host, verifies Git LFS hashes, builds the pinned
 Pi 5 ARMv8.2 runtime with FP16 and dot-product instructions and produces
 `pins-plugin-ai`. This CPU target is not suitable for older ARMv8-only devices.

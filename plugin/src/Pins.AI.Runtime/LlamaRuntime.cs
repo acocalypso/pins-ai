@@ -265,26 +265,38 @@ public sealed class LlamaRuntime : IAsyncDisposable {
             if (trustedHistory is not null) foreach (var message in trustedHistory) messages.Add(message!.DeepClone());
             else foreach (var message in request.Messages) messages.Add(new JsonObject { ["role"] = message.Role, ["content"] = message.Content });
             var formatted = await RuntimeJsonAsync("apply-template", new JsonObject {
-                ["messages"] = messages, ["tools"] = tools.DeepClone(), ["add_generation_prompt"] = true,
+                ["messages"] = messages,
+                ["tools"] = tools.DeepClone(),
+                ["add_generation_prompt"] = true,
                 ["chat_template_kwargs"] = new JsonObject { ["enable_thinking"] = false }
             }, deadline.Token);
             var prompt = formatted["prompt"]?.GetValue<string>() ?? throw new AiUnavailableException("Runtime omitted rendered prompt.");
             var tokenized = await RuntimeJsonAsync("tokenize", new JsonObject {
-                ["content"] = prompt, ["add_special"] = false, ["parse_special"] = true
+                ["content"] = prompt,
+                ["add_special"] = false,
+                ["parse_special"] = true
             }, deadline.Token);
             var inputTokens = tokenized["tokens"]?.AsArray().Count ?? throw new AiUnavailableException("Runtime omitted token count.");
             if (inputTokens + Configuration.MaxOutputTokens > Configuration.ContextTokens)
                 throw new ArgumentException("Chat exceeds model context; shorten history or choose a smaller tool scope.");
             var result = await RuntimeJsonAsync("completion", new JsonObject {
-                ["prompt"] = prompt, ["n_predict"] = Configuration.MaxOutputTokens,
-                ["temperature"] = 0, ["seed"] = 3407, ["cache_prompt"] = true, ["stream"] = false,
+                ["prompt"] = prompt,
+                ["n_predict"] = Configuration.MaxOutputTokens,
+                ["temperature"] = 0,
+                ["seed"] = 3407,
+                ["cache_prompt"] = true,
+                ["stream"] = false,
                 ["stop"] = new JsonArray("<|im_end|>", "<|endoftext|>")
             }, deadline.Token);
             var raw = result["content"]?.GetValue<string>() ?? throw new AiUnavailableException("Runtime omitted output.");
             if (raw.Length > 16384) throw new AiUnavailableException("Model output exceeds budget.");
             success = true;
-            return new JsonObject { ["rawText"] = raw, ["inputTokens"] = inputTokens,
-                ["timings"] = result["timings"]?.DeepClone(), ["truncated"] = result["stopped_limit"]?.DeepClone() };
+            return new JsonObject {
+                ["rawText"] = raw,
+                ["inputTokens"] = inputTokens,
+                ["timings"] = result["timings"]?.DeepClone(),
+                ["truncated"] = result["stopped_limit"]?.DeepClone()
+            };
         }
         catch (OperationCanceledException) when (error is not null) {
             throw new AiUnavailableException(error);

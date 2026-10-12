@@ -67,12 +67,19 @@ public sealed class McpChatApi : IAsyncDisposable {
             var method = context.Request.HttpMethod;
             var path = context.Request.Url!.AbsolutePath;
             if (method == "GET" && path == "/status") {
-                await JsonAsync(context, 200, new { model = runtime.Status, mcpChatAvailable = true,
-                    approvalRequired = true, port = runtime.Configuration.McpChatPort }); return;
+                await JsonAsync(context, 200, new {
+                    model = runtime.Status,
+                    mcpChatAvailable = true,
+                    approvalRequired = true,
+                    port = runtime.Configuration.McpChatPort
+                }); return;
             }
             if (method == "GET" && path == "/diagnostics") {
-                await JsonAsync(context, 200, new { model = runtime.Status, lines = runtime.Diagnostics,
-                    gateway = "Exact schema validation; separate expiring operator approval; no mutation retries." }); return;
+                await JsonAsync(context, 200, new {
+                    model = runtime.Status,
+                    lines = runtime.Diagnostics,
+                    gateway = "Exact schema validation; separate expiring operator approval; no mutation retries."
+                }); return;
             }
             if (method == "POST" && path == "/session") {
                 var body = await BodyAsync(context.Request, deadline.Token);

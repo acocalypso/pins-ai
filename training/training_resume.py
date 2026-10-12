@@ -13,6 +13,10 @@ REQUIRED = ('adapter_model.safetensors', 'adapter_config.json', 'trainer_state.j
             'optimizer.pt', 'scheduler.pt', 'scaler.pt', 'rng_state.pth')
 
 
+def required_files(run):
+    return REQUIRED if run['precision'] == 'fp16' else tuple(n for n in REQUIRED if n != 'scaler.pt')
+
+
 def validate_resume(checkpoint, config, dataset, base, method):
     checkpoint = Path(checkpoint)
     if checkpoint.parent.name != 'checkpoints':
@@ -21,7 +25,8 @@ def validate_resume(checkpoint, config, dataset, base, method):
     state = json.loads((checkpoint / 'trainer_state.json').read_text(encoding='utf-8'))
     if run.get('smokeOnly') or run.get('datasetMode') != 'mcp' or run.get('status') == 'completed':
         raise ValueError('Resume requires an original full MCP training run')
-    if run['config'] != config or run['method'] != method or run['precision'] != 'fp16':
+    if (run['config'] != config or run['method'] != method or run['precision'] not in ('fp16', 'bf16', 'fp32')
+            or config.get('precision', 'fp16') not in ('auto', run['precision'])):
         raise ValueError('Do not change optimizer/model/training configuration during continuation')
     if run['dataset'] != dataset or run['base'] != base:
         raise ValueError('Resume dataset/template/base provenance differs from original run')
@@ -29,7 +34,7 @@ def validate_resume(checkpoint, config, dataset, base, method):
         raise ValueError('Checkpoint has no remaining training steps')
     if state['train_batch_size'] != config['batchSize']:
         raise ValueError('Checkpoint batch size mismatch')
-    files = {name: sha256(checkpoint / name) for name in REQUIRED}
+    files = {name: sha256(checkpoint / name) for name in required_files(run)}
     best = Path(state['best_model_checkpoint'])
     if not best.is_dir() or not (best / 'adapter_model.safetensors').is_file():
         raise ValueError('Best checkpoint must be relocated to a preserved local copy')
@@ -50,7 +55,7 @@ def select_checkpoint(names, read):
     for step in candidates:
         prefix = f'full/checkpoints/checkpoint-{step}/'
         try:
-            for name in REQUIRED:
+            for name in required_files(run):
                 if prefix + name not in names or not read(prefix + name, size_only=True):
                     raise ValueError('Missing/empty ' + name)
             state = json.loads(read(prefix + 'trainer_state.json'))
@@ -125,13 +130,14 @@ def stage_source(bundle, output):
     from transformers.trainer import safe_globals
     optimizer = torch.load(checkpoint / 'optimizer.pt', map_location='cpu', weights_only=True)
     scheduler = torch.load(checkpoint / 'scheduler.pt', map_location='cpu', weights_only=True)
-    scaler = torch.load(checkpoint / 'scaler.pt', map_location='cpu', weights_only=True)
+    run = json.loads((output / 'full/training-run.json').read_text(encoding='utf-8'))
+    scaler = torch.load(checkpoint / 'scaler.pt', map_location='cpu', weights_only=True) if run['precision'] == 'fp16' else None
     with safe_globals():
         rng = torch.load(checkpoint / 'rng_state.pth', map_location='cpu', weights_only=True)
     if not optimizer.get('state') or not optimizer.get('param_groups') or not isinstance(scheduler.get('last_epoch'), int):
         raise ValueError('Invalid optimizer/scheduler state')
-    if not scaler.get('scale') or not all(k in rng for k in ('python', 'numpy', 'cpu', 'cuda')):
-        raise ValueError('Missing FP16/RNG state')
+    if (scaler is not None and not scaler.get('scale')) or not all(k in rng for k in ('python', 'numpy', 'cpu', 'cuda')):
+        raise ValueError('Missing precision-specific scaler/RNG state')
     # Preserve original state JSON separately; edit only a new working copy's obsolete Colab path.
     shutil.copy2(checkpoint / 'trainer_state.json', checkpoint / 'trainer_state.original.json')
     best_name = best_prefix.rstrip('/').split('/')[-1]
@@ -140,7 +146,7 @@ def stage_source(bundle, output):
     report = {'archive': str(bundle.resolve()), 'archiveSha256': archive_hash, 'sourceFilesSha256': hashes,
               'checkpoint': str(checkpoint.resolve()), 'startStep': source_state['global_step'],
               'targetSteps': source_state['max_steps'], 'schedulerLastEpoch': scheduler['last_epoch'],
-              'fp16Scale': scaler['scale'], 'weightsOnlyDeserialization': True,
+              'precision': run['precision'], 'fp16Scale': scaler['scale'] if scaler else None, 'weightsOnlyDeserialization': True,
               'trainingArgumentsPickleLoaded': False, 'relocatedBestCheckpoint': source_state['best_model_checkpoint']}
     report['skippedIncompleteCheckpoints'] = skipped
     if archive_hash is not None and sha256(bundle) != archive_hash: raise ValueError('Source archive changed')

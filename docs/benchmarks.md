@@ -12,14 +12,14 @@ or guiding session. The plugin was compiled against the installed host DLLs.
 llama.cpp v0.6.0 commit `8345f333951c661d166b00e6f9362e553768f292` was built on
 this Pi with native CPU flags, OpenMP and no GPU. Pi 4 compatibility is untested.
 
-[Model manifest](../models/manifest.json) pins revisions, Q4_K_M files, sizes,
+[Model manifest](../plugin/models/manifest.json) pins revisions, Q4_K_M files, sizes,
 SHA256 and licences. Qwen uses Apache-2.0; the optional third candidate,
 FunctionGemma 270M, uses the Gemma Terms of Use. Weights remain outside Git.
 FunctionGemma specializes in function calling rather than direct dialogue;
 MCP and representative function-call accuracy evaluation remain unavailable.
 
 The real plugin's authenticated loopback SSE API measured the fixed
-[EN/DE cases](../benchmarks/cases.json), with host/native CPU, RSS, swap and thermal
+[EN/DE cases](../plugin/benchmarks/cases.json), with host/native CPU, RSS, swap and thermal
 telemetry. First content means first nonempty text, not first useful or correct
 answer. Load includes hash verification and process startup; disk cache may be
 warm. Each case ran once per profile. Mixed-case p95 uses nearest rank and is not
@@ -43,8 +43,8 @@ Three threads omit the final three cases, so their subset is not directly
 comparable to the full sets. It showed little median decode improvement over two
 threads. No AI process or system swap usage was observed.
 
-Raw [thread sweep](../benchmarks/results/pi5-thread-sweep-interrupted.json) and
-[earlier four-case interruption](../benchmarks/results/pi5-interrupted.json) are
+Raw [thread sweep](../plugin/benchmarks/results/pi5-thread-sweep-interrupted.json) and
+[earlier four-case interruption](../plugin/benchmarks/results/pi5-interrupted.json) are
 preserved separately.
 
 ## Qwen3.5-0.8B conservative probes
@@ -64,9 +64,9 @@ The reduced-context answer began “30 times 120 seconds equals 3600 seconds, wh
 converts”; this is incomplete and cannot be scored as a correct 60-minute answer.
 Zero process swap was observed. Reducing context did not establish a safe profile.
 
-Raw [template failure](../benchmarks/results/pi5-qwen35-conservative.json),
-[memory stop](../benchmarks/results/pi5-qwen35-fixed-conservative.json) and
-[512-token thermal stop](../benchmarks/results/pi5-qwen35-512-conservative.json).
+Raw [template failure](../plugin/benchmarks/results/pi5-qwen35-conservative.json),
+[memory stop](../plugin/benchmarks/results/pi5-qwen35-fixed-conservative.json) and
+[512-token thermal stop](../plugin/benchmarks/results/pi5-qwen35-512-conservative.json).
 The last includes the explicit failure status. Older files predate automatic
 failure-status/diagnostic capture.
 
@@ -80,9 +80,9 @@ transport measurements, not a replacement for the original full quality matrix.
 Qwen3.5 first completed an eight-token-limited request: load 4.412 s, first text
 4.441 s, native decode 10.73 tokens/s, peak sampled RSS 1192.4 MiB, post-request
 76 °C. Output was only `30 times 120 seconds`, truncated by the budget.
-[Raw retry](../benchmarks/results/pi5-qwen35-retry-short.json).
+[Raw retry](../plugin/benchmarks/results/pi5-qwen35-retry-short.json).
 
-Two separate [short probes](../benchmarks/short-probes.json), with a 16-token
+Two separate [short probes](../plugin/benchmarks/short-probes.json), with a 16-token
 output budget, then completed for Qwen3.5. They use shorter prompts than the
 initial matrix and are not equivalent quality evaluations.
 
@@ -107,9 +107,9 @@ refusing a general question because of its tool specialization. Both successful
 FunctionGemma outputs hit the small generation budget. No actual tools were
 provided or executed, and this is not a function-calling accuracy benchmark.
 
-[Combined raw follow-up](../benchmarks/results/pi5-short-followup.json) retains
+[Combined raw follow-up](../plugin/benchmarks/results/pi5-short-followup.json) retains
 the failed warm request, diagnostic lines and status;
-[fresh German retry](../benchmarks/results/pi5-functiongemma-de-fresh.json) is
+[fresh German retry](../plugin/benchmarks/results/pi5-functiongemma-de-fresh.json) is
 separate. Zero process swap was observed in all follow-up samples.
 
 FunctionGemma is substantially lighter than Qwen3.5 in these probes, making it

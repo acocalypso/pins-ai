@@ -7,7 +7,7 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'training'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'training'))
 from training_resume import validate_resume, select_checkpoint, REQUIRED
 from metrics import TrainingMetrics
 from common import write_jsonl, sha256
@@ -37,6 +37,18 @@ class ResumeTests(unittest.TestCase):
         self.assertEqual(info['targetSteps'] - info['startStep'], 146)
         self.assertEqual(len(info['checkpointFilesSha256']), len(REQUIRED))
         self.assertFalse(info['bitIdenticalToColab'])
+
+    def test_bf16_lora_checkpoint_does_not_require_fp16_scaler(self):
+        self.config['precision']='bf16'; self.run['precision']='bf16'; self.run['method']='lora'
+        (self.checkpoint / 'scaler.pt').unlink(); self.save()
+        _, _, info=validate_resume(self.checkpoint,self.config,self.data,self.base,'lora')
+        self.assertNotIn('scaler.pt',info['checkpointFilesSha256'])
+        prefix, _, _, _=self.select()
+        self.assertIn('checkpoint-700',prefix)
+
+    def test_fp16_checkpoint_still_requires_scaler(self):
+        (self.checkpoint / 'scaler.pt').unlink()
+        with self.assertRaises(FileNotFoundError): validate_resume(self.checkpoint,self.config,self.data,self.base,'qlora')
 
     def test_config_dataset_base_changes_are_rejected(self):
         for values in [({'batchSize': 1, 'gradientAccumulation': 8}, self.data, self.base),

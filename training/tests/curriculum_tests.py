@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 import unittest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'training'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'training'))
 from common import fingerprint, read_jsonl
 from curriculum_v3 import curriculum_rows
 from v2_contracts import PACKAGE, definitions, validate_call

@@ -55,8 +55,8 @@ All restored/evaluation evidence belongs under `.local/`, already ignored by Git
 ## Tests
 
 ```powershell
-.local/training-venv/Scripts/python.exe tests/evaluation_tests.py
-.local/training-venv/Scripts/python.exe tests/v2_tests.py
+.local/training-venv/Scripts/python.exe training/tests/evaluation_tests.py
+.local/training-venv/Scripts/python.exe training/tests/v2_tests.py
 ```
 
 Tests cover successful and interrupted resume, duplicate/out-of-order IDs, changed datasets/model identities/scoring/generation/backend, re-scoring, incorrect-prediction preservation, false completion, legacy rejection, existing-file protection, atomic-write failure, diagnostic checkpoint gating, comparison compatibility and archive path/type collisions.

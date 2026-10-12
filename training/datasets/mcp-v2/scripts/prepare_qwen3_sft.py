@@ -7,7 +7,7 @@ import subprocess
 import sys
 
 PACKAGE = Path(__file__).resolve().parents[1]
-REPOSITORY = PACKAGE.parent
+REPOSITORY = PACKAGE.parents[2]
 
 
 def main():

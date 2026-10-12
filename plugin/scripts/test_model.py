@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import sys
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'training'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'training'))
 from common import sha256
 from local_inference import LocalInference, append_tool_result
 from v2_contracts import POLICY

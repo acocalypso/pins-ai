@@ -1,6 +1,6 @@
 # PINS v3 training with Colab in VS Code
 
-Prepared notebook: [pins-ai-v2-colab.ipynb](../output/jupyter-notebook/pins-ai-v2-colab.ipynb).
+Prepared notebook: [pins-ai-v2-colab.ipynb](../training/notebooks/pins-ai-colab.ipynb).
 This is cloud **training** only. Pi inference still belongs to the PINS plugin;
 there is no cloud equipment access or MCP server in the notebook.
 
@@ -34,7 +34,7 @@ notebook refresh and a new run, with Git pulling the current branch.
 2. Code is cloned from `https://github.com/acocalypso/pins-ai.git`, branch `main`,
    into `/content/pins-ai-git`. On an existing clean checkout, setup runs
    `git pull --ff-only origin main`. No source ZIP upload is required for code updates.
-3. Existing data is read from `My Drive/pins-ai/PINS_MCP_AI_Training_v2/data`,
+3. Existing data is read from `My Drive/pins-ai/training/datasets/mcp-v2/data`,
    `My Drive/pins-ai/data`, or the existing `pins-ai-training-0.1.0.zip` there.
    Original dataset files must match Git checksums. Updated audited contracts stay in Git;
    old contract files in the Drive bundle are ignored.

@@ -43,7 +43,8 @@ def main():
         if args.smoke_run is None:
             raise ValueError('Full MCP training requires --smoke-run pointing to a fresh verified GPU smoke')
         smoke = json.loads((args.smoke_run / 'training-run.json').read_text(encoding='utf-8'))
-        if (smoke.get('status') != 'completed' or not smoke.get('smokeOnly') or smoke.get('precision') != 'fp16' or
+        if (smoke.get('status') != 'completed' or not smoke.get('smokeOnly') or
+            (config['precision'] != 'auto' and smoke.get('precision') != config['precision']) or
             smoke.get('method') != method or smoke.get('promptSha256') != fingerprint(POLICY) or
             smoke['dataset'].get('contractSha256') != sha256(VERIFIED) or
             smoke['dataset'].get('adapterContractSha256') != sha256(ADAPTER) or
@@ -52,7 +53,7 @@ def main():
             any(smoke['config'][key] != config[key] for key in ('loraRank', 'loraAlpha', 'batchSize'))):
             raise ValueError('GPU smoke is stale or incompatible with full MCP training')
     from preflight import inspect
-    hardware = inspect(method)
+    hardware = inspect(method, config['precision'])
     if not hardware['ready']:
         raise RuntimeError(json.dumps(hardware, indent=2))
     base_info = json.loads((args.base / 'base-provenance.json').read_text(encoding='utf-8-sig'))
@@ -179,7 +180,9 @@ def main():
     def collate(rows):
         return {key: torch.tensor(value, dtype=torch.long) for key, value in pad_examples(rows, tokenizer.pad_token_id).items()}
     args.output.mkdir(parents=True)
-    versions = {name: importlib.metadata.version(name) for name in ('torch', 'transformers', 'peft', 'accelerate', 'bitsandbytes')}
+    package_names = ['torch', 'transformers', 'peft', 'accelerate']
+    if method == 'qlora': package_names.append('bitsandbytes')
+    versions = {name: importlib.metadata.version(name) for name in package_names}
     run = {'status': 'started', 'config': config, 'method': method, 'precision': precision,
            'hardware': hardware, 'packages': versions, 'dataset': data_info, 'base': base_info,
            'promptSha256': prompt_hash, 'templateSha256': fingerprint(tokenizer.chat_template),

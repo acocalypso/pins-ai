@@ -25,7 +25,7 @@ train-only conversations (22 assistant turns). Regenerate with:
 
 ```powershell
 .local/training-venv/Scripts/python.exe training/sequence_curriculum.py
-.local/training-venv/Scripts/python.exe tests/curriculum_tests.py
+.local/training-venv/Scripts/python.exe training/tests/curriculum_tests.py
 ```
 
 The existing Colab `prepare_v2.py --curriculum` path includes these examples in

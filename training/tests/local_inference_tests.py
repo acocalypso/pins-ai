@@ -4,7 +4,7 @@ from pathlib import Path
 import sys
 import unittest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'training'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'training'))
 from local_inference import normalize_tools, extract_tool_calls, append_tool_result
 
 

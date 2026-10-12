@@ -6,7 +6,7 @@ import re
 from jsonschema import Draft202012Validator
 from common import ROOT, fingerprint
 
-PACKAGE = ROOT / 'PINS_MCP_AI_Training_v2'
+PACKAGE = ROOT / 'training/datasets/mcp-v2'
 VERIFIED = PACKAGE / 'data/verified-tools-list.json'
 ADAPTER = PACKAGE / 'data/verified-adapter-contract.json'
 POLICY = ('You are PINS AI. Reply briefly in the latest user language. Use only the provided MCP tools. '

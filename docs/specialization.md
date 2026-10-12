@@ -10,7 +10,7 @@ training. This is not training from scratch, and nothing trains on the Pi.
 
 Use the full post-trained `Qwen/Qwen3-0.6B` checkpoint, not the GGUF or the
 `Qwen3-0.6B-Base` checkpoint. The pinned HF revision and 1,503,300,328-byte weights
-hash are in [training config](../training/config.json). Qwen is Apache-2.0.
+hash are in [training config](../training/configs/config.json). Qwen is Apache-2.0.
 The upstream [model card](https://huggingface.co/Qwen/Qwen3-0.6B) documents the
 non-thinking chat template; the pipeline uses it with `enable_thinking=False`.
 
@@ -88,7 +88,7 @@ python3.11 -m venv .local/training-venv
   --index-url https://download.pytorch.org/whl/cu126
 .local/training-venv/bin/python -m pip install -r training/requirements.txt
 .local/training-venv/bin/python training/preflight.py
-.local/training-venv/bin/python tests/training_tests.py
+.local/training-venv/bin/python training/tests/training_tests.py
 ```
 
 Full checkpoint download requires explicit flags and retains pinned-file hashes,
@@ -101,7 +101,7 @@ adapter/checkpoints, clean merged weights and F16/Q4 exports:
 
 For tokenizer-only verification, add `--tokenizer-only --output
 .local/training/tokenizer`. It downloads no weights. Set
-`PINS_TRAINING_TOKENIZER` to that directory when running `tests/training_tests.py`
+`PINS_TRAINING_TOKENIZER` to that directory when running `training/tests/training_tests.py`
 to check the real non-thinking template, loss masks and all 432 example lengths.
 
 ## Train and merge
@@ -165,7 +165,7 @@ evaluation or the Pi regression gate.
 ## GGUF export on the development workstation
 
 Check out/build llama.cpp at the **same commit as the Pi runtime**, recorded in
-`models/manifest.json`. Build the `llama-quantize` target on the workstation.
+`plugin/models/manifest.json`. Build the `llama-quantize` target on the workstation.
 Use a separate converter environment: the pinned llama.cpp conversion requirements
 currently select CPU Torch 2.11.0 and must not overwrite the CUDA training stack.
 
@@ -234,12 +234,12 @@ settings and pauses. The script temporarily changes model configuration and
 restores it in `finally`; an abrupt power loss still requires manual recovery.
 
 ```bash
-python3 scripts/benchmark.py --models qwen3-0.6b-q4 --threads 1 \
+python3 plugin/scripts/benchmark.py --models qwen3-0.6b-q4 --threads 1 \
   --context-tokens 2048 --max-output-tokens 128 --case-pause-seconds 30 \
   --case-file artifacts/training/data/gold-cases.json \
   --evaluation-manifest artifacts/training/data/dataset-manifest.json \
   --output benchmarks/results/qwen3-baseline-gold.json
-python3 scripts/benchmark.py --models pins-qwen3-0.6b-specialized-q4 --threads 1 \
+python3 plugin/scripts/benchmark.py --models pins-qwen3-0.6b-specialized-q4 --threads 1 \
   --context-tokens 2048 --max-output-tokens 128 --case-pause-seconds 30 \
   --manifest /path/to/export/benchmark-manifest.json \
   --case-file artifacts/training/data/gold-cases.json \

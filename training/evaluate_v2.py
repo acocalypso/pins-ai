@@ -61,7 +61,7 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--job-continuations', action='store_true')
     parser.add_argument('--resume-from', type=Path, help='Resume a compatible report into a NEW output file')
-    parser.add_argument('--backend', choices=('cuda-nf4', 'cpu-fp32'), default='cuda-nf4')
+    parser.add_argument('--backend', choices=('cuda-nf4', 'gpu-bf16', 'cpu-fp32'), default='cuda-nf4')
     parser.add_argument('--allow-incomplete-checkpoint', action='store_true', help='Diagnostic only: evaluate metadata-selected best saved checkpoint')
     args = parser.parse_args()
     if args.output.exists() or (args.resume_from and args.output.resolve() == args.resume_from.resolve()):
@@ -74,8 +74,12 @@ def main():
     from peft import PeftModel
     if args.backend == 'cuda-nf4' and not torch.cuda.is_available():
         raise RuntimeError('CUDA NF4 unavailable; explicitly select --backend cpu-fp32 for a separately labeled evaluation')
+    if args.backend == 'cuda-nf4' and getattr(torch.version, 'hip', None):
+        raise RuntimeError('ROCm evaluation requires --backend gpu-bf16; CUDA NF4 is not the supported ROCm path')
+    if args.backend == 'gpu-bf16' and (not torch.cuda.is_available() or not torch.cuda.is_bf16_supported(including_emulation=False)):
+        raise RuntimeError('GPU BF16 evaluation requires a verified BF16-capable CUDA/ROCm GPU')
     run, adapter_info = adapter_metadata(args.adapter, args.allow_incomplete_checkpoint) if args.adapter else (None, None)
-    config = json.loads((ROOT / 'training/config-v3.json').read_text(encoding='utf-8'))
+    config = json.loads((ROOT / 'training/configs/config-v3.json').read_text(encoding='utf-8'))
     base_info = verify_base(args.base, config, run)
     tokenizer = AutoTokenizer.from_pretrained(args.base, local_files_only=True, trust_remote_code=False)
     if run and fingerprint(tokenizer.chat_template) != run['templateSha256']:
@@ -96,7 +100,8 @@ def main():
                 'templateSha256': fingerprint(tokenizer.chat_template), 'generation': generation,
                 'selection': {'perLanguage': args.per_language, 'jobContinuationsRequested': args.job_continuations},
                 'caseInputsSha256': fingerprint([{'id': c['id'], 'caseSha256': c['caseSha256'], 'promptSha256': c['promptSha256']} for c in cases]),
-                'backend': {'name': args.backend, 'dtype': 'float16' if args.backend == 'cuda-nf4' else 'float32',
+                'backend': {'name': args.backend, 'platform': 'cpu' if args.backend == 'cpu-fp32' else 'rocm' if getattr(torch.version, 'hip', None) else 'cuda',
+                            'dtype': 'bfloat16' if args.backend == 'gpu-bf16' else 'float16' if args.backend == 'cuda-nf4' else 'float32',
                             'quantization': {'type': 'nf4', 'doubleQuant': True} if args.backend == 'cuda-nf4' else None,
                             'packages': versions}}
     report = new_report(identity, cases, {
@@ -118,7 +123,7 @@ def main():
     if report['completed']:
         print('All selected cases already recorded; verified report copied to new output.')
         return
-    device = 'cuda' if args.backend == 'cuda-nf4' else 'cpu'
+    device = 'cpu' if args.backend == 'cpu-fp32' else 'cuda'
     segment = {'platform': platform.platform(), 'python': platform.python_version(), 'backend': args.backend,
                'gpu': torch.cuda.get_device_name() if device == 'cuda' else None,
                'resumedCaseCount': len(report['results']), 'packages': versions}
@@ -126,10 +131,11 @@ def main():
     writer.write(report)
     try:
         loading = {'local_files_only': True, 'trust_remote_code': False, 'attn_implementation': 'eager',
-                   'torch_dtype': torch.float16 if device == 'cuda' else torch.float32,
+                   'torch_dtype': torch.bfloat16 if args.backend == 'gpu-bf16' else torch.float16 if device == 'cuda' else torch.float32,
                    'device_map': {'': 0 if device == 'cuda' else 'cpu'}}
         if device == 'cuda':
             torch.cuda.reset_peak_memory_stats()
+        if args.backend == 'cuda-nf4':
             loading['quantization_config'] = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type='nf4',
                     bnb_4bit_use_double_quant=True, bnb_4bit_compute_dtype=torch.float16)
         model = AutoModelForCausalLM.from_pretrained(args.base, **loading)

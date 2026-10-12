@@ -16,7 +16,7 @@ Prepared JSONL now uses LF on both Windows and Linux so byte hashes match Colab.
 ## One resumed-step GPU smoke
 
 ```powershell
-.local/training-venv/Scripts/python.exe training/train.py --base .local/training/base --dataset-mode mcp --config training/config-v3.json --data .local/training/resume-v3/sft --resume-from-checkpoint .local/training/resume-v3/source/full/checkpoints/checkpoint-700 --resume-smoke-steps 1 --logging-steps 1 --output .local/training/resume-v3/gpu-smoke
+.local/training-venv/Scripts/python.exe training/train.py --base .local/training/base --dataset-mode mcp --config training/configs/config-v3.json --data .local/training/resume-v3/sft --resume-from-checkpoint .local/training/resume-v3/source/full/checkpoints/checkpoint-700 --resume-smoke-steps 1 --logging-steps 1 --output .local/training/resume-v3/gpu-smoke
 ```
 
 This continues step 700 to 701 using the **full original 846-step learning-rate schedule**. It does not shorten max_steps or reset the optimizer. It runs the original full-sized examples and accumulation16. The resulting run is marked smokeOnly; the saved checkpoint and selected adapter are diagnostic evidence, not a new full specialization. Training must fail rather than silently reduce context/batch, discard examples or change precision when GPU memory is insufficient.
@@ -26,7 +26,7 @@ This continues step 700 to 701 using the **full original 846-step learning-rate 
 After the smoke completes, run in the foreground or launch this coordinator as a hidden Windows background process:
 
 ```powershell
-.local/training-venv/Scripts/python.exe training/continue_training.py --base .local/training/base --config training/config-v3.json --data .local/training/resume-v3/sft --checkpoint .local/training/resume-v3/source/full/checkpoints/checkpoint-700 --smoke-run .local/training/resume-v3/gpu-smoke --output .local/training/resume-v3/continued
+.local/training-venv/Scripts/python.exe training/continue_training.py --base .local/training/base --config training/configs/config-v3.json --data .local/training/resume-v3/sft --checkpoint .local/training/resume-v3/source/full/checkpoints/checkpoint-700 --smoke-run .local/training/resume-v3/gpu-smoke --output .local/training/resume-v3/continued
 ```
 
 This starts the actual continuation again from the immutable checkpoint700, not from the diagnostic smoke. There are146 global optimizer-step events left to the original846-step budget. Metrics after checkpoint700 but before interruption are not weight checkpoints; lost steps701–710 must be repeated. FP16 overflow can skip actual optimizer updates, so the saved scheduler epoch need not equal Trainer global_step (the archived scheduler was698 at global_step700). Preserve that state.
@@ -49,7 +49,7 @@ Validation/checkpoints use the original100-step cadence; the next scheduled vali
 ```powershell
 Get-Content .local/training/resume-v3/continued/training.log -Tail 30 -Wait
 Get-Content .local/training/resume-v3/continued/full/metrics-latest.json
-.local/training-venv/Scripts/python.exe tests/training_resume_tests.py
+.local/training-venv/Scripts/python.exe training/tests/training_resume_tests.py
 ```
 
 All model/checkpoint/run/log files belong under ignored `.local/`. No archives, weights or optimizer pickles should be committed.

@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 import zipfile
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'training'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'training'))
 from common import fingerprint
 from evaluation_state import new_report, resume_report, score, summarize, ProgressWriter, select_cases
 from restore_results import checked_members

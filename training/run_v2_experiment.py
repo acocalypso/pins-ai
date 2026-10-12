@@ -53,7 +53,7 @@ def main():
         stages.append((name + '-hard-gold', ['training/evaluate_v2.py', '--suite', 'hard_gold'] +
                        (['--adapter', str(adapter)] if adapter else []) + ['--output', str(evidence / f'{name}-hard-gold.json')]))
     stages.append(('v2-training', ['training/train.py', '--base', '.local/training/base', '--dataset-mode', 'mcp',
-                                  '--config', 'training/config-v2.json', '--output', str(destination),
+                                  '--config', 'training/configs/config-v2.json', '--output', str(destination),
                                   '--smoke-run', str(args.smoke_run), '--logging-steps', '5']))
     stages.append(('v2-eval', common_eval + ['--adapter', str(destination / 'adapter'), '--output', str(evidence / 'v2-eval.json')]))
     stages.append(('v2-hard-gold', ['training/evaluate_v2.py', '--suite', 'hard_gold', '--adapter', str(destination / 'adapter'),

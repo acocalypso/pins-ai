@@ -6,6 +6,7 @@ if [ "$#" -ne 4 ]; then
   exit 64
 fi
 repo=$(cd "$(dirname "$0")/.." && pwd)
+project=$(cd "$repo/.." && pwd)
 host=$(realpath "$1"); core_version=$2; out=$(realpath -m "$3"); version=$4
 test "$(dpkg --print-architecture)" = arm64
 test -s "$host/NINA.Profile.dll"
@@ -28,7 +29,7 @@ cmake --build "$llama/build-package" --target llama-server -j "${PINS_AI_BUILD_J
 install -m755 "$llama/build-package/bin/llama-server" "$runtime/llama-server"
 cc -O2 -Wall -Wextra -Werror "$repo/native/pins-ai-exec.c" -o "$runtime/pins-ai-exec"
 readelf -h "$runtime/llama-server" | grep -q AArch64
-install -m644 "$repo/LICENSE" "$repo/THIRD_PARTY_NOTICES.md" "$repo/models/bundled.json" "$root/usr/share/doc/pins-plugin-ai/"
+install -m644 "$project/LICENSE" "$project/THIRD_PARTY_NOTICES.md" "$repo/models/bundled.json" "$root/usr/share/doc/pins-plugin-ai/"
 install -m644 "$llama/LICENSE" "$root/usr/share/doc/pins-plugin-ai/llama-LICENSE"
 cp -a "$llama/licenses" "$root/usr/share/doc/pins-plugin-ai/llama-licenses"
 install -m644 "$repo/models/bundled/LICENSE.txt" "$root/usr/share/doc/pins-plugin-ai/Qwen3-LICENSE.txt"

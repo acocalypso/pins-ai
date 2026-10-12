@@ -5,7 +5,7 @@ import sys
 import unittest
 from jsonschema import ValidationError
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'training'))
 from common import read_jsonl, sha256
 from v2_contracts import PACKAGE, VERIFIED, assistant_example, definitions, parse_prediction, validate_call

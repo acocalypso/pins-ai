@@ -5,7 +5,7 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
-CONFIG = Path(__file__).with_name('config.json')
+CONFIG = Path(__file__).parent / 'configs/config.json'
 
 
 def sha256(path):
@@ -19,7 +19,7 @@ def fingerprint(value):
 
 
 def policy():
-    source = (ROOT / 'src/Pins.AI.Runtime/Contracts.cs').read_text(encoding='utf-8')
+    source = (ROOT / 'plugin/src/Pins.AI.Runtime/Contracts.cs').read_text(encoding='utf-8')
     constant = source.split('public const string SystemPrompt = ', 1)[1].split(';', 1)[0]
     return ''.join(json.loads('"' + part + '"') for part in re.findall(r'"((?:[^"\\]|\\.)*)"', constant))
 

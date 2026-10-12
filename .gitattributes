@@ -1,3 +1,4 @@
 # Dataset and contract checksums cover exact bytes on Windows and Linux.
-PINS_MCP_AI_Training_v2/data/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-models/bundled/*.gguf filter=lfs diff=lfs merge=lfs -text
+training/datasets/mcp-v2/data/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+training/data/** -text
+plugin/models/bundled/*.gguf filter=lfs diff=lfs merge=lfs -text

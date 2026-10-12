@@ -72,7 +72,7 @@ generation must fit the1536-token training context.
 Basic deterministic inference:
 
 ```powershell
-.local/training-venv/Scripts/python.exe scripts/test_model.py `
+.local/training-venv/Scripts/python.exe plugin/scripts/test_model.py `
   --base .local/training/base `
   --checkpoint .local/training/resume-v3/source/full/checkpoints/checkpoint-700 `
   --prompt "Hello. Introduce yourself briefly." --deterministic --max-new-tokens 128
@@ -92,13 +92,13 @@ wrappers. No schema is executed and no external connection is made.
 Smoke suite and persistent evidence (choose a new output filename on reruns):
 
 ```powershell
-.local/training-venv/Scripts/python.exe scripts/test_model.py `
+.local/training-venv/Scripts/python.exe plugin/scripts/test_model.py `
   --base .local/training/base `
   --checkpoint .local/training/resume-v3/source/full/checkpoints/checkpoint-700 `
   --backend cuda-nf4 --smoke --deterministic --max-new-tokens 128 `
   --output .local/inference-checkpoint-700/smoke-new.json
 
-.local/training-venv/Scripts/python.exe tests/local_inference_tests.py
+.local/training-venv/Scripts/python.exe training/tests/local_inference_tests.py
 ```
 
 Smoke exits2 if an A/B/C quality check fails, even when loading and generation

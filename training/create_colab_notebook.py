@@ -5,7 +5,7 @@ from common import ROOT
 
 
 def main():
-    path = ROOT / 'output/jupyter-notebook/pins-ai-v2-colab.ipynb'
+    path = ROOT / 'training/notebooks/pins-ai-colab.ipynb'
     notebook = json.loads(path.read_text(encoding='utf-8'))
     cells = []
     def cell(kind, source):
@@ -13,7 +13,7 @@ def main():
         if kind == 'code': item.update(execution_count=None, outputs=[])
         cells.append(item)
     cell('markdown', '''
-        # PINS AI v3 training on Google Colab
+        # PINS AI MCP training on Google Colab
 
         Use a hosted **GPU** Colab kernel in VS Code. The notebook delegates to the
         existing FP16/NF4 QLoRA scripts and audited MCP contracts at `e6d13f9`.
@@ -21,10 +21,10 @@ def main():
         validation remains separate. Gold suites are never training inputs.
         No MCP connection, equipment operation or Pi deployment occurs.
 
-        Default mode continues your interrupted v3 run from its **latest complete
-        checkpoint**, restoring adapter, optimizer, scheduler, FP16 scaler and RNG
-        state. The best validation checkpoint is preserved separately. Set
-        `TRAINING_MODE = 'fresh'` only to start a new adapter from the pinned base.
+        Default mode starts a **fresh** adapter from the pinned base with the current
+        curriculum. Set `TRAINING_MODE = 'resume'` only to continue an interrupted
+        run with identical data/configuration, restoring adapter, optimizer,
+        scheduler, FP16 scaler and RNG state. New examples require a fresh run.
         `PRIOR_ADAPTER` remains comparison-only.
 
         Code is cloned/pulled from `acocalypso/pins-ai` on GitHub. Existing data
@@ -33,9 +33,10 @@ def main():
         **Select Kernel → Colab → Auto Connect**, select a GPU runtime, then run
         the setup cells. Sign-in and Drive authorization occur in your session.
 
-        Set `RESUME_SOURCE` to the original Drive run folder (or results ZIP).
-        Set `RUN_TRAINING = True` deliberately to continue in a new output folder.
-        A one-step continuation probe and adapter reload must pass first.
+        In resume mode, set `RESUME_SOURCE` to the original Drive run folder (or results ZIP).
+        Set `RUN_TRAINING = True` deliberately to train in a new output folder.
+        A short GPU smoke and adapter reload must pass first; resume mode uses a
+        one-step continuation probe to check restored state.
         This updated resume workflow has not yet been executed on Colab. GPU availability and runtime lifetime
         depend on Colab allocation. Use a new run name for each attempt.
     ''')
@@ -49,15 +50,15 @@ def main():
         subprocess.run(['nvidia-smi', '--query-gpu=name,memory.total,driver_version',
                         '--format=csv,noheader'], check=True)
 
-        RUN_TRAINING = False  # Enable explicitly after reviewing resume source.
-        TRAINING_MODE = 'resume'  # 'resume' or 'fresh'
+        RUN_TRAINING = False  # Enable explicitly after validating environment/data.
+        TRAINING_MODE = 'fresh'  # 'resume' requires identical original data/configuration.
         RUN_EVALUATION = False  # Enable after training; no tuning against gold scores.
         RUN_FINAL_GOLD = False  # Final release measurement only, never an iterative tuning loop.
         DRIVE_FOLDER = Path('/content/drive/MyDrive/pins-ai')
         RESUME_SOURCE = DRIVE_FOLDER / 'runs/qwen3-pins-v3-colab-20261011-165756'
         # Alternatively: DRIVE_FOLDER / 'qwen3-pins-v3-colab-20261011-165756-results.zip'
         RUN_NAME = 'qwen3-pins-v3-colab-'  + datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
-        TRAIN_CONFIG = 'training/config-v3.json'
+        TRAIN_CONFIG = 'training/configs/config-v3.json'
         SFT_DATA = 'artifacts/v3/sft'
         PRIOR_ADAPTER = DRIVE_FOLDER / 'runs/qwen3-pins-v2-colab-20261011-131536/full/adapter'
         REPOSITORY = 'https://github.com/acocalypso/pins-ai.git'
@@ -100,7 +101,7 @@ def main():
         sys.path.insert(0, str(PROJECT / 'training'))
         from colab_workspace import use_drive_data
         drive_data = use_drive_data(PROJECT, DRIVE_FOLDER)
-        audit = json.loads((PROJECT / 'PINS_MCP_AI_Training_v2/data/contract-audit.json').read_text())
+        audit = json.loads((PROJECT / 'training/datasets/mcp-v2/data/contract-audit.json').read_text())
         if audit['sourceRevision'] != 'e6d13f916cdf1f29a52703e5e7c893a113b2e531':
             raise ValueError('Rebuild this notebook/bundle for the newer audited MCP revision')
         RUN_ROOT = DRIVE_FOLDER / 'runs' / RUN_NAME
@@ -192,11 +193,11 @@ def main():
     ''')
     cell('code', '''
         run_pipeline(['training/fetch_base.py', '--download', '--accept-license'], 'fetch-base.log')
-        run_pipeline(['PINS_MCP_AI_Training_v2/scripts/validate_dataset.py'], 'package-validation.log')
+        run_pipeline(['training/datasets/mcp-v2/scripts/validate_dataset.py'], 'package-validation.log')
         run_pipeline(['training/prepare_v2.py', '--curriculum', '--max-tokens', '1536',
                       '--output', SFT_DATA], 'prepare-sft.log')
-        run_pipeline(['tests/v2_tests.py'], 'v2-tests.log')
-        run_pipeline(['tests/curriculum_tests.py'], 'curriculum-tests.log')
+        run_pipeline(['training/tests/v2_tests.py'], 'v2-tests.log')
+        run_pipeline(['training/tests/curriculum_tests.py'], 'curriculum-tests.log')
         manifest = json.loads((PROJECT / SFT_DATA / 'manifest.json').read_text())
         assert manifest['skipped'] == 0
         for split, info in manifest['splits'].items():

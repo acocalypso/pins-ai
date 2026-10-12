@@ -44,8 +44,12 @@ public sealed class McpChatService(LlamaRuntime runtime, string mcpToken,
                 catch (ArgumentException) { identity = hostIdentity(id) with { StateRevision = null }; }
                 // Unknown live state exposes only queries; previews always refresh it.
                 var exposed = session.Gateway.ExposedTools(identity, proposals: true);
-                return new JsonObject { ["sessionId"] = id, ["expires"] = session.Expires.ToString("O"),
-                    ["tools"] = exposed["tools"]!.DeepClone(), ["status"] = JsonSerializer.SerializeToNode(runtime.Status, AiConfiguration.Json) };
+                return new JsonObject {
+                    ["sessionId"] = id,
+                    ["expires"] = session.Expires.ToString("O"),
+                    ["tools"] = exposed["tools"]!.DeepClone(),
+                    ["status"] = JsonSerializer.SerializeToNode(runtime.Status, AiConfiguration.Json)
+                };
             }
             catch { sessions.TryRemove(id, out _); await session.DisposeAsync(); throw; }
         }
@@ -93,10 +97,14 @@ public sealed class McpChatService(LlamaRuntime runtime, string mcpToken,
                 var tools = new JsonArray();
                 foreach (var name in selected) {
                     var tool = catalog.FirstOrDefault(t => t?["name"]?.GetValue<string>() == name) ?? throw new ArgumentException("Tool is not exposed by this gateway.");
-                    tools.Add(new JsonObject { ["type"] = "function", ["function"] = new JsonObject {
-                        ["name"] = name, ["description"] = name == "add_target" ? ToolPromptSchema.TargetDescription : tool["description"]!.GetValue<string>()[..Math.Min(180, tool["description"]!.GetValue<string>().Length)],
-                        ["parameters"] = ToolPromptSchema.Compact(tool["inputSchema"]!)
-                    }});
+                    tools.Add(new JsonObject {
+                        ["type"] = "function",
+                        ["function"] = new JsonObject {
+                            ["name"] = name,
+                            ["description"] = name == "add_target" ? ToolPromptSchema.TargetDescription : tool["description"]!.GetValue<string>()[..Math.Min(180, tool["description"]!.GetValue<string>().Length)],
+                            ["parameters"] = ToolPromptSchema.Compact(tool["inputSchema"]!)
+                        }
+                    });
                 }
                 // Store trusted tool feedback on the server. Request JSON cannot inject
                 // tool results, system messages, approval state or native tool history.
@@ -161,7 +169,10 @@ public sealed class McpChatService(LlamaRuntime runtime, string mcpToken,
         return new JsonObject { ["kind"] = "approval", ["preview"] = JsonSerializer.SerializeToNode(preview, AiConfiguration.Json) };
     }
     private static JsonObject Result(string name, JsonObject result) => new() {
-        ["kind"] = "result", ["name"] = name, ["result"] = result, ["verifiedAction"] = result["completionConfirmed"]?.DeepClone() ?? JsonValue.Create(false)
+        ["kind"] = "result",
+        ["name"] = name,
+        ["result"] = result,
+        ["verifiedAction"] = result["completionConfirmed"]?.DeepClone() ?? JsonValue.Create(false)
     };
     private static void Remember(Session session, JsonArray turn) {
         session.History.Add(turn);
@@ -177,16 +188,33 @@ public sealed class McpChatService(LlamaRuntime runtime, string mcpToken,
                 if (device["name"] is { } display) copy["name"] = display.DeepClone();
                 summaries.Add(copy);
             }
-            feedback = new JsonObject { ["summaryOf"] = name, ["otherFieldsOmitted"] = true,
-                ["pinsResponding"] = true, ["sequence"] = result["sequence"]?.DeepClone(), ["devices"] = summaries };
+            feedback = new JsonObject {
+                ["summaryOf"] = name,
+                ["otherFieldsOmitted"] = true,
+                ["pinsResponding"] = true,
+                ["sequence"] = result["sequence"]?.DeepClone(),
+                ["devices"] = summaries
+            };
         }
         var content = feedback.ToJsonString();
-        if (content.Length > 3000) content = new JsonObject { ["summaryOf"] = name, ["otherFieldsOmitted"] = true,
-            ["isError"] = result["isError"]?.DeepClone(), ["job"] = result["job"]?.DeepClone(),
-            ["completionConfirmed"] = result["completionConfirmed"]?.DeepClone() }.ToJsonString();
-        Remember(session, new JsonArray(new JsonObject { ["role"] = "assistant", ["content"] = "",
-            ["tool_calls"] = new JsonArray(new JsonObject { ["type"] = "function", ["function"] = new JsonObject {
-                ["name"] = name, ["arguments"] = args.DeepClone() } }) },
+        if (content.Length > 3000) content = new JsonObject {
+            ["summaryOf"] = name,
+            ["otherFieldsOmitted"] = true,
+            ["isError"] = result["isError"]?.DeepClone(),
+            ["job"] = result["job"]?.DeepClone(),
+            ["completionConfirmed"] = result["completionConfirmed"]?.DeepClone()
+        }.ToJsonString();
+        Remember(session, new JsonArray(new JsonObject {
+            ["role"] = "assistant",
+            ["content"] = "",
+            ["tool_calls"] = new JsonArray(new JsonObject {
+                ["type"] = "function",
+                ["function"] = new JsonObject {
+                    ["name"] = name,
+                    ["arguments"] = args.DeepClone()
+                }
+            })
+        },
             new JsonObject { ["role"] = "tool", ["name"] = name, ["content"] = content }));
     }
     private static void ExactFields(JsonObject body, params string[] fields) {

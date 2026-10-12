@@ -14,19 +14,24 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-      - run: dotnet run --project tests/Pins.AI.Tests/Pins.AI.Tests.csproj -c Release
-      - run: dotnet format src/Pins.AI.Runtime/Pins.AI.Runtime.csproj --no-restore --verify-no-changes
-      - run: python -m py_compile scripts/install-assets.py scripts/benchmark.py tests/fake-llama.py tests/runtime-smoke.py
-      - run: gcc -std=c11 -O2 -Wall -Wextra -Werror native/pins-ai-exec.c -o /tmp/pins-ai-exec
-      - run: bash -n scripts/install-plugin.sh
-      - run: python -m pip install jsonschema==4.25.1
+      - run: dotnet run --project plugin/tests/Pins.AI.Tests/Pins.AI.Tests.csproj -c Release
+      - run: dotnet format plugin/src/Pins.AI.Runtime/Pins.AI.Runtime.csproj --no-restore --verify-no-changes
+      - run: python -m py_compile plugin/scripts/install-assets.py plugin/scripts/benchmark.py plugin/tests/fake-llama.py plugin/tests/runtime-smoke.py
+      - run: gcc -std=c11 -O2 -Wall -Wextra -Werror plugin/native/pins-ai-exec.c -o /tmp/pins-ai-exec
+      - run: bash -n plugin/scripts/install-plugin.sh
+      - run: python -m pip install jsonschema==4.25.1 transformers==4.57.6
       - run: python training/prepare.py
-      - run: python tests/training_tests.py
-      - run: python PINS_MCP_AI_Training_v2/scripts/validate_dataset.py
-      - run: python tests/v2_tests.py
-      - run: python tests/colab_tests.py
-      - run: python tests/curriculum_tests.py
-      - run: dotnet run --project tests/Mcp.GatewayTests -- PINS_MCP_AI_Training_v2/data/verified-tools-list.json
-      - run: python -m compileall -q training tests/training_tests.py
+      - run: python training/tests/training_tests.py
+      - run: python training/datasets/mcp-v2/scripts/validate_dataset.py
+      - run: python training/tests/v2_tests.py
+      - run: python training/tests/colab_tests.py
+      - run: python training/tests/curriculum_tests.py
+      - run: python training/tests/preflight_tests.py
+      - run: python training/tests/training_resume_tests.py
+      - run: python training/tests/evaluation_tests.py
+      - run: python training/tests/local_inference_tests.py
+      - run: python plugin/tests/readonly_probe_tests.py
+      - run: dotnet run --project plugin/tests/Mcp.GatewayTests -- training/datasets/mcp-v2/data/verified-tools-list.json
+      - run: python -m compileall -q training training/tests/training_tests.py
       # Plugin compatibility is verified separately against real installed PINS
       # contracts; CI neither invents host stubs nor downloads models.

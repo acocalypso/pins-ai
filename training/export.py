@@ -54,7 +54,7 @@ def main():
         prompt_hash = fingerprint(policy())
     if run and run['promptSha256'] != prompt_hash:
         raise ValueError('Plugin policy changed since training; retrain against the intended current policy')
-    expected = json.loads((ROOT / 'models/manifest.json').read_text(encoding='utf-8-sig'))['runtime']['commit']
+    expected = json.loads((ROOT / 'plugin/models/manifest.json').read_text(encoding='utf-8-sig'))['runtime']['commit']
     actual = subprocess.check_output(['git', '-C', str(args.llama_source), 'rev-parse', 'HEAD'], text=True).strip()
     if actual != expected:
         raise ValueError('llama.cpp converter/quantizer must match the pinned runtime commit')
@@ -97,7 +97,7 @@ def main():
                   'quantizerSha256': sha256(Path(converter_commands[1][0])),
                   'smokeOnly': run['smokeOnly'] if run else False, 'untunedControl': args.base_only, 'productionReady': False}
     write_json(args.output / 'model-provenance.json', model_info)
-    write_json(args.output / 'benchmark-manifest.json', {'runtime': json.loads((ROOT / 'models/manifest.json').read_text(encoding='utf-8-sig'))['runtime'],
+    write_json(args.output / 'benchmark-manifest.json', {'runtime': json.loads((ROOT / 'plugin/models/manifest.json').read_text(encoding='utf-8-sig'))['runtime'],
                                                        'models': [model_info]})
     shutil.copy2(args.base / 'LICENSE', args.output / (target.name + '.LICENSE'))
     print('Exported candidate only; baseline remains untouched:', target)

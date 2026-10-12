@@ -87,15 +87,15 @@ is claimed here.
 
 | File | Purpose |
 | --- | --- |
-| `src/Pins.AI.Runtime/ToolGateway.cs` | State/identity/approval binding, fresh contract checks, safe exposure, polling/result semantics |
-| `src/Pins.AI.Runtime/OperatorAuthority.cs` | Typed approval boundary, exact intent, decimal and named-switch helpers |
-| `src/Pins.AI.Runtime/ApplicationOperatorAuthority.cs` | Authenticated explicit decisions and session revocation checks |
-| `src/Pins.AI.Runtime/McpRigStateReader.cs` | Structured MCP state/capability reader |
-| `src/Pins.AI.Runtime/ToolResultText.cs` | Deterministic multilingual outcome text |
-| `tests/Mcp.GatewayTests/Program.cs`, `SafetyRegressions.cs` | Fake transport, positive/negative flow, model-proposal replay |
-| `training/curriculum_v3.py`, `tests/curriculum_tests.py` | New train-only safety scenarios and isolation checks |
-| `training/create_colab_notebook.py`, `output/jupyter-notebook/pins-ai-v2-colab.ipynb` | Colab defaults to preflight, no automatic training |
-| `scripts/pi-gateway-smoke.py` | Isolated ARM64 fake-equipment test with thermal/time bounds |
+| `plugin/src/Pins.AI.Runtime/ToolGateway.cs` | State/identity/approval binding, fresh contract checks, safe exposure, polling/result semantics |
+| `plugin/src/Pins.AI.Runtime/OperatorAuthority.cs` | Typed approval boundary, exact intent, decimal and named-switch helpers |
+| `plugin/src/Pins.AI.Runtime/ApplicationOperatorAuthority.cs` | Authenticated explicit decisions and session revocation checks |
+| `plugin/src/Pins.AI.Runtime/McpRigStateReader.cs` | Structured MCP state/capability reader |
+| `plugin/src/Pins.AI.Runtime/ToolResultText.cs` | Deterministic multilingual outcome text |
+| `plugin/tests/Mcp.GatewayTests/Program.cs`, `SafetyRegressions.cs` | Fake transport, positive/negative flow, model-proposal replay |
+| `training/curriculum_v3.py`, `training/tests/curriculum_tests.py` | New train-only safety scenarios and isolation checks |
+| `training/create_colab_notebook.py`, `training/notebooks/pins-ai-colab.ipynb` | Colab defaults to preflight, no automatic training |
+| `plugin/scripts/pi-gateway-smoke.py` | Isolated ARM64 fake-equipment test with thermal/time bounds |
 | `docs/colab.md`, `docs/training-v3.md`, `README.md` | Workflow and measured limitations |
 
 Existing `RigContext` positional fields and informational chat remain compatible.
@@ -140,10 +140,10 @@ installed on the Pi and PINS was not restarted.
 Commands (use the local .NET10 executable on this Windows workstation):
 
 ```powershell
-.tools/dotnet/dotnet.exe run --project tests/Mcp.GatewayTests -- PINS_MCP_AI_Training_v2/data/verified-tools-list.json
-.tools/dotnet/dotnet.exe publish tests/Mcp.GatewayTests -c Release -r linux-arm64 --self-contained true -o .local/pi-gateway
-python scripts/pi-gateway-smoke.py --bundle .local/pi-gateway --catalog PINS_MCP_AI_Training_v2/data/verified-tools-list.json
-.local/training-venv/Scripts/python.exe tests/curriculum_tests.py
+.tools/dotnet/dotnet.exe run --project plugin/tests/Mcp.GatewayTests -- training/datasets/mcp-v2/data/verified-tools-list.json
+.tools/dotnet/dotnet.exe publish plugin/tests/Mcp.GatewayTests -c Release -r linux-arm64 --self-contained true -o .local/pi-gateway
+python plugin/scripts/pi-gateway-smoke.py --bundle .local/pi-gateway --catalog training/datasets/mcp-v2/data/verified-tools-list.json
+.local/training-venv/Scripts/python.exe training/tests/curriculum_tests.py
 .local/training-venv/Scripts/python.exe training/prepare_v2.py --curriculum --max-tokens 1536 --output artifacts/v3/sft
 ```
 

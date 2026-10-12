@@ -7,7 +7,7 @@ from pathlib import Path
 import sys
 import unittest
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'training'))
 from common import completion_example, pad_examples, policy, read_jsonl, split_records, validate_record
 from evaluate import compare, score
@@ -55,7 +55,7 @@ class PipelineTests(unittest.TestCase):
         self.assertTrue(all(split_records(tiny, set()).values()))
 
     def test_gold_cases_unchanged(self):
-        cases = json.loads((ROOT / 'benchmarks/cases.json').read_text(encoding='utf-8'))
+        cases = json.loads((ROOT / 'plugin/benchmarks/cases.json').read_text(encoding='utf-8'))
         self.assertEqual(cases, [{k: r[k] for k in ('id', 'locale', 'messages')} for r in self.gold])
 
     def test_german_unicode_is_preserved(self):
