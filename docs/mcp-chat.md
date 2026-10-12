@@ -91,3 +91,7 @@ The existing `PINS_MCP_TOKEN` remains server-side. Missing or other origins stil
 require bearer authentication. An Origin header is not authentication for
 non-browser LAN clients: leave this list empty on untrusted networks.
 Session checks and exact equipment-action approvals remain enforced.
+
+Test access also requires the caller IP in `mcpChatTrustedClients`, e.g.
+`["192.168.178.31", "127.0.0.1"]`. Other LAN clients still need the token.
+Listed clients intentionally have operator access without bearer authentication.

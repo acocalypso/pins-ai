@@ -28,6 +28,7 @@ public sealed record AiConfiguration {
     public int McpChatPort { get; init; } = 4784;
     // Explicitly trusted browser origins for device-local testing; empty by default.
     public string[] McpChatTrustedOrigins { get; init; } = [];
+    public string[] McpChatTrustedClients { get; init; } = [];
     public bool IsTrustedChatOrigin(string? origin) => origin is not null && McpChatTrustedOrigins.Contains(origin, StringComparer.Ordinal);
     public string LogLevel { get; init; } = "Warning";
 
@@ -50,6 +51,9 @@ public sealed record AiConfiguration {
             throw new ArgumentException("Invalid physical-memory or swap safeguards.");
         if (ApiPort is < 1024 or > 65535) throw new ArgumentException("Invalid API port.");
         if (McpChatPort is < 1024 or > 65535 || McpChatPort == ApiPort) throw new ArgumentException("Invalid MCP chat port.");
+        foreach (var address in McpChatTrustedClients) {
+            if (!System.Net.IPAddress.TryParse(address, out _)) throw new ArgumentException("Trusted chat clients must be exact IP addresses.");
+        }
         foreach (var origin in McpChatTrustedOrigins) {
             if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https") ||
                 origin != uri.GetLeftPart(UriPartial.Authority) || !string.IsNullOrEmpty(uri.UserInfo))
