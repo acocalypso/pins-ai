@@ -23,7 +23,7 @@ llama=${PINS_AI_LLAMA_SOURCE:-"$work/llama.cpp"}
 if [ ! -d "$llama/.git" ]; then git clone https://github.com/ggml-org/llama.cpp.git "$llama"; git -C "$llama" checkout --detach "$commit"; fi
 test "$(git -C "$llama" rev-parse HEAD)" = "$commit"
 cmake -S "$llama" -B "$llama/build-package" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
-  -DGGML_NATIVE=OFF -DGGML_CPU_ARM_ARCH=armv8-a -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_OPENSSL=OFF
+  -DGGML_NATIVE=OFF -DGGML_CPU_ARM_ARCH=armv8.2-a+fp16+dotprod -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_OPENSSL=OFF
 cmake --build "$llama/build-package" --target llama-server -j "${PINS_AI_BUILD_JOBS:-2}"
 install -m755 "$llama/build-package/bin/llama-server" "$runtime/llama-server"
 cc -O2 -Wall -Wextra -Werror "$repo/native/pins-ai-exec.c" -o "$runtime/pins-ai-exec"

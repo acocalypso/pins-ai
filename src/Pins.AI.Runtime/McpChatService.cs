@@ -14,6 +14,7 @@ public sealed class McpChatService(LlamaRuntime runtime, string mcpToken,
         public ApplicationOperatorAuthority Authority { get; set; } = null!;
         public ConcurrentDictionary<string, ToolPreview> Previews { get; } = new();
         public List<JsonArray> History { get; } = [];
+        public string[] ClarificationTools { get; set; } = [];
         public SemaphoreSlim Operation { get; } = new(1, 1);
         public DateTimeOffset Expires { get; } = DateTimeOffset.UtcNow.AddMinutes(15);
         public async ValueTask DisposeAsync() { await Client.DisposeAsync(); }
@@ -75,19 +76,20 @@ public sealed class McpChatService(LlamaRuntime runtime, string mcpToken,
         try {
             if (action == "clear") {
                 ExactFields(body);
-                session.History.Clear(); session.Previews.Clear(); session.Gateway.Clear(id);
+                session.History.Clear(); session.ClarificationTools = []; session.Previews.Clear(); session.Gateway.Clear(id);
                 return new JsonObject { ["kind"] = "cleared" };
             }
             if (action == "chat") {
                 if (body.Any(p => p.Key is not ("messages" or "locale" or "toolNames"))) throw new ArgumentException("Unexpected chat field.");
                 var request = new ChatRequest(body["messages"]?.Deserialize<ChatMessage[]>(AiConfiguration.Json) ?? [], body["locale"]?.GetValue<string>());
                 ChatPolicy.Validate(request);
-                var selected = body["toolNames"]?.AsArray().Select(n => n!.GetValue<string>()).ToArray() ?? ["get_status", "connect_device", "get_job"];
-                if (selected.Length is < 1 or > 4 || selected.Distinct().Count() != selected.Length) throw new ArgumentException("Choose one to four distinct tools.");
                 RigContext identity;
                 try { identity = await CaptureAsync(session, id, ct); }
                 catch (ArgumentException) { identity = hostIdentity(id) with { StateRevision = null }; }
                 var catalog = session.Gateway.ExposedTools(identity, proposals: true)["tools"]!.AsArray();
+                var selected = body["toolNames"]?.AsArray().Select(n => n!.GetValue<string>()).ToArray()
+                    ?? ChatToolRouter.Select(request.Messages[^1].Content, catalog, session.ClarificationTools);
+                if (selected.Length > 4 || selected.Distinct().Count() != selected.Length) throw new ArgumentException("Supply at most four distinct tools.");
                 var tools = new JsonArray();
                 foreach (var name in selected) {
                     var tool = catalog.FirstOrDefault(t => t?["name"]?.GetValue<string>() == name) ?? throw new ArgumentException("Tool is not exposed by this gateway.");
@@ -100,7 +102,7 @@ public sealed class McpChatService(LlamaRuntime runtime, string mcpToken,
                 // tool results, system messages, approval state or native tool history.
                 var turn = new JsonArray(new JsonObject { ["role"] = "user", ["content"] = request.Messages[^1].Content });
                 var history = new JsonArray();
-                foreach (var previous in session.History.TakeLast(2)) foreach (var item in previous) history.Add(item!.DeepClone());
+                foreach (var previous in session.History.TakeLast(session.ClarificationTools.Length > 0 ? 4 : 2)) foreach (var item in previous) history.Add(item!.DeepClone());
                 history.Add(turn[0]!.DeepClone());
                 if (Interlocked.CompareExchange(ref activeInference, id, null) is not null) throw new AiBusyException();
                 JsonObject generated;
@@ -108,11 +110,13 @@ public sealed class McpChatService(LlamaRuntime runtime, string mcpToken,
                 finally { Interlocked.CompareExchange(ref activeInference, null, id); }
                 var proposal = ParseProposal(generated["rawText"]!.GetValue<string>());
                 if (proposal is null) {
+                    session.ClarificationTools = generated["rawText"]!.GetValue<string>().IndexOfAny(['?', '？']) >= 0 ? selected : [];
                     turn.Add(new JsonObject { ["role"] = "assistant", ["content"] = generated["rawText"]!.GetValue<string>() });
                     Remember(session, turn); generated["kind"] = "text"; generated["verifiedAction"] = false; return generated;
                 }
                 var toolName = proposal["name"]!.GetValue<string>();
-                if (!selected.Contains(toolName)) throw new ArgumentException("Model proposed a tool outside the selected scope.");
+                if (!selected.Contains(toolName)) throw new ArgumentException("Model proposed a tool outside its retrieved context. Rephrase the request with the operation and device.");
+                session.ClarificationTools = [];
                 Remember(session, turn);
                 var response = await ProposeAsync(session, id, toolName, proposal["arguments"]!.AsObject(), ct);
                 response["generation"] = generated;
@@ -164,6 +168,7 @@ public sealed class McpChatService(LlamaRuntime runtime, string mcpToken,
         while (session.History.Count > 4) session.History.RemoveAt(0);
     }
     private static void RememberResult(Session session, string name, JsonObject args, JsonObject result) {
+        session.ClarificationTools = [];
         var feedback = result;
         if (name == "get_status" && result["devices"] is JsonArray devices) {
             var summaries = new JsonArray();

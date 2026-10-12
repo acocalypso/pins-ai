@@ -8,6 +8,28 @@ void Check(bool value, string label) { if (!value) throw new Exception(label); c
 void Reject(Action operation, string label) { try { operation(); } catch (ArgumentException) { Check(true, label); return; } throw new Exception("Accepted " + label); }
 async Task Refuse(Func<Task> operation, string label) { try { await operation(); } catch (ArgumentException) { Check(true, label); return; } throw new Exception("Accepted " + label); }
 var catalog = JsonNode.Parse(await File.ReadAllTextAsync(args[0]))!.AsObject();
+var routingCatalog = catalog["tools"]!.AsArray();
+Check(ChatToolRouter.Select("Is my equipment connected?", routingCatalog).SequenceEqual(["get_status"]), "connection question retrieves status, not connect");
+Check(ChatToolRouter.Select("Show the current equipment status", routingCatalog).SequenceEqual(["get_status"]), "automatic status context");
+Check(ChatToolRouter.Select("Sind meine Geräte verbunden?", routingCatalog).SequenceEqual(["get_status"]), "German connection question");
+Check(ChatToolRouter.Select("Connect the selected camera", routingCatalog).Contains("connect_device"), "connection instruction retrieves proposal tool");
+Check(ChatToolRouter.Select("Trenne die Kamera", routingCatalog).SequenceEqual(["disconnect_device"]), "German disconnect instruction");
+Check(ChatToolRouter.Select("Run autofocus", routingCatalog).SequenceEqual(["run_autofocus"]), "autofocus outside former default scope");
+Check(ChatToolRouter.Select("Park the mount", routingCatalog).SequenceEqual(["park_mount"]), "park outside former default scope");
+Check(ChatToolRouter.Select("Unpark the mount", routingCatalog).SequenceEqual(["unpark_mount"]), "unpark does not retrieve park");
+Check(ChatToolRouter.Select("Show job-123 status", routingCatalog).Contains("get_job"), "job polling retrieval");
+Check(ChatToolRouter.Select("Tell me a joke", routingCatalog).Length == 0, "no-tool request has no tool context");
+Check(ChatToolRouter.Select("Connect the camera", new()).Length == 0, "only live exposed tools can be retrieved");
+Check(ChatToolRouter.Select("The camera", routingCatalog, ["connect_device"]).Contains("connect_device"), "clarification retains trusted conversational intent");
+Check(ChatToolRouter.Select("The connected camera", routingCatalog, ["disconnect_device"]).Contains("disconnect_device"), "incidental status word retains pending action");
+Check(ChatToolRouter.Select("5", routingCatalog, ["capture_image"]).Contains("capture_image"), "later clarification retains operation");
+Check(ChatToolRouter.Select("Park the mount", routingCatalog, ["connect_device"]).SequenceEqual(["park_mount"]), "new explicit operation replaces pending intent");
+Check(ChatToolRouter.Select("Conecta la cámara", routingCatalog).Contains("connect_device"), "Spanish connection imperative");
+Check(ChatToolRouter.Select("Connecte la caméra", routingCatalog).Contains("connect_device"), "French connection imperative");
+Check(ChatToolRouter.Select("ガイドを開始して", routingCatalog).Contains("start_guiding"), "Japanese combining-mark normalization");
+Check(ChatToolRouter.Select("パークして", routingCatalog).Contains("park_mount"), "Japanese park normalization");
+foreach (var prompt in new[] { "Mostrar el estado actual del equipo", "Mostra lo stato attuale dei dispositivi", "Toon de huidige apparaatstatus", "Mostrar o estado atual dos equipamentos" })
+    Check(ChatToolRouter.Select(prompt, routingCatalog).Contains("get_status"), "localized status retrieval: " + prompt);
 var time = new TestClock();
 var rig = new RigContext("rig-a", "chat-a", false, time.GetUtcNow(), new Dictionary<int, (double, double)> { [3] = (0, 1) },
     new Dictionary<int, double> { [3] = 0.1 }, "profile-a/session-a/state-1",

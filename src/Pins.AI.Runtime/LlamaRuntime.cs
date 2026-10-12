@@ -115,6 +115,7 @@ public sealed class LlamaRuntime : IAsyncDisposable {
             }
             // Do not inherit llama environment overrides (especially remote tools).
             foreach (var name in start.Environment.Keys.Where(k => k.StartsWith("LLAMA_", StringComparison.Ordinal)).ToArray()) start.Environment.Remove(name);
+            start.Environment["OMP_NUM_THREADS"] = Configuration.Threads.ToString(System.Globalization.CultureInfo.InvariantCulture);
             process = new Process { StartInfo = start };
             process.OutputDataReceived += CaptureLog;
             process.ErrorDataReceived += CaptureLog;
@@ -158,14 +159,12 @@ public sealed class LlamaRuntime : IAsyncDisposable {
                 if (!LinuxMemory.WithinBudget(Configuration, LinuxMemory.Read(owned.Id))) {
                     error = "AI stopped: physical RAM, resident-memory, or process-swap safeguard exceeded.";
                     SetState(ModelState.Failed);
-                    await stop.CancelAsync();
                     Kill(owned);
                     return;
                 }
                 if (LinuxMemory.TemperatureC >= Configuration.MaxTemperatureC) {
                     error = "AI stopped: configured temperature cutoff reached. Let the Pi cool before loading again.";
                     SetState(ModelState.Failed);
-                    await stop.CancelAsync();
                     Kill(owned);
                     return;
                 }
@@ -174,7 +173,6 @@ public sealed class LlamaRuntime : IAsyncDisposable {
             if (!ct.IsCancellationRequested) {
                 error = "llama.cpp exited unexpectedly. Explicit load or configuration reload is required.";
                 SetState(ModelState.Failed);
-                await stop.CancelAsync();
             }
         }
         catch (OperationCanceledException) { }
@@ -278,7 +276,7 @@ public sealed class LlamaRuntime : IAsyncDisposable {
                 throw new ArgumentException("Chat exceeds model context; shorten history or choose a smaller tool scope.");
             var result = await RuntimeJsonAsync("completion", new JsonObject {
                 ["prompt"] = prompt, ["n_predict"] = Configuration.MaxOutputTokens,
-                ["temperature"] = 0, ["seed"] = 3407, ["cache_prompt"] = false, ["stream"] = false,
+                ["temperature"] = 0, ["seed"] = 3407, ["cache_prompt"] = true, ["stream"] = false,
                 ["stop"] = new JsonArray("<|im_end|>", "<|endoftext|>")
             }, deadline.Token);
             var raw = result["content"]?.GetValue<string>() ?? throw new AiUnavailableException("Runtime omitted output.");
@@ -287,9 +285,19 @@ public sealed class LlamaRuntime : IAsyncDisposable {
             return new JsonObject { ["rawText"] = raw, ["inputTokens"] = inputTokens,
                 ["timings"] = result["timings"]?.DeepClone(), ["truncated"] = result["stopped_limit"]?.DeepClone() };
         }
+        catch (OperationCanceledException) when (error is not null) {
+            throw new AiUnavailableException(error);
+        }
+        catch (Exception ex) when (error is not null && ex is HttpRequestException or IOException) {
+            throw new AiUnavailableException(error);
+        }
+        catch (OperationCanceledException) when (!ct.IsCancellationRequested && !stop.IsCancellationRequested) {
+            error = "AI inference exceeded its configured time limit. No model tool call was executed; inspect model diagnostics.";
+            throw new AiUnavailableException(error);
+        }
         finally {
             if (!success) await CleanupProcessAsync();
-            SetState(success && Pid is not null ? ModelState.Ready : ModelState.Unloaded);
+            SetState(success && Pid is not null ? ModelState.Ready : error is not null ? ModelState.Failed : ModelState.Unloaded);
             operation.Release();
         }
     }

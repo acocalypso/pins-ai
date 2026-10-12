@@ -69,7 +69,16 @@ requires state `succeeded` **and** outcome success; failed, cancelled and abando
 jobs remain failures. Browser polling pauses in the background. The existing PINS
 equipment controls remain available independently of AI.
 
-The compact tool scope respects the 1536-token trained context. The full gateway
+Normal chat does not require a tool selector. The gateway retrieves up to four
+live tools from the current message (with multilingual operation aliases), and
+the model chooses a native call and its arguments. An unanswered server-held
+clarification retains its earlier intent. This lightweight retrieval is not a
+semantic guarantee: unrecognized phrasing can produce clarification or no call.
+Every proposed name and argument is validated again; retrieval never authorizes
+equipment. The equipment-status shortcut directly issues the known read-only
+query without waiting for inference. Debug/manual requests remain available.
+
+The compact tool context respects the 1536-token trained context. The full gateway
 allowlist can be browsed as structured requests; unsupported new MCP tools are
 hidden pending audit. Oversized history/schema fails visibly instead of truncating
 the prompt. Model prose is labeled unverified; structured tool results are shown
@@ -79,7 +88,9 @@ directly. The checkpoint remains diagnostic and can still misinterpret results.
 
 `scripts/build-debian.sh <host-publish> <core-version> <output> <ai-version>` runs
 on ARM64, compiles against that host, verifies Git LFS hashes, builds the pinned
-generic ARMv8 runtime and produces `pins-plugin-ai`. CI uses LFS checkout and
+Pi 5 ARMv8.2 runtime with FP16 and dot-product instructions and produces
+`pins-plugin-ai`. This CPU target is not suitable for older ARMv8-only devices.
+CI uses LFS checkout and
 records the selected AI/frontend/core commits. Its package depends on the exact
 core package version. Build dependencies: .NET 10, CMake, C/C++ toolchain, Git,
 Git LFS, Python 3 and Debian packaging tools.
