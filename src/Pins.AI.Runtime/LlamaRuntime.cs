@@ -75,6 +75,12 @@ public sealed class LlamaRuntime : IAsyncDisposable {
                 var hash = Convert.ToHexString(await SHA256.HashDataAsync(model, ct));
                 if (!hash.Equals(Configuration.ModelSha256, StringComparison.OrdinalIgnoreCase)) throw new AiUnavailableException("Model SHA256 verification failed.");
             }
+            if (!string.IsNullOrEmpty(Configuration.LoraPath)) {
+                await using var adapter = File.OpenRead(Configuration.LoraPath);
+                var hash = Convert.ToHexString(await SHA256.HashDataAsync(adapter, ct));
+                if (!hash.Equals(Configuration.LoraSha256, StringComparison.OrdinalIgnoreCase))
+                    throw new AiUnavailableException("LoRA SHA256 verification failed.");
+            }
             // Ephemeral port, never attach to an unrelated process occupying it.
             var listener = new TcpListener(IPAddress.Loopback, 0);
             listener.Start();
@@ -102,6 +108,10 @@ public sealed class LlamaRuntime : IAsyncDisposable {
                 "--jinja", "--chat-template-kwargs", "{\"enable_thinking\":false}", "--reasoning", "off", "--no-webui",
                 "--log-verbosity", Configuration.LogLevel switch { "Debug" => "3", "Information" => "3", "Warning" => "2", _ => "1" }];
             foreach (var arg in args) start.ArgumentList.Add(arg);
+            if (!string.IsNullOrEmpty(Configuration.LoraPath)) {
+                start.ArgumentList.Add("--lora");
+                start.ArgumentList.Add(Configuration.LoraPath);
+            }
             // Do not inherit llama environment overrides (especially remote tools).
             foreach (var name in start.Environment.Keys.Where(k => k.StartsWith("LLAMA_", StringComparison.Ordinal)).ToArray()) start.Environment.Remove(name);
             process = new Process { StartInfo = start };

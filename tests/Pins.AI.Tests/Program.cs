@@ -12,6 +12,11 @@ void Reject(Action action, string label) {
 }
 
 new AiConfiguration().Validate();
+Reject(() => (new AiConfiguration { LoraPath = "relative.gguf", LoraSha256 = new string('a', 64) }).Validate(), "LoRA path must be absolute");
+Reject(() => (new AiConfiguration { LoraSha256 = new string('a', 64) }).Validate(), "LoRA hash requires a path");
+Reject(() => (new AiConfiguration { LoraPath = Path.GetFullPath("adapter.gguf") }).Validate(), "LoRA path requires verified hash");
+(new AiConfiguration { LoraPath = Path.GetFullPath("adapter.gguf"), LoraSha256 = new string('a', 64) }).Validate();
+Check(true, "optional verified local LoRA accepted");
 Reject(() => (new AiConfiguration { Threads = 4 }).Validate(), "reserved host CPU capacity");
 Reject(() => (new AiConfiguration { ContextTokens = 32768 }).Validate(), "bounded context");
 Reject(() => (new AiConfiguration { MinAvailableMemoryMiB = 0 }).Validate(), "physical RAM reserve");

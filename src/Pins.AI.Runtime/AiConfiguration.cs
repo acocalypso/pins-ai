@@ -9,6 +9,8 @@ public sealed record AiConfiguration {
     public string ModelId { get; init; } = "qwen3-0.6b-q4";
     public string ModelPath { get; init; } = "";
     public string ModelSha256 { get; init; } = "";
+    public string LoraPath { get; init; } = "";
+    public string LoraSha256 { get; init; } = "";
     public string RuntimePath { get; init; } = "";
     public string LauncherPath { get; init; } = "";
     public int ContextTokens { get; init; } = 2048;
@@ -50,6 +52,10 @@ public sealed record AiConfiguration {
                 if (string.IsNullOrWhiteSpace(path) || !Path.IsPathFullyQualified(path)) throw new ArgumentException("Enabled configuration requires absolute model, runtime, launcher paths.");
             }
             if (ModelSha256.Length != 64 || !ModelSha256.All(Uri.IsHexDigit)) throw new ArgumentException("A verified model SHA256 is required.");
+        }
+        if (!string.IsNullOrEmpty(LoraPath) || !string.IsNullOrEmpty(LoraSha256)) {
+            if (!Path.IsPathFullyQualified(LoraPath) || LoraSha256.Length != 64 || !LoraSha256.All(Uri.IsHexDigit))
+                throw new ArgumentException("LoRA requires an absolute local path and verified SHA256.");
         }
     }
 
