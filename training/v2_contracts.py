@@ -27,7 +27,18 @@ def definitions():
 
 def strip_descriptions(value):
     if isinstance(value, dict):
-        return {k: strip_descriptions(v) for k, v in value.items() if k not in ('description', 'title')}
+        result = {}
+        for key, item in value.items():
+            if key in ('description', 'title', 'examples', '$comment'):
+                continue
+            if key in ('properties', '$defs', 'definitions', 'patternProperties') and isinstance(item, dict):
+                result[key] = {name: strip_descriptions(schema) for name, schema in item.items()}
+            elif key in ('anyOf', 'allOf', 'oneOf', 'prefixItems', 'items', 'additionalProperties',
+                         'contains', 'propertyNames', 'not', 'if', 'then', 'else'):
+                result[key] = strip_descriptions(item)
+            else:
+                result[key] = copy.deepcopy(item)
+        return result
     if isinstance(value, list):
         return [strip_descriptions(v) for v in value]
     return value
@@ -36,7 +47,8 @@ def strip_descriptions(value):
 def compact_tools(names):
     tools = definitions()
     return [{'type': 'function', 'function': {'name': name,
-             'description': tools[name]['description'].split('. ')[0][:180],
+             'description': ('Append a DSO container with Smart Exposure blocks to the loaded sequence; does not start it or create a blank root. Supply J2000 ra in hours, dec in degrees, and exposures OR template.'
+                             if name == 'add_target' else tools[name]['description'].split('. ')[0][:180]),
              'parameters': strip_descriptions(tools[name]['inputSchema'])}} for name in names]
 
 

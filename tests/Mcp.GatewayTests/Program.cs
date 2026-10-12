@@ -9,6 +9,14 @@ void Reject(Action operation, string label) { try { operation(); } catch (Argume
 async Task Refuse(Func<Task> operation, string label) { try { await operation(); } catch (ArgumentException) { Check(true, label); return; } throw new Exception("Accepted " + label); }
 var catalog = JsonNode.Parse(await File.ReadAllTextAsync(args[0]))!.AsObject();
 var routingCatalog = catalog["tools"]!.AsArray();
+Check(ChatToolRouter.Select("create a sequence i want to shoot 300 5min exposure no filter of M31", routingCatalog).Contains("add_target"), "natural sequence request retrieves exposure-plan tool");
+Check(ChatToolRouter.Select("Erstelle eine Sequenz für M31 mit 300 Aufnahmen", routingCatalog).Contains("add_target"), "German sequence planning retrieval");
+Check(ChatToolRouter.Select("Append M31 to the loaded sequence with 300 exposures of 300 seconds, no filter change", routingCatalog).Contains("add_target"), "English sequence curriculum retrieval");
+Check(ChatToolRouter.Select("Ergänze M31 in der geladenen Sequenz mit 300 Aufnahmen ohne Filterwechsel", routingCatalog).Contains("add_target"), "German sequence curriculum retrieval");
+var annotationFixture = JsonNode.Parse("{\"type\":\"object\",\"description\":\"annotation\",\"properties\":{\"description\":{\"type\":\"string\",\"description\":\"help\",\"minLength\":1}},\"required\":[\"description\"],\"additionalProperties\":false}")!;
+var compactFixture = ToolPromptSchema.Compact(annotationFixture);
+Check(compactFixture["description"] is null && compactFixture["properties"]?["description"]?["minLength"]?.GetValue<int>() == 1, "prompt compaction preserves argument named description and constraints");
+Check(annotationFixture["description"] is not null, "prompt compaction never changes gateway schema");
 Check(ChatToolRouter.Select("Is my equipment connected?", routingCatalog).SequenceEqual(["get_status"]), "connection question retrieves status, not connect");
 Check(ChatToolRouter.Select("Show the current equipment status", routingCatalog).SequenceEqual(["get_status"]), "automatic status context");
 Check(ChatToolRouter.Select("Sind meine Geräte verbunden?", routingCatalog).SequenceEqual(["get_status"]), "German connection question");

@@ -131,6 +131,7 @@ def curriculum_rows(split):
         item['tools'].sort(key=lambda t: fingerprint(item['id'] + t['name']))
         added.append(item)
     added.extend(safety_rows(source, catalog))
+    added.extend(read_jsonl(Path(__file__).parent / 'data/sequence-plans.jsonl'))
     if len({r['id'] for r in rows + added}) != len(rows + added):
         raise ValueError('Duplicate curriculum identifiers')
     return rows + added

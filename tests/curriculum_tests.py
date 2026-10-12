@@ -58,6 +58,22 @@ class CurriculumTests(unittest.TestCase):
                     self.assertIn(fn['arguments']['name'], row['messages'][-2]['content'])
                     self.assertNotEqual(fn['name'], 'start_sequence')
 
+    def test_sequence_plans_are_train_only_and_never_start_or_clear(self):
+        cases = [row for row in self.train if row['category'] == 'sequence_plan']
+        self.assertEqual(len(cases), 20)
+        self.assertFalse(any(row['category'] == 'sequence_plan' for row in self.validation))
+        for row in cases:
+            self.assertFalse(row['provenance']['hardwareExecution'])
+            for message in row['messages']:
+                for call in message.get('tool_calls', []):
+                    self.assertEqual(call['function']['name'], 'add_target')
+                    block = call['function']['arguments']['exposures'][0]
+                    self.assertNotIn('filter', block)
+        exact = next(row for row in cases if row['id'] == 'sequence-plan-minutes-0-en')
+        self.assertEqual(exact['expected']['arguments']['exposures'], [{'exposure_seconds': 300, 'count': 300}])
+        missing = next(row for row in cases if row['id'] == 'sequence-plan-m31-missing-coordinates-en')
+        self.assertIsNone(missing['expected']['first_tool'])
+
 
 if __name__ == '__main__':
     unittest.main()

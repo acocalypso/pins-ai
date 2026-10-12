@@ -9,7 +9,7 @@
   "runtimePath": "/usr/lib/pins-ai/llama-server",
   "launcherPath": "/usr/lib/pins-ai/pins-ai-exec",
   "contextTokens": 1536,
-  "threads": 1,
+  "threads": 2,
   "maxOutputTokens": 96,
   "temperature": 0,
   "inferenceTimeoutSeconds": 30,

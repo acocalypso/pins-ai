@@ -94,8 +94,8 @@ public sealed class McpChatService(LlamaRuntime runtime, string mcpToken,
                 foreach (var name in selected) {
                     var tool = catalog.FirstOrDefault(t => t?["name"]?.GetValue<string>() == name) ?? throw new ArgumentException("Tool is not exposed by this gateway.");
                     tools.Add(new JsonObject { ["type"] = "function", ["function"] = new JsonObject {
-                        ["name"] = name, ["description"] = tool["description"]!.GetValue<string>()[..Math.Min(180, tool["description"]!.GetValue<string>().Length)],
-                        ["parameters"] = tool["inputSchema"]!.DeepClone()
+                        ["name"] = name, ["description"] = name == "add_target" ? ToolPromptSchema.TargetDescription : tool["description"]!.GetValue<string>()[..Math.Min(180, tool["description"]!.GetValue<string>().Length)],
+                        ["parameters"] = ToolPromptSchema.Compact(tool["inputSchema"]!)
                     }});
                 }
                 // Store trusted tool feedback on the server. Request JSON cannot inject
