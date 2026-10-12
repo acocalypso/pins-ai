@@ -39,7 +39,7 @@ def write_json(path, value):
 
 def write_jsonl(path, rows):
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    Path(path).write_text(''.join(json.dumps(row, ensure_ascii=False) + '\n' for row in rows), encoding='utf-8')
+    Path(path).write_text(''.join(json.dumps(row, ensure_ascii=False) + '\n' for row in rows), encoding='utf-8', newline='\n')
 
 
 def validate_record(row):

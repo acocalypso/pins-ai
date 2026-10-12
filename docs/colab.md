@@ -4,12 +4,24 @@ Prepared notebook: [pins-ai-v2-colab.ipynb](../output/jupyter-notebook/pins-ai-v
 This is cloud **training** only. Pi inference still belongs to the PINS plugin;
 there is no cloud equipment access or MCP server in the notebook.
 
-Start this v3 experiment from the pinned **Qwen/Qwen3-0.6B base model** with a
-fresh LoRA adapter. The notebook already does this; it does not continue training
-the v2 adapter. `PRIOR_ADAPTER` is used only for the optional comparison after
-training. Preserve v2 as the baseline. The updated data passed local contract,
-tokenizer and isolation checks; the new T4 smoke/reload must still pass before
-full training. MCP does not need to be running on the Pi for this cloud run.
+The notebook defaults to **resume** mode. Set `RESUME_SOURCE` to the interrupted
+Drive run folder (default `runs/qwen3-pins-v3-colab-20261011-165756`) or its results
+ZIP, then set `RUN_TRAINING = True` and run the cells in order. It selects the
+highest numbered complete checkpoint, reports incomplete newer saves, and copies
+state into a new Drive run. Your original folder/ZIP stays unchanged. The known
+results ZIP resumes at step700 of846; the live Drive folder may contain a newer
+checkpoint. Completed runs are rejected.
+
+Resume restores adapter, optimizer, learning-rate scheduler, FP16 scaler, RNG and
+saved callback state. Data, pinned base and configuration must match the original
+run exactly. A one-step continuation probe and adapter reload precede the full
+continuation, which starts again from the original selected checkpoint, not the
+probe. The best validation adapter is preserved separately from the newest state.
+`TRAINING_MODE = 'fresh'` explicitly starts a new adapter from the pinned base;
+`PRIOR_ADAPTER` is comparison-only. No MCP connection is needed.
+
+The notebook pulls GitHub `main`: **publish these updated scripts before running
+it in Colab**. Setup stops if the pulled checkout lacks resume support.
 
 When switching from the older ZIP-based notebook, run this revised notebook from
 the top on the connected T4. It uses a fresh Git directory and run name; existing
@@ -27,14 +39,13 @@ notebook refresh and a new run, with Git pulling the current branch.
    Original dataset files must match Git checksums. Updated audited contracts stay in Git;
    old contract files in the Drive bundle are ignored.
    Code is never imported from Drive. Adjust `DRIVE_FOLDER` if your data lives elsewhere.
-   Training defaults to disabled (`RUN_TRAINING = False`) while the revised safety
-   curriculum is reviewed. Set it to `True` explicitly for a new cloud run after
-   preflight. Approve Drive mounting in your session.
+   Training defaults to disabled (`RUN_TRAINING = False`) until you explicitly enable it. Set it to `True` for the cloud continuation
+   after reviewing `RESUME_SOURCE`. Approve Drive mounting in your session.
 4. Run the cells in order. They install an isolated Python 3.11 environment,
    torch 2.7.1/cu126 and the existing pinned training requirements. The explicit
    base-download cell accepts the Apache-2.0 checkpoint license and verifies the
    pinned weights. Preflight, package/hash checks and tokenizer tests must pass.
-5. A new GPU smoke and adapter reload precede up to three epochs of v3 training. Output is
+5. A GPU resume probe and adapter reload precede the remaining original training steps. Output is
    under `My Drive/pins-ai/runs/<RUN_NAME>/`. `training.log` shows training loss
    every five optimizer steps and validation loss every100 optimizer steps.
 
@@ -60,7 +71,8 @@ checkpoints and adapters are written to Drive because the VM is temporary. The
 last cell can also archive the result for download. Cell interruption terminates
 the child job. A disconnected/deleted VM may leave an incomplete run marked
 `started`; do not treat it as completed. Existing runs are never overwritten,
-and this workflow currently requires a fresh run rather than automatic resume.
+and continuation outputs go into a new run folder. The saved original step budget
+and learning-rate schedule are retained; no additional epochs are appended.
 
 Enable `RUN_EVALUATION` for the full583-case validation development comparison
 of base, prior v2 (when its adapter is present on Drive) and new v3. This is
@@ -76,4 +88,4 @@ Verified locally: notebook JSON/code-cell syntax, Git/Drive data checks
 (directory, ZIP and mismatch rejection), audited package
 contracts, and preservation of the stopped local run.
 Not verified: Colab sign-in/Drive mount, remote dependency installation, GPU
-smoke, training speed/losses or cloud model quality. No Colab job has been launched.
+smoke, training speed/losses or cloud model quality. This updated resume notebook has not been executed on Colab; no training was started for this update.

@@ -8,13 +8,14 @@ from transformers import TrainerCallback
 
 
 class TrainingMetrics(TrainerCallback):
-    def __init__(self, output, source='live'):
+    def __init__(self, output, source='live', resume_start_step=0):
         self.output = Path(output)
         self.output.mkdir(parents=True, exist_ok=True)
         self.history_path = self.output / 'metrics.jsonl'
         if self.history_path.exists():
             raise ValueError('Metrics already exist; use a new output directory')
         self.source = source
+        self.resume_start_step = resume_start_step
         self.latest = {'source': source}
 
     def on_log(self, args, state, control, logs=None, **kwargs):
@@ -33,10 +34,17 @@ class TrainingMetrics(TrainerCallback):
             record.update(train_loss=float(logs['loss']), train_loss_scope='logging_window')
         elif 'train_loss' in logs:
             event = 'train_summary'
-            record.update(train_loss_overall=float(logs['train_loss']), train_loss_overall_scope='whole_run')
+            if self.resume_start_step:
+                continued = state.global_step - self.resume_start_step
+                if continued <= 0: raise ValueError('Resume summary contains no new optimizer steps')
+                record.update(trainer_reported_train_loss=float(logs['train_loss']),
+                    train_loss_segment=float(logs['train_loss']) * state.global_step / continued,
+                    train_loss_segment_scope='resumed_segment', resumed_optimizer_steps=continued)
+            else:
+                record.update(train_loss_overall=float(logs['train_loss']), train_loss_overall_scope='whole_run')
         else:
             return
-        for key in ('train_loss', 'train_loss_overall', 'eval_loss'):
+        for key in ('train_loss', 'train_loss_overall', 'train_loss_segment', 'eval_loss'):
             if key in record and not math.isfinite(record[key]):
                 raise ValueError('Non-finite training metric: ' + key)
         record['event'] = event
@@ -56,6 +64,8 @@ class TrainingMetrics(TrainerCallback):
             details = f"eval_loss={value:.6f} ({trend}), best_eval_loss={record['best_eval_loss']:.6f}"
         elif event == 'train_window':
             details = f"train_loss={record['train_loss']:.6f} (logging-window average)"
+        elif 'train_loss_segment' in record:
+            details = f"train_loss_segment={record['train_loss_segment']:.6f} (resumed-segment average)"
         else:
             details = f"train_loss_overall={record['train_loss_overall']:.6f} (whole-run average)"
         print(f"[metrics] step={record['step']}/{record['total_steps']} epoch={record['epoch']:.3f} {details}", flush=True)

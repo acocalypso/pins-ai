@@ -20,11 +20,17 @@ def main():
     parser.add_argument('--max-steps', type=int, help='Positive development smoke limit; never marked a completed specialization')
     parser.add_argument('--smoke-run', type=Path, help='Completed matching MCP smoke run required before full MCP training')
     parser.add_argument('--logging-steps', type=int, default=5, help='Report training loss every N optimizer steps (default: 5)')
+    parser.add_argument('--resume-from-checkpoint', type=Path, help='Continue identical original training with optimizer/scheduler/scaler/RNG state')
+    parser.add_argument('--resume-smoke-steps', type=int, help='Stop a diagnostic resume after N additional steps, preserving the original LR schedule')
     args = parser.parse_args()
     if args.max_steps is not None and args.max_steps < 1:
         parser.error('--max-steps must be positive')
     if args.logging_steps < 1:
         parser.error('--logging-steps must be positive')
+    if args.resume_smoke_steps is not None and (args.resume_smoke_steps < 1 or args.resume_from_checkpoint is None):
+        parser.error('--resume-smoke-steps requires a checkpoint and a positive step count')
+    if args.resume_from_checkpoint and (args.max_steps is not None or args.dataset_mode != 'mcp'):
+        parser.error('Checkpoint continuation uses the original MCP epoch/step budget; do not use --max-steps')
     if args.output.exists() and any(args.output.iterdir()):
         parser.error('Use a new output directory; existing runs are never overwritten')
     config = json.loads(args.config.read_text(encoding='utf-8-sig'))
@@ -32,7 +38,7 @@ def main():
         raise ValueError('Training configuration capability must match dataset mode, without thinking')
     args.data = args.data or ROOT / ('artifacts/v2/sft' if args.dataset_mode == 'mcp' else 'artifacts/training/data')
     method = args.method or config['method']
-    if args.dataset_mode == 'mcp' and args.max_steps is None:
+    if args.dataset_mode == 'mcp' and args.max_steps is None and args.resume_smoke_steps is None:
         from v2_contracts import PACKAGE, POLICY, VERIFIED, ADAPTER
         if args.smoke_run is None:
             raise ValueError('Full MCP training requires --smoke-run pointing to a fresh verified GPU smoke')
@@ -87,6 +93,13 @@ def main():
         for split in ('train', 'validation', 'test'):
             if sha256(args.data / f'{split}.jsonl') != data_info['splitHashes'][split]:
                 raise ValueError('Prepared data changed; rerun preparation')
+    resume_info = None
+    resume_state = None
+    if args.resume_from_checkpoint:
+        from training_resume import validate_resume
+        _, resume_state, resume_info = validate_resume(args.resume_from_checkpoint, config, data_info, base_info, method)
+        if args.resume_smoke_steps is None and (smoke.get('resume', {}).get('checkpointFilesSha256') != resume_info['checkpointFilesSha256']):
+            raise ValueError('Full continuation requires a fresh resume smoke from identical saved state')
     # A local checkpoint is mandatory. Even missing dependencies/files cannot trigger downloads.
     os.environ['HF_HUB_OFFLINE'] = '1'
     os.environ['TRANSFORMERS_OFFLINE'] = '1'
@@ -170,8 +183,11 @@ def main():
     run = {'status': 'started', 'config': config, 'method': method, 'precision': precision,
            'hardware': hardware, 'packages': versions, 'dataset': data_info, 'base': base_info,
            'promptSha256': prompt_hash, 'templateSha256': fingerprint(tokenizer.chat_template),
-           'completionOnly': True, 'enableThinking': False, 'smokeOnly': args.max_steps is not None,
+           'completionOnly': True, 'enableThinking': False, 'smokeOnly': args.max_steps is not None or args.resume_smoke_steps is not None,
            'loggingSteps': args.logging_steps, 'datasetMode': args.dataset_mode, 'smokeExamples': smoke_ids}
+    if resume_info:
+        run['resume'] = resume_info
+        run['resumeSmokeSteps'] = args.resume_smoke_steps
     write_json(args.output / 'training-run.json', run)
     (args.output / 'pip-freeze.txt').write_text(subprocess.check_output([os.sys.executable, '-m', 'pip', 'freeze'], text=True))
     evaluation_steps = config.get('evaluationSteps') if not args.max_steps else None
@@ -186,18 +202,39 @@ def main():
         save_total_limit=2, logging_steps=args.logging_steps,
         warmup_ratio=0.05, weight_decay=0.01, max_grad_norm=1.0, seed=config['seed'], data_seed=config['seed'],
         report_to=[], dataloader_num_workers=0, remove_unused_columns=False, prediction_loss_only=True,
+        restore_callback_states_from_checkpoint=bool(args.resume_from_checkpoint),
         load_best_model_at_end=True, metric_for_best_model='eval_loss', greater_is_better=False)
-    metrics = TrainingMetrics(args.output)
+    metrics = TrainingMetrics(args.output, resume_start_step=resume_state['global_step'] if resume_state else 0)
+    if resume_state:
+        previous = [event['eval_loss'] for event in resume_state['log_history'] if 'eval_loss' in event]
+        metrics.latest.update(best_eval_loss=resume_state['best_metric'], eval_loss=previous[-1] if previous else None)
     callbacks = [metrics]
+    if resume_state:
+        from transformers import TrainerCallback
+        class ResumeBudgetCheck(TrainerCallback):
+            def on_train_begin(self, args, state, control, **kwargs):
+                if state.max_steps != resume_state['max_steps'] or state.global_step != resume_state['global_step']:
+                    raise ValueError('Computed training step budget differs from the saved run')
+        callbacks.append(ResumeBudgetCheck())
     if config.get('earlyStoppingPatience') and not args.max_steps:
         from transformers import EarlyStoppingCallback
         callbacks.append(EarlyStoppingCallback(early_stopping_patience=config['earlyStoppingPatience'],
                          early_stopping_threshold=config.get('earlyStoppingThreshold', 0.0)))
+    if args.resume_smoke_steps:
+        from transformers import TrainerCallback
+        stop_step = resume_state['global_step'] + args.resume_smoke_steps
+        class ResumeSmokeStop(TrainerCallback):
+            def on_step_end(self, args, state, control, **kwargs):
+                if state.global_step >= stop_step:
+                    control.should_training_stop = True
+                    control.should_save = True
+                return control
+        callbacks.append(ResumeSmokeStop())
     trainer = Trainer(model=model, args=training_args, train_dataset=Rows(train_rows),
                       eval_dataset=Rows(validation_rows), data_collator=collate, processing_class=tokenizer,
                       callbacks=callbacks)
     try:
-        result = trainer.train()
+        result = trainer.train(resume_from_checkpoint=str(args.resume_from_checkpoint) if args.resume_from_checkpoint else None)
         trainer.save_model(str(args.output / 'adapter'))
         tokenizer.save_pretrained(args.output / 'adapter')
         run.update(status='completed', metrics={**result.metrics,
@@ -205,6 +242,11 @@ def main():
                    bestModelCheckpoint=trainer.state.best_model_checkpoint,
                    monitoring=metrics.latest,
                    maxGpuAllocatedMiB=torch.cuda.max_memory_allocated() / 1048576)
+        if resume_info:
+            run['metrics'].update(train_loss_scope='trainer_resume_global_step_denominator',
+                train_loss_segment=metrics.latest.get('train_loss_segment'),
+                train_runtime_scope='resumed_segment', finalGlobalStep=trainer.state.global_step,
+                resumedOptimizerSteps=trainer.state.global_step - resume_info['startStep'])
         write_json(args.output / 'training-run.json', run)
     except Exception as ex:
         run.update(status='failed', error=type(ex).__name__ + ': ' + str(ex))
