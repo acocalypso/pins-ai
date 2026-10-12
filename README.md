@@ -222,3 +222,10 @@ implemented; source-verified schemas and the simulated gateway are covered in
 compatibility and authenticated plugin binding remain unverified. None is replaced
 by invented APIs, mock hardware claims or a new MCP
 implementation. See the benchmark report for the measured model limitations.
+# MCP chat and bundled Debian package
+
+The optional plugin-owned MCP chat gateway and Touch-N-Stars interface are
+documented in [docs/mcp-chat.md](docs/mcp-chat.md). Model/adapter assets are now
+versioned with Git LFS under `models/bundled` and included in the Debian package.
+Run `git lfs pull` after cloning. Checkpoint 700 remains a diagnostic model.
+

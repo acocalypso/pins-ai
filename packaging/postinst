@@ -1,0 +1,34 @@
+#!/bin/sh
+set -eu
+if [ "$1" = configure ]; then
+  install -d -m700 -o pi -g pi /home/pi/.local/share/pins-ai /home/pi/.config/pins
+  if [ ! -f /home/pi/.local/share/pins-ai/config.json ]; then
+    install -m600 -o pi -g pi /usr/share/pins-ai/default-config.json /home/pi/.local/share/pins-ai/config.json
+  fi
+  # Preserve existing tokens/config and do not restart an active imaging session.
+  python3 - <<'PY'
+import pathlib,secrets,os
+config=pathlib.Path('/home/pi/.local/share/pins-ai/config.json')
+import json
+data=json.loads(config.read_text())
+if 'mcpChatEnabled' not in data:
+    data['mcpChatEnabled']=True
+    temp=config.with_suffix('.new')
+    descriptor=os.open(temp,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+    with os.fdopen(descriptor,'w') as target: json.dump(data,target,indent=2)
+    temp.replace(config)
+    os.chown(config,config.parent.stat().st_uid,config.parent.stat().st_gid)
+path=pathlib.Path('/home/pi/.config/pins/mcp.env')
+if not path.exists():
+    descriptor=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+    with os.fdopen(descriptor,'w') as target:
+        target.write('PINS_MCP_ENABLED=1\nPINS_MCP_READONLY=0\nPINS_MCP_TOKEN='+secrets.token_hex(32)+'\n')
+PY
+  chown pi:pi /home/pi/.config/pins/mcp.env
+  chmod 600 /home/pi/.config/pins/mcp.env
+  install -d /etc/systemd/system/pins.service.d
+  printf '[Service]\nEnvironmentFile=-/home/pi/.config/pins/mcp.env\n' > /etc/systemd/system/pins.service.d/91-ai-mcp.conf
+  chown -R pi:pi /home/pi/.local/share/NINA/Plugins/3.0.0/pins-ai
+  systemctl daemon-reload || true
+  echo 'PINS AI installed. Existing configuration preserved. Restart PINS when idle.'
+fi

@@ -24,6 +24,8 @@ public sealed record AiConfiguration {
     public int MaxProcessSwapMiB { get; init; } = 64;
     public int MaxTemperatureC { get; init; } = 80;
     public int ApiPort { get; init; } = 4783;
+    public bool McpChatEnabled { get; init; }
+    public int McpChatPort { get; init; } = 4784;
     public string LogLevel { get; init; } = "Warning";
 
     public static JsonSerializerOptions Json { get; } = new(JsonSerializerDefaults.Web) {
@@ -44,6 +46,7 @@ public sealed record AiConfiguration {
         if (MinAvailableMemoryMiB is < 512 or > 2048 || MaxResidentMemoryMiB is < 256 or > 1536 || MaxProcessSwapMiB is < 0 or > 128)
             throw new ArgumentException("Invalid physical-memory or swap safeguards.");
         if (ApiPort is < 1024 or > 65535) throw new ArgumentException("Invalid API port.");
+        if (McpChatPort is < 1024 or > 65535 || McpChatPort == ApiPort) throw new ArgumentException("Invalid MCP chat port.");
         if (MaxTemperatureC is < 60 or > 85) throw new ArgumentException("Temperature cutoff must be 60–85 Celsius.");
         if (LogLevel is not ("Debug" or "Information" or "Warning" or "Error")) throw new ArgumentException("Invalid log level.");
         if (string.IsNullOrWhiteSpace(ModelId) || ModelId.Length > 128) throw new ArgumentException("Invalid model identifier.");

@@ -1,7 +1,21 @@
 # Third-party components
 
+## Bundled Debian model
+
+The Debian package includes the Git LFS assets in `models/bundled/`: our pinned
+Qwen/Qwen3-0.6B base converted to Q4_K_M and the separate diagnostic checkpoint
+700 F16 LoRA. These are not the optional Unsloth benchmark conversions described
+below. The base revision, exact hashes and incomplete-training status are in
+`models/bundled.json`; Apache-2.0 is included beside the weights. No merge occurs.
+The model weights are versioned using LFS and copied into the Debian package;
+installation performs no model downloads. `docs/pi-checkpoint700.md` records
+the diagnostic live MCP results and unresolved quality limitations.
+
+The following historical optional-candidate notes describe the original plugin
+ZIP and benchmark installer, not the new bundled Debian payload.
+
 No third-party managed packages are added. The plugin compiles against installed
-PINS host contracts (`NINA.Plugin`, `NINA.Core`, and the host's MEF assembly);
+PINS host contracts (`NINA.Plugin`, `NINA.Core`, `NINA.Profile`, and the host's MEF assembly);
 those host DLLs are not redistributed in the plugin payload. PINS/NINA is MPL-2.0.
 
 The optional, explicitly installed native runtime is llama.cpp, MIT:

@@ -38,7 +38,7 @@ public sealed class ToolGateway {
         arguments = JsonNode.Parse(arguments.ToJsonString())!.AsObject();
         if (!catalog.TryGetValue(name, out var tool)) throw new ArgumentException("Unknown or unexposed tool.");
         Schema(arguments, tool["inputSchema"]!.AsObject());
-        foreach (var field in new[] { "force", "skip_validation", "overwrite" })
+        foreach (var field in new[] { "force", "skip_validation", "overwrite", "abandon" })
             if (arguments[field]?.GetValue<bool>() == true) throw new ArgumentException("Safety overrides are disabled.");
         if (arguments["wait_seconds"] is { } wait && wait.GetValue<double>() > 5) throw new ArgumentException("AI tool wait is limited to five seconds.");
         if (name == "change_filter" && arguments.ContainsKey("name") == arguments.ContainsKey("position")) throw new ArgumentException("Choose exactly one filter selector.");
@@ -117,7 +117,7 @@ public sealed class ToolGateway {
                 name == "set_switch" && context.SwitchCapabilities?.Values.Any(c => c.Writable) != true)) continue;
             var copy = (JsonObject)tool.DeepClone();
             var schema = copy["inputSchema"]!.AsObject();
-            foreach (var field in new[] { "force", "skip_validation", "overwrite" }) schema["properties"]!.AsObject().Remove(field);
+            foreach (var field in new[] { "force", "skip_validation", "overwrite", "abandon" }) schema["properties"]!.AsObject().Remove(field);
             if (schema["properties"]?["wait_seconds"] is JsonObject wait) { wait["maximum"] = 5; wait["default"] = 0; }
             foreach (var coordinate in new[] { "ra", "dec" }) {
                 if (schema["properties"]?[coordinate] is JsonObject value && value["anyOf"] is JsonArray variants) {
@@ -265,8 +265,8 @@ public sealed class ToolGateway {
         if (result["job"] is JsonObject job) {
             var state = job["state"]?.GetValue<string>();
             result["completionConfirmed"] = state == "succeeded" && job["outcome"]?["success"]?.GetValue<bool>() == true;
-            result["requiresPolling"] = state is "running" or "queued";
-            result["isError"] = state is "failed" or "cancelled" || state == "succeeded" && job["outcome"]?["success"]?.GetValue<bool>() != true;
+            result["requiresPolling"] = state is "running" or "queued" or "cancelling";
+            result["isError"] = state is "failed" or "cancelled" or "abandoned" || state == "succeeded" && job["outcome"]?["success"]?.GetValue<bool>() != true;
         }
         if (result.ContainsKey("stopped") || result.ContainsKey("steps")) {
             result.Remove("stopped");

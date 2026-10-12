@@ -65,6 +65,7 @@ Check(ToolGateway.Normalize(JsonNode.Parse("{\"isError\":true,\"structuredConten
 rig = rig with { ObservedAt = time.Now };
 authority.Context = rig;
 await SafetyRegressions.Run(gate, client, fixture, authority, rig, time, Check, Reject, Refuse);
+await ChatRegressions.Run(catalog, Check, Reject, Refuse);
 Console.WriteLine($"{checks} gateway checks passed; all observatory operations simulated.");
 
 // Replay observed model proposals through the real gateway, with no operator

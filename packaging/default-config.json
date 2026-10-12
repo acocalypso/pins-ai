@@ -1,0 +1,23 @@
+{
+  "enabled": true,
+  "lazyLoad": true,
+  "modelId": "qwen3-checkpoint700-lora-diagnostic",
+  "modelPath": "/usr/share/pins-ai/models/qwen3-pinned-base-Q4_K_M.gguf",
+  "modelSha256": "9947d4e2402c8a9f51720f5aaa7b3a1fba7ef48693773393cd8204a357ec74c3",
+  "loraPath": "/usr/share/pins-ai/models/checkpoint-700-lora-f16.gguf",
+  "loraSha256": "9e20a0c41ce2da610b4bf63affe29c997c491dc29ecad6327133f56decaf608a",
+  "runtimePath": "/usr/lib/pins-ai/llama-server",
+  "launcherPath": "/usr/lib/pins-ai/pins-ai-exec",
+  "contextTokens": 1536,
+  "threads": 1,
+  "maxOutputTokens": 96,
+  "temperature": 0,
+  "inferenceTimeoutSeconds": 30,
+  "startupTimeoutSeconds": 90,
+  "minAvailableMemoryMiB": 768,
+  "maxResidentMemoryMiB": 1200,
+  "maxProcessSwapMiB": 64,
+  "maxTemperatureC": 75,
+  "mcpChatEnabled": true,
+  "mcpChatPort": 4784
+}

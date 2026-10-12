@@ -10,6 +10,7 @@
     <ProjectReference Include="../Pins.AI.Runtime/Pins.AI.Runtime.csproj" />
     <Reference Include="NINA.Plugin"><HintPath>$(HostDirectory)/NINA.Plugin.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="NINA.Core"><HintPath>$(HostDirectory)/NINA.Core.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="NINA.Profile"><HintPath>$(HostDirectory)/NINA.Profile.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="System.ComponentModel.Composition"><HintPath>$(HostDirectory)/System.ComponentModel.Composition.dll</HintPath><Private>false</Private></Reference>
     <AssemblyMetadata Include="MinimumApplicationVersion" Value="3.3.0.1000" />
     <AssemblyMetadata Include="License" Value="MIT" />
