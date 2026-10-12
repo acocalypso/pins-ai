@@ -82,3 +82,12 @@ approval, replay/state/contract changes and terminal job failures. No default
 test sends mutations to equipment. Physical mount/exposure operations, native
 Android/iOS devices and active imaging/guiding contention require separate
 supervised verification.
+
+## Device-local tests
+
+`mcpChatTrustedOrigins` accepts exact browser origins, such as
+`["http://192.168.178.109:1888"]`, for trusted LAN testing without entering a token.
+The existing `PINS_MCP_TOKEN` remains server-side. Missing or other origins still
+require bearer authentication. An Origin header is not authentication for
+non-browser LAN clients: leave this list empty on untrusted networks.
+Session checks and exact equipment-action approvals remain enforced.

@@ -48,14 +48,17 @@ public sealed class McpChatApi : IAsyncDisposable {
         try {
             response.Headers["Cache-Control"] = "no-store";
             response.Headers["X-Content-Type-Options"] = "nosniff";
-            // No cookie authentication or credentialed CORS. Every data request needs
-            // an explicitly entered bearer token; the model never receives it.
-            response.Headers["Access-Control-Allow-Origin"] = "*";
+            // Explicit trusted frontend origins use the device-owned MCP token.
+            // Sessions and separate mutation approvals still apply.
+            var origin = context.Request.Headers["Origin"];
+            var trustedOrigin = runtime.Configuration.IsTrustedChatOrigin(origin);
+            response.Headers["Access-Control-Allow-Origin"] = trustedOrigin ? origin! : "*";
+            response.Headers["Vary"] = "Origin";
             response.Headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, X-PINS-Chat-Session";
             response.Headers["Access-Control-Allow-Methods"] = "GET, POST, DELETE, OPTIONS";
             if (context.Request.HttpMethod == "OPTIONS") { response.StatusCode = 204; return; }
             var supplied = Encoding.UTF8.GetBytes(context.Request.Headers["Authorization"] ?? "");
-            if (supplied.Length != credential.Length || !CryptographicOperations.FixedTimeEquals(supplied, credential)) {
+            if (!trustedOrigin && (supplied.Length != credential.Length || !CryptographicOperations.FixedTimeEquals(supplied, credential))) {
                 await JsonAsync(context, 401, new { error = "unauthorized" }); return;
             }
             var method = context.Request.HttpMethod;

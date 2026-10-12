@@ -4,6 +4,13 @@ using Pins.AI.Runtime;
 
 static class ChatRegressions {
     public static async Task Run(JsonObject catalog, Action<bool, string> check, Action<Action, string> reject, Func<Func<Task>, string, Task> refuse) {
+        var localConfig = new AiConfiguration { McpChatTrustedOrigins = ["http://192.168.178.109:1888"] };
+        localConfig.Validate();
+        check(localConfig.IsTrustedChatOrigin("http://192.168.178.109:1888"), "explicit frontend origin permitted");
+        check(!localConfig.IsTrustedChatOrigin(null), "missing origin still requires token");
+        check(!localConfig.IsTrustedChatOrigin("http://evil.example"), "untrusted website refused");
+        check(!new AiConfiguration().IsTrustedChatOrigin("http://192.168.178.109:1888"), "token required by default");
+        reject(() => new AiConfiguration { McpChatTrustedOrigins = ["*"] }.Validate(), "wildcard trust refused");
         check(McpChatService.ParseProposal("A clarification question") is null, "ordinary text never becomes a tool action");
         check(McpChatService.ParseProposal("<tool_call>\n{\"name\":\"get_status\",\"arguments\":{}}\n</tool_call>")?["name"]?.GetValue<string>() == "get_status", "native Qwen proposal parsed exactly");
         foreach (var raw in new[] {

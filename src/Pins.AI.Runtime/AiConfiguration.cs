@@ -26,6 +26,9 @@ public sealed record AiConfiguration {
     public int ApiPort { get; init; } = 4783;
     public bool McpChatEnabled { get; init; }
     public int McpChatPort { get; init; } = 4784;
+    // Explicitly trusted browser origins for device-local testing; empty by default.
+    public string[] McpChatTrustedOrigins { get; init; } = [];
+    public bool IsTrustedChatOrigin(string? origin) => origin is not null && McpChatTrustedOrigins.Contains(origin, StringComparer.Ordinal);
     public string LogLevel { get; init; } = "Warning";
 
     public static JsonSerializerOptions Json { get; } = new(JsonSerializerDefaults.Web) {
@@ -47,6 +50,11 @@ public sealed record AiConfiguration {
             throw new ArgumentException("Invalid physical-memory or swap safeguards.");
         if (ApiPort is < 1024 or > 65535) throw new ArgumentException("Invalid API port.");
         if (McpChatPort is < 1024 or > 65535 || McpChatPort == ApiPort) throw new ArgumentException("Invalid MCP chat port.");
+        foreach (var origin in McpChatTrustedOrigins) {
+            if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https") ||
+                origin != uri.GetLeftPart(UriPartial.Authority) || !string.IsNullOrEmpty(uri.UserInfo))
+                throw new ArgumentException("Trusted chat origins must be exact HTTP origins without credentials or paths.");
+        }
         if (MaxTemperatureC is < 60 or > 85) throw new ArgumentException("Temperature cutoff must be 60–85 Celsius.");
         if (LogLevel is not ("Debug" or "Information" or "Warning" or "Error")) throw new ArgumentException("Invalid log level.");
         if (string.IsNullOrWhiteSpace(ModelId) || ModelId.Length > 128) throw new ArgumentException("Invalid model identifier.");
