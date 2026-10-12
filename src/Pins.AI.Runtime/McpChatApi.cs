@@ -51,7 +51,8 @@ public sealed class McpChatApi : IAsyncDisposable {
             // Explicit trusted frontend origins use the device-owned MCP token.
             // Sessions and separate mutation approvals still apply.
             var origin = context.Request.Headers["Origin"];
-            var clientAddress = context.Request.RemoteEndPoint?.Address.MapToIPv4().ToString();
+            var address = context.Request.RemoteEndPoint?.Address;
+            var clientAddress = address?.IsIPv4MappedToIPv6 == true ? address.MapToIPv4().ToString() : address?.ToString();
             var trustedOrigin = runtime.Configuration.IsTrustedChatOrigin(origin) &&
                 runtime.Configuration.McpChatTrustedClients.Contains(clientAddress, StringComparer.Ordinal);
             response.Headers["Access-Control-Allow-Origin"] = trustedOrigin ? origin! : "*";
