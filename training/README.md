@@ -42,6 +42,9 @@ All training data is in Git and included in this checkout:
 - `training/datasets/mcp-v2/data/test.jsonl`: 593 held-out conversations.
 - `training/datasets/mcp-v2/data/eval_gold.jsonl` and `hard_gold.jsonl`: final evaluation only.
 - `training/datasets/mcp-v2/data/audited/`: schema-corrected splits used by preparation.
+- `training/datasets/mcp-comprehensive/train.jsonl`: train-only coverage of all 32
+  current MCP tools and ten languages, including arguments, boundaries, job
+  outcomes, authorization and unsupported requests. See its [coverage guide](datasets/mcp-comprehensive/README.md).
 - `training/datasets/mcp-v2/data/manifest.json`: immutable original data hashes;
   `contract-audit.json` and `verified-tools-list.json` identify audited contracts.
 
@@ -138,6 +141,7 @@ With either GPU environment active:
 python training/datasets/mcp-v2/scripts/validate_dataset.py
 python training/tests/training_tests.py
 python training/tests/curriculum_tests.py
+python training/tests/comprehensive_tests.py
 python training/tests/colab_tests.py
 python training/tests/preflight_tests.py
 python training/fetch_base.py --download --accept-license

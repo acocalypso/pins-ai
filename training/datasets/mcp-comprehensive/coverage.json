@@ -1,0 +1,833 @@
+{
+  "tools": {
+    "get_status": {
+      "conversations": 252,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "get_recent_images": {
+      "conversations": 70,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "count"
+      ],
+      "boundaryArguments": [
+        "count"
+      ],
+      "uncoveredArguments": []
+    },
+    "get_sequence": {
+      "conversations": 70,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "max_depth"
+      ],
+      "boundaryArguments": [
+        "max_depth"
+      ],
+      "uncoveredArguments": []
+    },
+    "list_saved_sequences": {
+      "conversations": 40,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "list_target_templates": {
+      "conversations": 40,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "get_job": {
+      "conversations": 80,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "job_id",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "job_id",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "list_jobs": {
+      "conversations": 40,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "stop_all": {
+      "conversations": 60,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "cancel_job": {
+      "conversations": 130,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "abandon",
+        "job_id",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "abandon",
+        "job_id",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "stop_sequence": {
+      "conversations": 60,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "stop_guiding": {
+      "conversations": 140,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "force",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "force",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "connect_device": {
+      "conversations": 260,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "device",
+        "force",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "device",
+        "force",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "disconnect_device": {
+      "conversations": 260,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "device",
+        "force",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "device",
+        "force",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "slew_mount": {
+      "conversations": 204,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "dec",
+        "force",
+        "ra",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "dec",
+        "force",
+        "ra",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "park_mount": {
+      "conversations": 140,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "force",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "force",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "unpark_mount": {
+      "conversations": 140,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "force",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "force",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "home_mount": {
+      "conversations": 140,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "force",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "force",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "set_tracking": {
+      "conversations": 110,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "enabled",
+        "force"
+      ],
+      "boundaryArguments": [
+        "enabled",
+        "force"
+      ],
+      "uncoveredArguments": []
+    },
+    "capture_image": {
+      "conversations": 240,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "binning",
+        "exposure_seconds",
+        "filter",
+        "force",
+        "gain",
+        "offset",
+        "save",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "binning",
+        "exposure_seconds",
+        "filter",
+        "force",
+        "gain",
+        "offset",
+        "save",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "cool_camera": {
+      "conversations": 180,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "duration_minutes",
+        "force",
+        "target_celsius",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "duration_minutes",
+        "force",
+        "target_celsius",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "warm_camera": {
+      "conversations": 160,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "duration_minutes",
+        "force",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "duration_minutes",
+        "force",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "move_focuser": {
+      "conversations": 170,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "force",
+        "position",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "force",
+        "position",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "run_autofocus": {
+      "conversations": 140,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "force",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "force",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "change_filter": {
+      "conversations": 200,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "force",
+        "name",
+        "position",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "force",
+        "name",
+        "position",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "start_guiding": {
+      "conversations": 160,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "force",
+        "force_calibration",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "force",
+        "force_calibration",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "set_switch": {
+      "conversations": 220,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "force",
+        "index",
+        "value",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "force",
+        "index",
+        "value",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "load_sequence": {
+      "conversations": 90,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "name"
+      ],
+      "boundaryArguments": [
+        "name"
+      ],
+      "uncoveredArguments": []
+    },
+    "add_target": {
+      "conversations": 370,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "autofocus_at_start",
+        "dec",
+        "dither_every",
+        "exposures",
+        "force",
+        "name",
+        "ra",
+        "rotation_degrees",
+        "slew_and_center",
+        "start_guiding",
+        "template"
+      ],
+      "boundaryArguments": [
+        "autofocus_at_start",
+        "dec",
+        "dither_every",
+        "exposures",
+        "force",
+        "name",
+        "ra",
+        "rotation_degrees",
+        "slew_and_center",
+        "start_guiding",
+        "template"
+      ],
+      "uncoveredArguments": []
+    },
+    "clear_targets": {
+      "conversations": 60,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "save_sequence": {
+      "conversations": 130,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "name",
+        "overwrite"
+      ],
+      "boundaryArguments": [
+        "name",
+        "overwrite"
+      ],
+      "uncoveredArguments": []
+    },
+    "start_sequence": {
+      "conversations": 80,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "skip_validation"
+      ],
+      "boundaryArguments": [
+        "skip_validation"
+      ],
+      "uncoveredArguments": []
+    },
+    "reset_sequence": {
+      "conversations": 60,
+      "languages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    }
+  },
+  "languages": {
+    "en": 476,
+    "de": 476,
+    "fr": 443,
+    "es": 443,
+    "it": 443,
+    "pt": 443,
+    "nl": 443,
+    "pl": 443,
+    "ja": 443,
+    "zh": 443
+  },
+  "categories": {
+    "comprehensive_arguments": 1260,
+    "comprehensive_unavailable": 320,
+    "comprehensive_error": 320,
+    "comprehensive_approval": 250,
+    "comprehensive_busy": 250,
+    "comprehensive_revoked": 250,
+    "comprehensive_boundary": 730,
+    "comprehensive_missing": 170,
+    "comprehensive_poll": 450,
+    "comprehensive_cancellation": 20,
+    "comprehensive_recover": 10,
+    "comprehensive_grounded": 30,
+    "comprehensive_workflow": 50,
+    "comprehensive_injection": 10,
+    "comprehensive_reading": 22,
+    "comprehensive_units": 4,
+    "comprehensive_crossfield": 180,
+    "comprehensive_clarify": 10,
+    "comprehensive_device": 110,
+    "comprehensive_stop": 10,
+    "comprehensive_unsupported": 40
+  },
+  "unsupportedRequests": [
+    "catalog",
+    "delete",
+    "dome",
+    "download",
+    "driver",
+    "edit",
+    "flat",
+    "guider",
+    "node",
+    "pause",
+    "profile",
+    "rate",
+    "restart",
+    "root",
+    "rotator",
+    "safety",
+    "solve",
+    "stack",
+    "sync",
+    "weather"
+  ],
+  "nativeReview": "pending",
+  "scope": "Current 32 MCP tools and their bounded AI policy; not every PINS API or arbitrary sequencer edit."
+}

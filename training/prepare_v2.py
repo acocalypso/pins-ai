@@ -23,6 +23,7 @@ def main():
     if args.curriculum:
         from curriculum_v3 import PROFILE, curriculum_rows
         report.update(sourceProfile=PROFILE, curriculumSha256=sha256(ROOT / 'training/curriculum_v3.py'))
+        report['comprehensiveManifestSha256'] = sha256(ROOT / 'training/datasets/mcp-comprehensive/manifest.json')
     groups = set()
     for split in ('train', 'validation'):
         source = PACKAGE / 'data/audited' / f'{split}.jsonl'

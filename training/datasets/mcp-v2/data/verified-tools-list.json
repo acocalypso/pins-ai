@@ -104,7 +104,7 @@
     {
       "name": "get_job",
       "title": "Get background job",
-      "description": "State of one background job started by a hardware tool (slew_mount, capture_image, run_autofocus, cool_camera, ...). Returns { job: { id, kind, description, resource, state (running | succeeded | failed | cancelled), startedAt, finishedAt, outcome: { success, message, data } } }. Set wait_seconds to long-poll: the call returns as soon as the job finishes or the wait elapses. Finished jobs are kept for one hour.",
+      "description": "State of one background job started by a hardware tool (slew_mount, capture_image, run_autofocus, cool_camera, ...). Returns { job: { id, kind, description, resource, state (running | succeeded | failed | cancelled | abandoned), cancelRequested, startedAt, finishedAt, outcome: { success, message, data } } }. Set wait_seconds to long-poll: the call returns as soon as the job finishes or the wait elapses. Finished jobs are kept for one hour.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -116,7 +116,7 @@
           },
           "wait_seconds": {
             "type": "number",
-            "description": "Seconds to wait for the job to finish before returning (0-120, default 0 = return immediately).",
+            "description": "Seconds to wait for the job to finish before returning (0-55, default 0 = return immediately).",
             "minimum": 0,
             "maximum": 55,
             "default": 0
@@ -172,7 +172,7 @@
     {
       "name": "cancel_job",
       "title": "Cancel background job",
-      "description": "Requests cancellation of one running background job; the hardware operation is stopped where possible (exposure aborted, slew stopped, focuser halted, autofocus aborted). Waits up to wait_seconds (default 10) for the job to end and returns it in the get_job shape. Cancelling a job that already finished is not an error. Available even in read-only mode and while a sequence runs. To stop everything at once use stop_all.",
+      "description": "Requests cancellation of one running background job; the hardware operation is stopped where possible (exposure aborted, slew stopped, focuser halted, autofocus aborted). Waits up to wait_seconds (default 10) for the job to end and returns it in the get_job shape, with stopErrors listing driver stop commands that failed. Cancelling a job that already finished is not an error. If the job is still running after the wait (its device does not respond), abandon: true releases its resource anyway; the device may still be busy, so check get_status afterwards. Available even in read-only mode and while a sequence runs. To stop everything at once use stop_all.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -184,10 +184,15 @@
           },
           "wait_seconds": {
             "type": "number",
-            "description": "Seconds to wait for the job to end after the cancel request (0-120, default 10).",
+            "description": "Seconds to wait for the job to end after the cancel request (0-55, default 10).",
             "minimum": 0,
             "maximum": 55,
             "default": 10
+          },
+          "abandon": {
+            "type": "boolean",
+            "description": "If the job is still running after wait_seconds, end it as abandoned and release its resource although its operation has not stopped. Only for a job that does not react to cancellation.",
+            "default": false
           }
         },
         "required": [
@@ -353,7 +358,7 @@
     {
       "name": "slew_mount",
       "title": "Slew mount",
-      "description": "Slews the mount to J2000 coordinates (plain goto: no plate solving or centering; add_target with slew_and_center does that in a sequence). The mount must be connected and unparked (unpark_mount). Moves the telescope: make sure the user expects it. If guiding is active, stop_guiding first (the guide star is lost during the slew). Runs as a background job holding the mount; stop it with cancel_job or stop_all. Afterwards check the position with get_status.",
+      "description": "Slews the mount to J2000 coordinates (plain goto: no plate solving or centering; add_target with slew_and_center does that in a sequence). The mount must be connected and unparked (unpark_mount). Moves the telescope: make sure the user expects it. If guiding is active, stop_guiding first (the guide star is lost during the slew). Runs as a background job holding the mount; refused while a capture, autofocus or guiding start job runs. Stop it with cancel_job or stop_all. Afterwards check the position with get_status.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -417,7 +422,7 @@
     {
       "name": "park_mount",
       "title": "Park mount",
-      "description": "Moves the mount to its park position and stops tracking (end of session, bad weather). Moves the telescope; stop_guiding first if guiding is active. Runs as a background job holding the mount. Use unpark_mount before the next slew.",
+      "description": "Moves the mount to its park position and stops tracking (end of session, bad weather). Moves the telescope; guiding is stopped first. Runs as a background job holding the mount; refused while a guiding start job runs. Use unpark_mount before the next slew.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -477,7 +482,7 @@
     {
       "name": "home_mount",
       "title": "Find mount home",
-      "description": "Moves the mount to its home position (driver 'find home'; not every mount supports it). Moves the telescope. Runs as a background job holding the mount.",
+      "description": "Moves the mount to its home position (driver 'find home'; not every mount supports it). Moves the telescope; guiding is stopped first. Runs as a background job holding the mount; refused while a capture, autofocus or guiding start job runs.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -507,7 +512,7 @@
     {
       "name": "set_tracking",
       "title": "Set mount tracking",
-      "description": "Turns sidereal tracking of the mount on or off. Returns immediately. Tracking must be on for imaging; turn it off to keep a parked or idle mount from drifting into the pier.",
+      "description": "Turns sidereal tracking of the mount on or off and returns once the mount reports the new state (a few seconds at most). Tracking must be on for imaging; turn it off to keep a parked or idle mount from drifting into the pier. Refused while a slew, park, unpark or home job holds the mount.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -537,7 +542,7 @@
     {
       "name": "capture_image",
       "title": "Capture image",
-      "description": "Takes one exposure with the imaging camera (changing the filter first when 'filter' is set) and returns its statistics in outcome.data (HFR in pixels, star count, mean/median ADU). The frame is also added to the image history (get_recent_images). Use it for test frames: framing, focus check, exposure check. By default the frame is analysed but not saved; save: true writes it like a normal LIGHT frame (the file path appears in get_recent_images once it is written). Omitted gain/offset use the profile defaults; omitted binning keeps the camera's current binning. Runs as a background job holding the camera and refused while a focuser move or filter change runs; the default wait covers short exposures, poll get_job for long ones. For many frames build a sequence with add_target instead.",
+      "description": "Takes one exposure with the imaging camera (changing the filter first when 'filter' is set) and returns its statistics in outcome.data (HFR in pixels, star count, mean/median ADU). The frame is also added to the image history (get_recent_images). Use it for test frames: framing, focus check, exposure check. By default the frame is analysed but not saved; save: true writes it like a normal LIGHT frame (the file path appears in get_recent_images once it is written). Omitted gain/offset use the profile defaults; omitted binning keeps the camera's current binning. Runs as a background job holding the camera and refused while a focuser move, filter change or mount job (slew, park, home) runs; the default wait covers short exposures, poll get_job for long ones. For many frames build a sequence with add_target instead.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -726,7 +731,7 @@
     {
       "name": "run_autofocus",
       "title": "Run autofocus",
-      "description": "Runs NINA's autofocus routine with the profile's autofocus settings on the current filter (change_filter first to focus on another filter): takes a series of exposures at several focuser positions, fits the HFR curve and moves to the best position. Needs a connected camera and focuser and stars in the field (the mount should track a star field). Takes one to several minutes, so it usually returns a running job: poll get_job. outcome.data holds the final position, HFR, filter and temperature. The job holds the 'camera' resource (autofocus uses camera and focuser) and is refused while a focuser job runs.",
+      "description": "Runs NINA's autofocus routine with the profile's autofocus settings on the current filter (change_filter first to focus on another filter): takes a series of exposures at several focuser positions, fits the HFR curve and moves to the best position. Needs a connected camera and focuser and stars in the field (the mount should track a star field). Takes one to several minutes, so it usually returns a running job: poll get_job. outcome.data holds the final position, HFR, filter and temperature. The job holds the 'camera' resource (autofocus uses camera and focuser) and is refused while a focuser or mount job runs.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1071,7 +1076,7 @@
     {
       "name": "save_sequence",
       "title": "Save sequence",
-      "description": "Saves the current advanced sequence to the profile's sequence folder under 'name' (without extension; it appears in list_saved_sequences and can be loaded later with load_sequence). Names may contain letters, digits, spaces, '-', '_' and '.', no path separators. An existing file with that name is only replaced with overwrite: true. Allowed while the sequence runs (it only writes a file).",
+      "description": "Saves the current advanced sequence to the profile's sequence folder under 'name' (without extension; it appears in list_saved_sequences and can be loaded later with load_sequence). Names may contain letters, digits, spaces, '-', '_' and '.', no path separators. An existing file with that name is only replaced with overwrite: true. Allowed while the sequence runs (it only writes a file); like NINA's Save As, the sequence then takes the new name, which also changes $$SEQUENCETITLE$$ in the file names of the frames still to come.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1095,7 +1100,7 @@
       "annotations": {
         "title": "Save sequence",
         "readOnlyHint": false,
-        "destructiveHint": false,
+        "destructiveHint": true,
         "idempotentHint": false,
         "openWorldHint": false
       }
@@ -1103,7 +1108,7 @@
     {
       "name": "start_sequence",
       "title": "Start sequence",
-      "description": "Starts the advanced sequence that is loaded (load_sequence) or built (add_target) and returns as soon as it runs; it then runs on its own for hours, moving the mount, camera, focuser and guider. NINA validates the sequence first (devices connected, filters exist, ...) and refuses with the issues listed; skip_validation bypasses that check (not recommended). While it runs, other hardware and change tools are refused unless force is passed. Monitor with get_status, get_sequence and get_recent_images; stop with stop_sequence (or stop_all). Finished items are skipped on a new start: reset_sequence first to run everything again. Refused while a job started over MCP (slew, capture, autofocus, focuser move, filter change, guiding start, switch) still runs: wait for it with get_job or stop it with cancel_job. A running camera cooling job does not block the start.",
+      "description": "Starts the advanced sequence that is loaded (load_sequence) or built (add_target) and returns as soon as it runs; it then runs on its own for hours, moving the mount, camera, focuser and guider. NINA validates the sequence first (devices connected, filters exist, ...) and refuses with the issues listed; skip_validation bypasses that check (not recommended). While it runs, other hardware and change tools are refused unless force is passed. Monitor with get_status, get_sequence and get_recent_images; stop with stop_sequence (or stop_all). Finished items are skipped on a new start: reset_sequence first to run everything again. Refused while a job started over MCP (slew, capture, autofocus, focuser move, filter change, guiding start, switch, device connection) still runs: wait for it with get_job or stop it with cancel_job. A running camera cooling job does not block the start.",
       "inputSchema": {
         "type": "object",
         "properties": {

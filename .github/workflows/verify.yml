@@ -26,6 +26,7 @@ jobs:
       - run: python training/tests/v2_tests.py
       - run: python training/tests/colab_tests.py
       - run: python training/tests/curriculum_tests.py
+      - run: python training/tests/comprehensive_tests.py
       - run: python training/tests/preflight_tests.py
       - run: python training/tests/training_resume_tests.py
       - run: python training/tests/evaluation_tests.py

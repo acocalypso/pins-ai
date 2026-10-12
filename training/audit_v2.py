@@ -42,12 +42,12 @@ def main():
     original = {t['function']['name']: t for t in catalog['tools']}
     audit = {'sourceRevision': revision, 'verification': 'compiled existing dispatcher tools/list; no live endpoint/hardware',
              'added': sorted(current.keys() - original.keys()), 'removed': sorted(original.keys() - current.keys()),
-             'schemaChanges': [name for name in current.keys() & original.keys()
-                 if strip_descriptions(current[name]['inputSchema']) != strip_descriptions(original[name]['function']['parameters'])],
+             'schemaChanges': sorted(name for name in current.keys() & original.keys()
+                 if strip_descriptions(current[name]['inputSchema']) != strip_descriptions(original[name]['function']['parameters'])),
              'annotations': {name: tool['annotations'] for name, tool in current.items()},
              'originalHashes': manifest['sha256'], 'sourceHashes': {},
              'runtimeResults': {'envelope': 'content + optional structuredContent + isError',
-                               'job': 'running/succeeded/failed/cancelled plus outcome.success; isError:false is insufficient'},
+                               'job': 'running/succeeded/failed/cancelled/abandoned plus cancelRequested, stopErrors and outcome.success; isError:false is insufficient'},
              'liveCompatibilityVerified': False,
              'hostWiring': adapter['hostWiring'], 'adapterContract': adapter,
              'previousAuditRevision': previous['sourceRevision'] if previous else None,

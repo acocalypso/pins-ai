@@ -13,6 +13,7 @@ python training/datasets/mcp-v2/scripts/validate_dataset.py
 python training/tests/training_tests.py
 python training/tests/v2_tests.py
 python training/tests/curriculum_tests.py
+python training/tests/comprehensive_tests.py
 python training/tests/colab_tests.py
 python training/tests/training_resume_tests.py
 python training/tests/evaluation_tests.py

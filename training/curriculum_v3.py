@@ -6,7 +6,7 @@ from pathlib import Path
 from common import read_jsonl, fingerprint
 from v2_contracts import PACKAGE, POLICY, definitions, validate_call
 
-PROFILE = 'v3-contrastive'
+PROFILE = 'v4-comprehensive'
 
 # Newly authored training phrases; no gold file is imported or used as a seed.
 SAFETY_REPLIES = dict(zip(('en', 'de', 'fr', 'es', 'it', 'pt', 'nl', 'pl', 'ja', 'zh'), [
@@ -132,6 +132,15 @@ def curriculum_rows(split):
         added.append(item)
     added.extend(safety_rows(source, catalog))
     added.extend(read_jsonl(Path(__file__).parent / 'data/sequence-plans.jsonl'))
+    comprehensive = Path(__file__).parent / 'datasets/mcp-comprehensive'
+    import json
+    from common import sha256
+    manifest = json.loads((comprehensive / 'manifest.json').read_text(encoding='utf-8'))
+    from v2_contracts import VERIFIED
+    if (manifest['contractSha256'] != sha256(VERIFIED) or manifest['policySha256'] != fingerprint(POLICY)
+            or manifest['trainSha256'] != sha256(comprehensive / 'train.jsonl')):
+        raise ValueError('Comprehensive training data is stale; regenerate for the current contract and policy')
+    added.extend(read_jsonl(comprehensive / 'train.jsonl'))
     if len({r['id'] for r in rows + added}) != len(rows + added):
         raise ValueError('Duplicate curriculum identifiers')
     return rows + added

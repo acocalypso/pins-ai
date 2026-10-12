@@ -32,6 +32,7 @@ training/                    Off-device model specialization
   configs/                   NVIDIA FP16/NF4 and ROCm BF16 LoRA profiles
   data/                      Authored baseline, sequence examples and text gold
   datasets/mcp-v2/            Original/audited multilingual MCP data and manifests
+  datasets/mcp-comprehensive/ Train-only coverage of current MCP capabilities
   notebooks/                 Generated Colab workbook
   tests/                     Data isolation, loss, resume and backend checks
 docs/                        Architecture, safety and dated evidence
