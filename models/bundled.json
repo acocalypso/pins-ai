@@ -1,0 +1,15 @@
+{
+  "id": "qwen3-checkpoint700-lora-diagnostic",
+  "productionReady": false,
+  "globalStep": 700,
+  "targetSteps": 846,
+  "baseRevision": "c1899de289a04d12100db370d81485cdf75e47ca",
+  "llamaCommit": "8345f333951c661d166b00e6f9362e553768f292",
+  "license": "Apache-2.0",
+  "assetDirectory": "models/bundled",
+  "releaseUrl": "https://github.com/acocalypso/pins-ai/releases/tag/checkpoint700-diagnostic",
+  "assets": [
+    { "file": "qwen3-pinned-base-Q4_K_M.gguf", "bytes": 484220160, "sha256": "9947d4e2402c8a9f51720f5aaa7b3a1fba7ef48693773393cd8204a357ec74c3" },
+    { "file": "checkpoint-700-lora-f16.gguf", "bytes": 10119776, "sha256": "9e20a0c41ce2da610b4bf63affe29c997c491dc29ecad6327133f56decaf608a" }
+  ]
+}
