@@ -22,15 +22,22 @@ New installs use the shipped default configuration. Enable MCP and configure
 its token in `/home/pi/.config/pins/mcp.env`; the installer generates this only
 when absent and adds a systemd EnvironmentFile drop-in without restarting PINS.
 
-In Touch-N-Stars, enable **PINS AI Chat** in plugin settings. Enter the current
-rig's AI gateway URL (`http://<rig-host>:4784`) and MCP token. Credentials stay
-in memory and are cleared on leaving/disconnection/rig change. HTTP follows the
+In Touch-N-Stars, enable **PINS AI Chat** in plugin settings. Press **Start**,
+read the experimental-use warning, then choose **Continue** to connect and show
+the conversation and MCP tool browser. Cancel/Escape leaves the page disconnected.
+Configured device-local test clients do not enter a token. Other deployments
+require the private MCP token: connection settings open automatically after a
+401, or can be opened with **Debug**. The gateway URL defaults to the current
+rig (`http://<rig-host>:4784`). Credentials stay in memory and are cleared on
+leaving/disconnection/rig change. HTTP follows the
 existing local MCP transport; use a trusted local network or a TLS reverse proxy
 for remote access. No daemon default credential is reused.
 
 ## API and authorization
 
-All data requests require `Authorization: Bearer <PINS_MCP_TOKEN>`.
+By default, data requests require `Authorization: Bearer <PINS_MCP_TOKEN>`.
+The explicit device-local test exception below requires both a trusted frontend
+origin and a trusted socket client IP.
 `POST /session` with `{}` creates a 15-minute operator session and returns its
 random ID, live exposed tools and model status. Subsequent interactive calls
 require `X-PINS-Chat-Session`. Maximum eight sessions and eight HTTP requests.
