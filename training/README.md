@@ -10,8 +10,8 @@ automatically. Start a fresh adapter from the pinned base when changing data.
 
 | Environment | Python / PyTorch | Dependencies | Configuration | Evaluation backend |
 |---|---|---|---|---|
-| NVIDIA workstation / Colab T4 | Python 3.11, torch 2.7.1 CUDA 12.6 | `training/requirements.txt` | `training/configs/config-v3.json` (FP16/NF4 QLoRA) | `cuda-nf4` |
-| AMD Instinct MI355X, Linux x86-64 | AMD-supported ROCm/PyTorch with gfx950 kernels; example below | `training/requirements-common.txt` | `training/configs/mi355x-lora-bf16.json` (BF16 LoRA) | `gpu-bf16` |
+| NVIDIA workstation / Colab T4 | Python 3.11, torch 2.7.1 CUDA 12.6 | `training/requirements.txt` | `training/configs/config-v6.json` (FP16/NF4 QLoRA) | `cuda-nf4` |
+| AMD Instinct MI355X, Linux x86-64 | AMD-supported ROCm/PyTorch with gfx950 kernels; example below | `training/requirements-common.txt` | `training/configs/mi355x-v6-lora-bf16.json` (BF16 LoRA) | `gpu-bf16` |
 
 Use Git and Python; Git LFS is needed only for the bundled deployment GGUF files.
 Allow at least 20 GB free disk for a base checkpoint, runs, checkpoints and export,
@@ -45,9 +45,9 @@ All training data is in Git and included in this checkout:
 - `training/datasets/mcp-comprehensive/train.jsonl`: train-only coverage of all 32
   current MCP tools and ten languages, including arguments, boundaries, job
   outcomes, authorization and unsupported requests. See its [coverage guide](datasets/mcp-comprehensive/README.md).
-- **Current default:** `training/datasets/mcp-chat/train.jsonl`: the v5 natural
+- **Current default:** `training/datasets/mcp-chat/train.jsonl`: the v6 multilingual
   chat/proposal curriculum. Read its [guide](datasets/mcp-chat/README.md) and
-  [measured audit](../docs/chat-training-data-v5.md) before a new run.
+  [comparison and accuracy recipe](../docs/training-accuracy-v6.md) before a new run.
 - `training/datasets/mcp-v2/data/manifest.json`: immutable original data hashes;
   `contract-audit.json` and `verified-tools-list.json` identify audited contracts.
 
@@ -172,7 +172,7 @@ Never substitute a deployment GGUF for the Hugging Face training checkpoint.
 Choose the environment profile. Linux NVIDIA:
 
 ```bash
-CONFIG=training/configs/config-v3.json
+CONFIG=training/configs/config-v6.json
 BACKEND=cuda-nf4
 RUN=artifacts/training-runs/qwen3-$(date -u +%Y%m%d-%H%M%S)
 DATA=artifacts/training-data/current
@@ -181,7 +181,7 @@ DATA=artifacts/training-data/current
 Linux ROCm uses the same commands below with:
 
 ```bash
-CONFIG=training/configs/mi355x-lora-bf16.json
+CONFIG=training/configs/mi355x-v6-lora-bf16.json
 BACKEND=gpu-bf16
 RUN=artifacts/training-runs/qwen3-mi355x-$(date -u +%Y%m%d-%H%M%S)
 DATA=artifacts/training-data/current
@@ -213,7 +213,7 @@ instead of bash variables. Set them as below, and put commands on one line or us
 PowerShell's backtick for line continuation (not bash's backslash):
 
 ```powershell
-$Config='training/configs/config-v3.json'
+$Config='training/configs/config-v6.json'
 $Backend='cuda-nf4'
 $Run='artifacts/training-runs/qwen3-'+(Get-Date -Format 'yyyyMMdd-HHmmss')
 $Data='artifacts/training-data/current'
@@ -231,6 +231,16 @@ falls while validation loss rises, examine overfitting rather than simply traini
 longer. Final `train_loss_overall` and resumed `train_loss_segment` are labeled
 separately. Lower loss does not prove MCP accuracy or authorization safety.
 
+V6 also logs `eval_tool_choice`, `eval_tool_exact`, `eval_tool_macro_exact`,
+`eval_schema_valid`, `eval_unsafe_proposals`, `eval_generation_truncated` and
+`eval_selection_score`. Every 100 steps, it generates a fixed development-only
+sample covering all tools and languages. Checkpoints are selected by macro exact
+accuracy, with unwanted no-tool proposals and truncation penalized. Early stopping
+uses four checks and a 0.005 improvement threshold. Per-case outputs and the exact
+validation contract are saved in `full/generation-validation/step-<step>.json`.
+Gold never participates in selection. Generated validation adds evaluation time;
+measure it in the matching GPU smoke before starting a full run.
+
 ```bash
 tail -f "$RUN/full/metrics.jsonl"
 cat "$RUN/full/metrics-latest.json"
@@ -243,9 +253,15 @@ Get-Content "$Run/full/metrics-latest.json"
 
 Checkpoints are in `full/checkpoints/checkpoint-<step>/`. The standard profiles
 save/evaluate every 100 optimizer steps, **not after every batch**. Retention is
-two checkpoints subject to Trainer's best/latest handling; they are not an archive
+four checkpoints for v6, subject to Trainer's best/latest handling; they are not an archive
 of every save. The completed `full/adapter/` contains the validation-selected best
 adapter. `training-run.json` records versions, hashes, configuration and status.
+`bestCheckpointScore` is the selected score, not a loss; final `metrics.eval_loss`
+remains the measured loss at the selected checkpoint. Existing v3/legacy AMD
+profiles retain their original loss selection and retention for exact resumes.
+Changed v6 data requires fresh training from the base. A lower-rate AMD ablation
+is available in `configs/mi355x-v6-conservative-lora-bf16.json`; it is experimental,
+not a measured improvement. See the [experiment plan](experiments/v6-accuracy-plan.json).
 
 ## Resume an interrupted run
 
@@ -348,6 +364,12 @@ model. The full hard-gold suite contains 120 cases. A positive `--per-language`
 selects a deterministic subset, not a full gold evaluation. On `eval_gold`,
 `--job-continuations` also evaluates supplied synthetic job feedback; no actual
 hardware job is started or polled.
+
+To continue an interrupted GGUF evaluation, repeat the original command with
+`--resume-from path/to/partial.json` and a **new** `--output` path. Keep the same
+model, LoRA, runtime, dataset, prompt mode and generation options. Resume verifies
+their hashes and rechecks every saved prediction before skipping completed cases;
+it preserves the original report. This resumes evaluation, not model training.
 
 ```bash
 cmake -S .local/llama.cpp -B .local/llama.cpp/build \

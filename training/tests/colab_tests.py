@@ -7,6 +7,7 @@ import unittest
 import zipfile
 import json
 import hashlib
+import ast
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'training'))
 from colab_workspace import use_drive_data
@@ -64,6 +65,27 @@ class DriveDataTests(unittest.TestCase):
         for path in self.data.iterdir():
             (folder / path.name).write_bytes(path.read_bytes())
         self.assertEqual(use_drive_data(self.project, self.drive)['kind'], 'directory')
+
+
+class NotebookTests(unittest.TestCase):
+    def test_checked_in_notebook_cells_compile_and_outputs_are_cleared(self):
+        root = Path(__file__).resolve().parents[2]
+        notebook = json.loads((root/'training/notebooks/pins-ai-colab.ipynb').read_text(encoding='utf-8'))
+        settings = {}
+        for index, cell in enumerate(notebook['cells']):
+            if cell['cell_type'] != 'code': continue
+            source = ''.join(cell['source'])
+            tree = ast.parse(source, filename=f'colab-cell-{index}')
+            compile(tree, f'colab-cell-{index}', 'exec')
+            self.assertIsNone(cell['execution_count'])
+            self.assertEqual(cell['outputs'], [])
+            for node in tree.body:
+                if isinstance(node, ast.Assign) and isinstance(node.value, ast.Constant):
+                    for target in node.targets:
+                        if isinstance(target, ast.Name): settings[target.id] = node.value.value
+        config = json.loads((root/settings['TRAIN_CONFIG']).read_text())
+        self.assertIn('generationValidation', config)
+        self.assertFalse(settings['RUN_TRAINING'])
 
 
 if __name__ == '__main__':

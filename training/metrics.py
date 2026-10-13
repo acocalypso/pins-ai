@@ -51,6 +51,12 @@ class TrainingMetrics(TrainerCallback):
         for key in ('learning_rate', 'grad_norm', 'train_runtime', 'eval_runtime'):
             if key in logs:
                 record[key] = logs[key]
+        for key in ('eval_tool_choice', 'eval_tool_exact', 'eval_tool_macro_exact', 'eval_schema_valid',
+                    'eval_unsafe_proposals', 'eval_generation_truncated', 'eval_generation_cases', 'eval_selection_score'):
+            if key in logs:
+                if not math.isfinite(logs[key]):
+                    raise ValueError('Non-finite generated validation metric: ' + key)
+                record[key] = logs[key]
         self.latest.update(record)
         with self.history_path.open('a', encoding='utf-8') as stream:
             stream.write(json.dumps(record, allow_nan=False) + '\n')
@@ -62,6 +68,9 @@ class TrainingMetrics(TrainerCallback):
             delta = record['eval_loss_delta']
             trend = 'first measurement' if delta is None else 'improving' if delta < 0 else 'worsening' if delta > 0 else 'unchanged'
             details = f"eval_loss={value:.6f} ({trend}), best_eval_loss={record['best_eval_loss']:.6f}"
+            if 'eval_tool_exact' in record:
+                details += (f", tool_exact={record['eval_tool_exact']:.3f}, macro_exact={record['eval_tool_macro_exact']:.3f}"
+                            f", unsafe_proposals={record['eval_unsafe_proposals']}, selection_score={record['eval_selection_score']:.3f}")
         elif event == 'train_window':
             details = f"train_loss={record['train_loss']:.6f} (logging-window average)"
         elif 'train_loss_segment' in record:

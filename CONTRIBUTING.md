@@ -15,6 +15,7 @@ python training/tests/v2_tests.py
 python training/tests/curriculum_tests.py
 python training/tests/comprehensive_tests.py
 python training/tests/chat_dataset_tests.py
+python training/tests/generation_validation_tests.py
 python training/tests/colab_tests.py
 python training/tests/training_resume_tests.py
 python training/tests/evaluation_tests.py

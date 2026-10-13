@@ -1,0 +1,345 @@
+{
+  "hardwareExecution": false,
+  "piChanged": false,
+  "timingLimit": "Concurrent desktop CPU evaluation; not isolated Pi latency",
+  "models": {
+    "new1900": {
+      "loraFile": "artifacts/model-comparison-20261013/checkpoint1900-lora-f16.gguf",
+      "loraSha256": "c935d9003f8f201fa517e004a1460e8c0b403659496de59543572ca12e46fcae",
+      "sourceAdapterSha256": "ff3515553d69786365fe4685bf8b4692c205f44b69d828e73bcd164f86bdbfa9",
+      "trainingRunSha256": "dcd8fcbddc7e647c0640b2ed6c3eadbbfd08b956349152e0832ce7857b482a07",
+      "diagnosticIncompleteCheckpoint": false
+    },
+    "prior700": {
+      "loraFile": "plugin/models/bundled/checkpoint-700-lora-f16.gguf",
+      "loraSha256": "9e20a0c41ce2da610b4bf63affe29c997c491dc29ecad6327133f56decaf608a",
+      "sourceAdapterSha256": "53e795a825b381f5756a5d39642f9b052a4087f31b46457ab2fb5ba2c7f7756e",
+      "trainingRunSha256": "6cbe9362d7801e137affbfb0eed3708c562f85fa785c91fa4d4766dc4112eb97",
+      "diagnosticIncompleteCheckpoint": true
+    },
+    "prior400": {
+      "loraFile": "artifacts/model-comparison-20261013/checkpoint400-lora-f16.gguf",
+      "loraSha256": "5737493b00a98f0fd73800481f7cdb75220afbbfa64969d070c1850fb4434cc7",
+      "sourceAdapterSha256": "23e07e9bfa2a7ab8d26795b003f12ad086f70ad25d576ce03a2a2d149692f8ad",
+      "trainingRunSha256": "ae9b93b6df4742061bc79f50ea9e4277699a42626dd55a87f6104d7c1f9d2321",
+      "diagnosticIncompleteCheckpoint": true
+    }
+  },
+  "date": "2026-10-13",
+  "sourceSummarySha256": "bd8ce4d05ba179a20a528707a0c26bde1ddc23b24a88bbd9c65667b6ca646dda",
+  "limitations": [
+    "New1900 trained on v4 before v5 chat data update.",
+    "Prior700 and prior400 are incomplete diagnostic checkpoints.",
+    "Hard gold uses legacy semantics; validation uses v5 chat projection.",
+    "Aggregate historical evidence only: no held-out prompts or predictions are training inputs.",
+    "Correct tools supplied in scoped prompts; router quality not measured by these model scores.",
+    "No isolated Pi timings, hardware operations, or fully reviewed linguistic accuracy claim."
+  ],
+  "suites": {
+    "hard_gold": {
+      "scores": {
+        "new1900": {
+          "cases": 120,
+          "toolChoiceCorrect": 93,
+          "exactArgumentsCorrect": 81,
+          "schemaValid": 113,
+          "outputTruncated": 0
+        },
+        "prior700": {
+          "cases": 120,
+          "toolChoiceCorrect": 93,
+          "exactArgumentsCorrect": 89,
+          "schemaValid": 115,
+          "outputTruncated": 0
+        },
+        "prior400": {
+          "cases": 120,
+          "toolChoiceCorrect": 92,
+          "exactArgumentsCorrect": 82,
+          "schemaValid": 111,
+          "outputTruncated": 0
+        }
+      },
+      "paired": {
+        "prior700": {
+          "newWinsExact": 14,
+          "newLossesExact": 22
+        },
+        "prior400": {
+          "newWinsExact": 12,
+          "newLossesExact": 13
+        }
+      },
+      "evidence": {
+        "new1900": {
+          "reportSha256": "3c1d3c07518c1e921bf36f74facbdca6b9d0441af53b067d43d187ed3fea65bb",
+          "identity": {
+            "modelSha256": "9947d4e2402c8a9f51720f5aaa7b3a1fba7ef48693773393cd8204a357ec74c3",
+            "loraSha256": "c935d9003f8f201fa517e004a1460e8c0b403659496de59543572ca12e46fcae",
+            "runtimeCommit": "8345f333951c661d166b00e6f9362e553768f292",
+            "serverSha256": "b60b3ecab25214b28c25b8b23ff4325437687dcbc1db34ff8d238b81c6273077",
+            "suite": "hard_gold",
+            "inputSha256": {
+              "data/hard_gold.jsonl": "da6b7d19d9bdd6424e8c4ca21697e6e5b7e67b3d5ce66f479a99ad50fa2cc85c"
+            },
+            "contractSha256": "3a252bcb6201c76fd4ac8a46c3828a13e014bfdd22dd364b03f884a291fcfe3f",
+            "adapterContractSha256": "a7e2ce81c30ec565b203d169409a46df2c413595c5e339df2446c336c7c415f5",
+            "scorerVersion": "2-strict-native-proposals",
+            "scoringImplementationSha256": "6b5fd875db908f9c2361ea82e055de4007ffc464d3d4a1e9c4ccb9d759ed923b",
+            "policySha256": "6bd19e93385a8921df737cc64f07994d125253f14752d2e5b71a4db88910c2d5",
+            "promptMode": "legacy",
+            "templateSha256": "41d5929bf73796beb66809ac700b2cf3ff81694f933e5c14d52b7fd6963c947d",
+            "generation": {
+              "maxNewTokens": 192,
+              "temperature": 0,
+              "seed": 3407,
+              "threads": 2,
+              "contextTokens": 1536,
+              "stop": [
+                "<|im_end|>"
+              ]
+            },
+            "selection": {
+              "perLanguage": 0,
+              "jobContinuationsRequested": false
+            },
+            "caseInputsSha256": "bdd75d80f14d08ff018eeabc8db83ef99009515bdc89bce5d765e88b59873b01",
+            "backend": "llama.cpp CPU Q4_K_M"
+          },
+          "identitySha256": "b2b0cc851b88373342046b58f88a53517fef5be9a24f6a2aa96bab2a38f76113",
+          "completed": true
+        },
+        "prior700": {
+          "reportSha256": "b193a359cb2813275747b328cf85a115f9bdfea74e9c9855f783386dc8abbe16",
+          "identity": {
+            "modelSha256": "9947d4e2402c8a9f51720f5aaa7b3a1fba7ef48693773393cd8204a357ec74c3",
+            "loraSha256": "9e20a0c41ce2da610b4bf63affe29c997c491dc29ecad6327133f56decaf608a",
+            "runtimeCommit": "8345f333951c661d166b00e6f9362e553768f292",
+            "serverSha256": "b60b3ecab25214b28c25b8b23ff4325437687dcbc1db34ff8d238b81c6273077",
+            "suite": "hard_gold",
+            "inputSha256": {
+              "data/hard_gold.jsonl": "da6b7d19d9bdd6424e8c4ca21697e6e5b7e67b3d5ce66f479a99ad50fa2cc85c"
+            },
+            "contractSha256": "3a252bcb6201c76fd4ac8a46c3828a13e014bfdd22dd364b03f884a291fcfe3f",
+            "adapterContractSha256": "a7e2ce81c30ec565b203d169409a46df2c413595c5e339df2446c336c7c415f5",
+            "scorerVersion": "2-strict-native-proposals",
+            "scoringImplementationSha256": "6b5fd875db908f9c2361ea82e055de4007ffc464d3d4a1e9c4ccb9d759ed923b",
+            "policySha256": "6bd19e93385a8921df737cc64f07994d125253f14752d2e5b71a4db88910c2d5",
+            "promptMode": "legacy",
+            "templateSha256": "41d5929bf73796beb66809ac700b2cf3ff81694f933e5c14d52b7fd6963c947d",
+            "generation": {
+              "maxNewTokens": 192,
+              "temperature": 0,
+              "seed": 3407,
+              "threads": 2,
+              "contextTokens": 1536,
+              "stop": [
+                "<|im_end|>"
+              ]
+            },
+            "selection": {
+              "perLanguage": 0,
+              "jobContinuationsRequested": false
+            },
+            "caseInputsSha256": "bdd75d80f14d08ff018eeabc8db83ef99009515bdc89bce5d765e88b59873b01",
+            "backend": "llama.cpp CPU Q4_K_M"
+          },
+          "identitySha256": "20553286bde895cc5157487050a4f3568b2a321ff7bff40288cb2fba6e36e089",
+          "completed": true
+        },
+        "prior400": {
+          "reportSha256": "036c58272b0c3b2a85ffab75bb4c8c31b3aba1bfc2db4562451f670d33d08421",
+          "identity": {
+            "modelSha256": "9947d4e2402c8a9f51720f5aaa7b3a1fba7ef48693773393cd8204a357ec74c3",
+            "loraSha256": "5737493b00a98f0fd73800481f7cdb75220afbbfa64969d070c1850fb4434cc7",
+            "runtimeCommit": "8345f333951c661d166b00e6f9362e553768f292",
+            "serverSha256": "b60b3ecab25214b28c25b8b23ff4325437687dcbc1db34ff8d238b81c6273077",
+            "suite": "hard_gold",
+            "inputSha256": {
+              "data/hard_gold.jsonl": "da6b7d19d9bdd6424e8c4ca21697e6e5b7e67b3d5ce66f479a99ad50fa2cc85c"
+            },
+            "contractSha256": "3a252bcb6201c76fd4ac8a46c3828a13e014bfdd22dd364b03f884a291fcfe3f",
+            "adapterContractSha256": "a7e2ce81c30ec565b203d169409a46df2c413595c5e339df2446c336c7c415f5",
+            "scorerVersion": "2-strict-native-proposals",
+            "scoringImplementationSha256": "6b5fd875db908f9c2361ea82e055de4007ffc464d3d4a1e9c4ccb9d759ed923b",
+            "policySha256": "6bd19e93385a8921df737cc64f07994d125253f14752d2e5b71a4db88910c2d5",
+            "promptMode": "legacy",
+            "templateSha256": "41d5929bf73796beb66809ac700b2cf3ff81694f933e5c14d52b7fd6963c947d",
+            "generation": {
+              "maxNewTokens": 192,
+              "temperature": 0,
+              "seed": 3407,
+              "threads": 2,
+              "contextTokens": 1536,
+              "stop": [
+                "<|im_end|>"
+              ]
+            },
+            "selection": {
+              "perLanguage": 0,
+              "jobContinuationsRequested": false
+            },
+            "caseInputsSha256": "bdd75d80f14d08ff018eeabc8db83ef99009515bdc89bce5d765e88b59873b01",
+            "backend": "llama.cpp CPU Q4_K_M"
+          },
+          "identitySha256": "e12b2c758066e89a1ccf7d9b2051a383157ff3126590f480784f4c02637205fc",
+          "completed": true
+        }
+      }
+    },
+    "validation_smoke": {
+      "scores": {
+        "new1900": {
+          "cases": 583,
+          "toolChoiceCorrect": 410,
+          "exactArgumentsCorrect": 400,
+          "schemaValid": 572,
+          "outputTruncated": 0
+        },
+        "prior700": {
+          "cases": 583,
+          "toolChoiceCorrect": 427,
+          "exactArgumentsCorrect": 417,
+          "schemaValid": 571,
+          "outputTruncated": 0
+        },
+        "prior400": {
+          "cases": 583,
+          "toolChoiceCorrect": 447,
+          "exactArgumentsCorrect": 425,
+          "schemaValid": 558,
+          "outputTruncated": 0
+        }
+      },
+      "paired": {
+        "prior700": {
+          "newWinsExact": 86,
+          "newLossesExact": 103
+        },
+        "prior400": {
+          "newWinsExact": 81,
+          "newLossesExact": 106
+        }
+      },
+      "evidence": {
+        "new1900": {
+          "reportSha256": "9450156f44dcf9f0916a5924f8b79af7045ab6cbccd84edcd126c6370b8bfffe",
+          "identity": {
+            "modelSha256": "9947d4e2402c8a9f51720f5aaa7b3a1fba7ef48693773393cd8204a357ec74c3",
+            "loraSha256": "c935d9003f8f201fa517e004a1460e8c0b403659496de59543572ca12e46fcae",
+            "runtimeCommit": "8345f333951c661d166b00e6f9362e553768f292",
+            "serverSha256": "b60b3ecab25214b28c25b8b23ff4325437687dcbc1db34ff8d238b81c6273077",
+            "suite": "validation_smoke",
+            "inputSha256": {
+              "data/audited/validation.jsonl": "20f9172f73a25825089a310a97f449f2df5191392229d9d95d987b68a4f275b1",
+              "chatProjectionSha256": "39135920dc0bea73d35eb107e02e816d2759eb69fc6c77ec56850c649b23f067"
+            },
+            "contractSha256": "3a252bcb6201c76fd4ac8a46c3828a13e014bfdd22dd364b03f884a291fcfe3f",
+            "adapterContractSha256": "a7e2ce81c30ec565b203d169409a46df2c413595c5e339df2446c336c7c415f5",
+            "scorerVersion": "2-strict-native-proposals",
+            "scoringImplementationSha256": "6b5fd875db908f9c2361ea82e055de4007ffc464d3d4a1e9c4ccb9d759ed923b",
+            "policySha256": "ec3cab4db64073c672fd2820dcae7b29e47c300da76a5b09b2502b7e88b3aad9",
+            "promptMode": "chat",
+            "templateSha256": "41d5929bf73796beb66809ac700b2cf3ff81694f933e5c14d52b7fd6963c947d",
+            "generation": {
+              "maxNewTokens": 192,
+              "temperature": 0,
+              "seed": 3407,
+              "threads": 2,
+              "contextTokens": 1536,
+              "stop": [
+                "<|im_end|>"
+              ]
+            },
+            "selection": {
+              "perLanguage": 0,
+              "jobContinuationsRequested": false
+            },
+            "caseInputsSha256": "999c8a761be58c99f3e25dd047f9fa6e77edab6cad24cfc43ba1a88791976343",
+            "backend": "llama.cpp CPU Q4_K_M"
+          },
+          "identitySha256": "4d23222d5b6c8458d2b96c6406287f498ba1d361b13a6940cbbd0bcab1dda101",
+          "completed": true
+        },
+        "prior700": {
+          "reportSha256": "2c404a656a1bfbe0c8a26c66b5715f5803d15cc3edbec3c40e3050bebc697adb",
+          "identity": {
+            "modelSha256": "9947d4e2402c8a9f51720f5aaa7b3a1fba7ef48693773393cd8204a357ec74c3",
+            "loraSha256": "9e20a0c41ce2da610b4bf63affe29c997c491dc29ecad6327133f56decaf608a",
+            "runtimeCommit": "8345f333951c661d166b00e6f9362e553768f292",
+            "serverSha256": "b60b3ecab25214b28c25b8b23ff4325437687dcbc1db34ff8d238b81c6273077",
+            "suite": "validation_smoke",
+            "inputSha256": {
+              "data/audited/validation.jsonl": "20f9172f73a25825089a310a97f449f2df5191392229d9d95d987b68a4f275b1",
+              "chatProjectionSha256": "39135920dc0bea73d35eb107e02e816d2759eb69fc6c77ec56850c649b23f067"
+            },
+            "contractSha256": "3a252bcb6201c76fd4ac8a46c3828a13e014bfdd22dd364b03f884a291fcfe3f",
+            "adapterContractSha256": "a7e2ce81c30ec565b203d169409a46df2c413595c5e339df2446c336c7c415f5",
+            "scorerVersion": "2-strict-native-proposals",
+            "scoringImplementationSha256": "6b5fd875db908f9c2361ea82e055de4007ffc464d3d4a1e9c4ccb9d759ed923b",
+            "policySha256": "ec3cab4db64073c672fd2820dcae7b29e47c300da76a5b09b2502b7e88b3aad9",
+            "promptMode": "chat",
+            "templateSha256": "41d5929bf73796beb66809ac700b2cf3ff81694f933e5c14d52b7fd6963c947d",
+            "generation": {
+              "maxNewTokens": 192,
+              "temperature": 0,
+              "seed": 3407,
+              "threads": 2,
+              "contextTokens": 1536,
+              "stop": [
+                "<|im_end|>"
+              ]
+            },
+            "selection": {
+              "perLanguage": 0,
+              "jobContinuationsRequested": false
+            },
+            "caseInputsSha256": "999c8a761be58c99f3e25dd047f9fa6e77edab6cad24cfc43ba1a88791976343",
+            "backend": "llama.cpp CPU Q4_K_M"
+          },
+          "identitySha256": "72bbec82ceab5b99b64164de40118728cae6b586a39b0a968fc6bc150904b506",
+          "completed": true
+        },
+        "prior400": {
+          "reportSha256": "40ede7b15b4505fdc26124011d7bda42e821ada50ac43cf685c4b0b33e00789f",
+          "identity": {
+            "modelSha256": "9947d4e2402c8a9f51720f5aaa7b3a1fba7ef48693773393cd8204a357ec74c3",
+            "loraSha256": "5737493b00a98f0fd73800481f7cdb75220afbbfa64969d070c1850fb4434cc7",
+            "runtimeCommit": "8345f333951c661d166b00e6f9362e553768f292",
+            "serverSha256": "b60b3ecab25214b28c25b8b23ff4325437687dcbc1db34ff8d238b81c6273077",
+            "suite": "validation_smoke",
+            "inputSha256": {
+              "data/audited/validation.jsonl": "20f9172f73a25825089a310a97f449f2df5191392229d9d95d987b68a4f275b1",
+              "chatProjectionSha256": "39135920dc0bea73d35eb107e02e816d2759eb69fc6c77ec56850c649b23f067"
+            },
+            "contractSha256": "3a252bcb6201c76fd4ac8a46c3828a13e014bfdd22dd364b03f884a291fcfe3f",
+            "adapterContractSha256": "a7e2ce81c30ec565b203d169409a46df2c413595c5e339df2446c336c7c415f5",
+            "scorerVersion": "2-strict-native-proposals",
+            "scoringImplementationSha256": "6b5fd875db908f9c2361ea82e055de4007ffc464d3d4a1e9c4ccb9d759ed923b",
+            "policySha256": "ec3cab4db64073c672fd2820dcae7b29e47c300da76a5b09b2502b7e88b3aad9",
+            "promptMode": "chat",
+            "templateSha256": "41d5929bf73796beb66809ac700b2cf3ff81694f933e5c14d52b7fd6963c947d",
+            "generation": {
+              "maxNewTokens": 192,
+              "temperature": 0,
+              "seed": 3407,
+              "threads": 2,
+              "contextTokens": 1536,
+              "stop": [
+                "<|im_end|>"
+              ]
+            },
+            "selection": {
+              "perLanguage": 0,
+              "jobContinuationsRequested": false
+            },
+            "caseInputsSha256": "999c8a761be58c99f3e25dd047f9fa6e77edab6cad24cfc43ba1a88791976343",
+            "backend": "llama.cpp CPU Q4_K_M"
+          },
+          "identitySha256": "79d7c4e8d446b0b17ee07e79bd8e849aa20932f9f0030e6c3ccd8aa4e523f8ad",
+          "completed": true
+        }
+      }
+    }
+  }
+}

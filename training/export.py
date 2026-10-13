@@ -112,7 +112,8 @@ def main():
     # Merge on CPU into clean FP32 weights, never merge into a 4-bit training model.
     base = AutoModelForCausalLM.from_pretrained(args.base, local_files_only=True, trust_remote_code=False,
                                                torch_dtype=torch.float32, device_map={'': 'cpu'})
-    model = PeftModel.from_pretrained(base, adapter_path, local_files_only=True).merge_and_unload(safe_merge=True) if run else base
+    model = PeftModel.from_pretrained(base, adapter_path, local_files_only=True,
+                                     device_map={'': 'cpu'}).merge_and_unload(safe_merge=True) if run else base
     tokenizer = AutoTokenizer.from_pretrained(adapter_path if run else args.base, local_files_only=True, trust_remote_code=False)
     if run and tokenizer.get_vocab() != AutoTokenizer.from_pretrained(args.base, local_files_only=True, trust_remote_code=False).get_vocab():
         raise ValueError('Adapter tokenizer vocabulary differs from the pinned base')

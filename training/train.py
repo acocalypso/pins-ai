@@ -56,6 +56,9 @@ def main():
     hardware = inspect(method, config['precision'])
     if not hardware['ready']:
         raise RuntimeError(json.dumps(hardware, indent=2))
+    if config.get('generationValidation') and args.smoke_run and args.max_steps is None and args.resume_smoke_steps is None:
+        from generation_validation import validate_smoke
+        validate_smoke(smoke, config, hardware)
     base_info = json.loads((args.base / 'base-provenance.json').read_text(encoding='utf-8-sig'))
     if base_info['revision'] != config['revision'] or base_info['model'] != config['model'] or base_info['tokenizerOnly']:
         raise ValueError('Use the verified full pinned training checkpoint')
@@ -104,9 +107,10 @@ def main():
                 raise ValueError('Prepared data changed; rerun preparation')
     resume_info = None
     resume_state = None
+    resume_run = None
     if args.resume_from_checkpoint:
         from training_resume import validate_resume
-        _, resume_state, resume_info = validate_resume(args.resume_from_checkpoint, config, data_info, base_info, method)
+        resume_run, resume_state, resume_info = validate_resume(args.resume_from_checkpoint, config, data_info, base_info, method)
         if args.resume_smoke_steps is None and (smoke.get('resume', {}).get('checkpointFilesSha256') != resume_info['checkpointFilesSha256']):
             raise ValueError('Full continuation requires a fresh resume smoke from identical saved state')
     # A local checkpoint is mandatory. Even missing dependencies/files cannot trigger downloads.
@@ -127,6 +131,16 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(args.base, local_files_only=True, trust_remote_code=False)
     tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = 'right'
+    generation_cases, generation_contract = None, None
+    if config.get('generationValidation'):
+        if args.dataset_mode != 'mcp' or not data_info.get('sourceProfile'):
+            raise ValueError('Generated checkpoint validation requires the runtime-aligned MCP curriculum')
+        from generation_validation import prepare_validation
+        generation_cases, generation_contract = prepare_validation(tokenizer, config['generationValidation'], config['maxLength'])
+        if resume_run and resume_run.get('generationValidationContract') != generation_contract:
+            raise ValueError('Exact continuation requires identical generated validation cases and scoring code')
+        if args.smoke_run and args.max_steps is None and smoke.get('generationValidationContract') != generation_contract:
+            raise ValueError('GPU smoke must validate identical generation cases and scoring code')
     loading = {'local_files_only': True, 'trust_remote_code': False, 'torch_dtype': dtype,
                'device_map': {'': 0}, 'attn_implementation': 'eager'}
     if method == 'qlora':
@@ -200,6 +214,9 @@ def main():
            'promptSha256': prompt_hash, 'templateSha256': fingerprint(tokenizer.chat_template),
            'completionOnly': True, 'enableThinking': False, 'smokeOnly': args.max_steps is not None or args.resume_smoke_steps is not None,
            'loggingSteps': args.logging_steps, 'datasetMode': args.dataset_mode, 'smokeExamples': smoke_ids}
+    selection_metric = 'eval_selection_score' if generation_cases else 'eval_loss'
+    run['bestCheckpointMetric'] = selection_metric
+    run['generationValidationContract'] = generation_contract
     if resume_info:
         run['resume'] = resume_info
         run['resumeSmokeSteps'] = args.resume_smoke_steps
@@ -214,15 +231,16 @@ def main():
         fp16=precision == 'fp16', bf16=precision == 'bf16', optim='adamw_torch',
         eval_strategy='steps' if evaluation_steps else 'epoch', save_strategy='steps' if evaluation_steps else 'epoch',
         eval_steps=evaluation_steps, save_steps=evaluation_steps or 500,
-        save_total_limit=2, logging_steps=args.logging_steps,
-        warmup_ratio=0.05, weight_decay=0.01, max_grad_norm=1.0, seed=config['seed'], data_seed=config['seed'],
+        save_total_limit=config.get('saveTotalLimit', 2), logging_steps=args.logging_steps,
+        warmup_ratio=config.get('warmupRatio', 0.05), lr_scheduler_type=config.get('lrSchedulerType', 'linear'),
+        weight_decay=0.01, max_grad_norm=1.0, seed=config['seed'], data_seed=config['seed'],
         report_to=[], dataloader_num_workers=0, remove_unused_columns=False, prediction_loss_only=True,
         restore_callback_states_from_checkpoint=bool(args.resume_from_checkpoint),
-        load_best_model_at_end=True, metric_for_best_model='eval_loss', greater_is_better=False)
+        load_best_model_at_end=True, metric_for_best_model=selection_metric, greater_is_better=bool(generation_cases))
     metrics = TrainingMetrics(args.output, resume_start_step=resume_state['global_step'] if resume_state else 0)
     if resume_state:
         previous = [event['eval_loss'] for event in resume_state['log_history'] if 'eval_loss' in event]
-        metrics.latest.update(best_eval_loss=resume_state['best_metric'], eval_loss=previous[-1] if previous else None)
+        metrics.latest.update(best_eval_loss=min(previous) if previous else None, eval_loss=previous[-1] if previous else None)
     callbacks = [metrics]
     if resume_state:
         from transformers import TrainerCallback
@@ -245,15 +263,25 @@ def main():
                     control.should_save = True
                 return control
         callbacks.append(ResumeSmokeStop())
-    trainer = Trainer(model=model, args=training_args, train_dataset=Rows(train_rows),
+    trainer_class, extra = Trainer, {}
+    if generation_cases:
+        from generation_validation import make_trainer_class
+        trainer_class = make_trainer_class()
+        extra = dict(generation_cases=generation_cases, generation_contract=generation_contract,
+                     generation_output=args.output / 'generation-validation')
+    trainer = trainer_class(model=model, args=training_args, train_dataset=Rows(train_rows),
                       eval_dataset=Rows(validation_rows), data_collator=collate, processing_class=tokenizer,
-                      callbacks=callbacks)
+                      callbacks=callbacks, **extra)
     try:
         result = trainer.train(resume_from_checkpoint=str(args.resume_from_checkpoint) if args.resume_from_checkpoint else None)
         trainer.save_model(str(args.output / 'adapter'))
         tokenizer.save_pretrained(args.output / 'adapter')
+        best_step = int(Path(trainer.state.best_model_checkpoint).name.rsplit('-', 1)[1]) if trainer.state.best_model_checkpoint else None
+        best_loss = next((r['eval_loss'] for r in reversed(trainer.state.log_history)
+                          if r.get('step') == best_step and 'eval_loss' in r), None)
         run.update(status='completed', metrics={**result.metrics,
-                   'eval_loss': trainer.state.best_metric, 'final_eval_loss': metrics.latest.get('eval_loss')},
+                   'eval_loss': best_loss, 'final_eval_loss': metrics.latest.get('eval_loss')},
+                   bestCheckpointScore=trainer.state.best_metric,
                    bestModelCheckpoint=trainer.state.best_model_checkpoint,
                    monitoring=metrics.latest,
                    maxGpuAllocatedMiB=torch.cuda.max_memory_allocated() / 1048576)

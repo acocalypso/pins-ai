@@ -14,6 +14,7 @@ def source_hashes():
     paths = ['training/build_chat_dataset.py', 'training/chat_dataset_common.py',
              'training/chat_curriculum.py', 'training/chat_intent_curriculum.py',
              'training/chat_workflow_curriculum.py', 'training/curriculum_v3.py',
+             'training/chat_generalization_curriculum.py',
              'training/sequence_curriculum.py', 'training/v2_contracts.py',
              'training/v2_adapter.py', 'training/common.py',
              'training/datasets/mcp-v2/scripts/build_dataset.py',
@@ -32,8 +33,9 @@ def source_hashes():
 def build_rows():
     from chat_intent_curriculum import build_rows as intents
     from chat_workflow_curriculum import build_rows as workflows
+    from chat_generalization_curriculum import build_rows as generalization
     legacy, exclusions = source_rows()
-    new = intents() + workflows()
+    new = intents() + workflows() + generalization()
     rows = legacy + new
     if len({r['id'] for r in rows}) != len(rows):
         raise ValueError('Duplicate conversation identifiers')

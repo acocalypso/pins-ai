@@ -1,8 +1,8 @@
 {
-  "version": "v5-natural-chat-proposals",
+  "version": "v6-multilingual-chat-proposals",
   "split": "train",
   "legacySelected": 4031,
-  "newAuthored": 638,
+  "newAuthored": 1288,
   "excludedLegacy": {
     "repeated_device_phrasing": 380,
     "obsolete_approval_stage": 20,
@@ -10,12 +10,13 @@
     "plugin_wait_limit": 190
   },
   "sourceHashes": {
-    "training/build_chat_dataset.py": "48d2be00ba859346b0bcee9eaeef5683aae087c070ec5cb3132d8d5241bab8dc",
+    "training/build_chat_dataset.py": "33472d9e9ab6718a7bec3c8c4b3b81b72bf841de2a9faae236f380891185ad1c",
     "training/chat_dataset_common.py": "52779a2d1d4c29f599156a861e90b58f12bd4560cc099c1e7d82698631feadaa",
-    "training/chat_curriculum.py": "39135920dc0bea73d35eb107e02e816d2759eb69fc6c77ec56850c649b23f067",
+    "training/chat_curriculum.py": "39a494ab1efd107e6f217f4c3f70e7055b2872c9102e89e6152a3e82f2749d13",
     "training/chat_intent_curriculum.py": "f8b09b57e5dbf953ac8345708618c3c44f15c0cfdd1bfeb9366e281082470fb0",
     "training/chat_workflow_curriculum.py": "37de2019c62883bd64de5013035488d991ee42776a5240d31161534782b8c2d5",
     "training/curriculum_v3.py": "6ce8bbfa9b3a9aa9dcfec677a5d39b55cf1aeb6b90217327e6ae17d300163130",
+    "training/chat_generalization_curriculum.py": "8e15c4343c583014ca4c0ad6ee3c75b5aa28f172c3440ecc071644f01c7fad4b",
     "training/sequence_curriculum.py": "7c5df92d54ebdaafee7d3ce1302a86cff640b570228f4c075c1b360a5ee4e6cb",
     "training/v2_contracts.py": "babc91c649656f682d7179c28c7909942a312bb44aeb4ca8bbc37a398a0d211d",
     "training/v2_adapter.py": "2cc197f4d1858798b2f5b2ac800bfa93894a73c743107f0e8abd2de0b45d58f4",
@@ -33,11 +34,11 @@
     "training/datasets/mcp-v2/data/verified-adapter-contract.json": "a7e2ce81c30ec565b203d169409a46df2c413595c5e339df2446c336c7c415f5"
   },
   "policySha256": "ec3cab4db64073c672fd2820dcae7b29e47c300da76a5b09b2502b7e88b3aad9",
-  "trainSha256": "1814582b5acd0cee0eca1a42583fea149bb27beb43abac972cd0ff39cf04bbdd",
-  "coverageSha256": "b8a8f08317b73a591a86f6bb090e13a1ab51aeefb6b0a253cd85d85a38c9da81",
+  "trainSha256": "556359c389ef2669de40abd836f466fe53bf92c52c49c552858521f05293cf89",
+  "coverageSha256": "d81171f1641925585392ee28805078fd9567dd72c3d0b6ccd5b416e754ebe800",
   "hardwareExecution": false,
   "heldOutInputs": [],
   "linguisticReview": "pending",
-  "conversations": 4669,
-  "assistantTurns": 8065
+  "conversations": 5319,
+  "assistantTurns": 8735
 }

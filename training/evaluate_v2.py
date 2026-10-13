@@ -146,7 +146,8 @@ def main():
                     bnb_4bit_use_double_quant=True, bnb_4bit_compute_dtype=torch.float16)
         model = AutoModelForCausalLM.from_pretrained(args.base, **loading)
         if args.adapter:
-            model = PeftModel.from_pretrained(model, args.adapter, local_files_only=True, is_trainable=False)
+            model = PeftModel.from_pretrained(model, args.adapter, local_files_only=True, is_trainable=False,
+                                             device_map=loading['device_map'])
         model.eval(); model.config.use_cache = True
         for case in cases[len(report['results']):]:
             batch = tokenizer(case['prompt'], return_tensors='pt', add_special_tokens=False).to(device)

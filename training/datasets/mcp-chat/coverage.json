@@ -1,17 +1,17 @@
 {
-  "conversations": 4669,
-  "assistantTurns": 8065,
+  "conversations": 5319,
+  "assistantTurns": 8735,
   "languages": {
-    "zh": 413,
-    "pl": 411,
-    "pt": 409,
-    "fr": 413,
-    "es": 414,
-    "de": 687,
-    "it": 409,
-    "nl": 414,
-    "ja": 412,
-    "en": 687
+    "zh": 478,
+    "pl": 476,
+    "pt": 474,
+    "fr": 478,
+    "es": 479,
+    "de": 752,
+    "it": 474,
+    "nl": 479,
+    "ja": 477,
+    "en": 752
   },
   "categories": {
     "job_followup": 140,
@@ -80,7 +80,10 @@
     "workflow_stop_verification": 2,
     "workflow_argument_correction": 4,
     "workflow_explicit_denial": 6,
-    "workflow_untrusted_feedback": 12
+    "workflow_untrusted_feedback": 12,
+    "multilingual_parameters": 390,
+    "multilingual_withdrawal": 250,
+    "multilingual_job_history": 10
   },
   "tools": {
     "get_status": {
@@ -102,7 +105,7 @@
       "uncoveredArguments": []
     },
     "get_recent_images": {
-      "conversations": 84,
+      "conversations": 114,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -182,7 +185,7 @@
       "uncoveredArguments": []
     },
     "get_job": {
-      "conversations": 689,
+      "conversations": 729,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -354,7 +357,7 @@
       "uncoveredArguments": []
     },
     "slew_mount": {
-      "conversations": 109,
+      "conversations": 169,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -466,7 +469,7 @@
       "uncoveredArguments": []
     },
     "capture_image": {
-      "conversations": 108,
+      "conversations": 168,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -500,7 +503,7 @@
       "uncoveredArguments": []
     },
     "cool_camera": {
-      "conversations": 105,
+      "conversations": 135,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -550,7 +553,7 @@
       "uncoveredArguments": []
     },
     "move_focuser": {
-      "conversations": 103,
+      "conversations": 133,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -595,7 +598,7 @@
       "uncoveredArguments": []
     },
     "change_filter": {
-      "conversations": 105,
+      "conversations": 135,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -645,7 +648,7 @@
       "uncoveredArguments": []
     },
     "set_switch": {
-      "conversations": 123,
+      "conversations": 153,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -671,7 +674,7 @@
       "uncoveredArguments": []
     },
     "load_sequence": {
-      "conversations": 62,
+      "conversations": 92,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -693,7 +696,7 @@
       "uncoveredArguments": []
     },
     "add_target": {
-      "conversations": 99,
+      "conversations": 129,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -752,7 +755,7 @@
       "uncoveredArguments": []
     },
     "save_sequence": {
-      "conversations": 71,
+      "conversations": 101,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -814,7 +817,7 @@
     }
   },
   "jsonInUserConversations": 694,
-  "multiUserTurnConversations": 263,
+  "multiUserTurnConversations": 273,
   "multipleModifyingTools": 4,
   "maxExposedTools": 3,
   "nativeReview": "pending"

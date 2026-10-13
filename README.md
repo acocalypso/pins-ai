@@ -45,8 +45,8 @@ All training examples and contract snapshots are versioned under `training/`.
 `test`, `eval_gold` and `hard_gold` are evaluation-only. Existing dataset byte
 hashes and the 326-example informational baseline are preserved. Checkpoints and
 local training base weights stay outside Git; deployment GGUF files use Git LFS.
-New training uses [v5 natural chat data](training/datasets/mcp-chat/README.md).
-Its [audit](docs/chat-training-data-v5.md) separates data validity from runtime
+New training uses [v6 multilingual chat data](training/datasets/mcp-chat/README.md).
+Its [comparison and training recipe](docs/training-accuracy-v6.md) separate data validity from runtime
 retrieval and model accuracy; start a fresh adapter, not an old checkpoint resume.
 
 ## Clone

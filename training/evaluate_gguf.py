@@ -15,7 +15,8 @@ import urllib.request
 from pathlib import Path
 
 from common import ROOT, fingerprint, sha256
-from evaluation_state import select_cases, prepare_cases, score, new_report, ProgressWriter, summarize, scoring_hash
+from evaluation_state import (select_cases, prepare_cases, score, new_report, ProgressWriter,
+                              summarize, scoring_hash, resume_report)
 from v2_contracts import POLICY, VERIFIED, ADAPTER, SCORER_VERSION
 
 
@@ -32,6 +33,7 @@ def main():
     p.add_argument('--job-continuations', action='store_true')
     p.add_argument('--max-new-tokens', type=int, default=128)
     p.add_argument('--output', type=Path, required=True)
+    p.add_argument('--resume-from', type=Path, help='Resume a verified report into a NEW output file')
     args = p.parse_args()
     if args.prompt_mode == 'chat' and args.suite != 'validation_smoke':
         p.error('Chat projection is for development validation; gold remains unchanged')
@@ -65,8 +67,13 @@ def main():
                 'backend': 'llama.cpp CPU Q4_K_M'}
     report = new_report(identity, cases, {'suite': args.suite, 'hardwareExecution': False,
                                         'languageAndFalseClaims': 'human review pending'})
-    writer = ProgressWriter(args.output)
+    if args.resume_from:
+        report = resume_report(args.resume_from, report, cases)
+    writer = ProgressWriter(args.output, args.resume_from)
     writer.write(report)
+    if report['completed']:
+        print('Verified completed report; no generation required')
+        return
     with socket.socket() as s:
         s.bind(('127.0.0.1', 0)); port = s.getsockname()[1]
     key = secrets.token_urlsafe(32)
@@ -88,7 +95,7 @@ def main():
                         if r.status == 200: break
                 except (OSError, urllib.error.URLError): time.sleep(.5)
             else: raise TimeoutError('Runtime startup timed out')
-            for case in cases:
+            for case in cases[len(report['results']):]:
                 payload = {'prompt': case['prompt'], 'n_predict': args.max_new_tokens, 'temperature': 0,
                            'seed': 3407, 'cache_prompt': True, 'stream': False, 'stop': ['<|im_end|>']}
                 request = urllib.request.Request(f'http://127.0.0.1:{port}/completion',

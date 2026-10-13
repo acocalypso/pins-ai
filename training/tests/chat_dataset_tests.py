@@ -49,7 +49,7 @@ class ChatDatasetTests(unittest.TestCase):
 
     def test_authored_unicode_text_is_intact(self):
         for row in self.rows:
-            if row['id'].startswith(('chat-intent-', 'chat-workflow-')):
+            if row['id'].startswith(('chat-intent-', 'chat-workflow-', 'chat-generalization-')):
                 for message in row['messages']:
                     self.assertIsNone(re.search(r'\?{2,}|\uFFFD|\u00C3[\u0080-\u00BF]|\u00E2\u20AC', message['content']), row['id'])
 
@@ -135,7 +135,7 @@ class ChatDatasetTests(unittest.TestCase):
                           assistant('Still running.')])
 
     def test_parity_with_actual_gateway_exposed_schemas(self):
-        path = ROOT / 'artifacts/router-chat-v5.json'
+        path = ROOT / 'artifacts/router-chat-v6.json'
         if not path.is_file():
             self.skipTest('Run the offline RouterAudit command to produce actual gateway schemas')
         report = json.loads(path.read_text(encoding='utf-8'))
@@ -150,6 +150,37 @@ class ChatDatasetTests(unittest.TestCase):
         actual = {t['name']: t['inputSchema'] for t in report['exposedTools']}
         expected = {n: t['inputSchema'] for n, t in chat_definitions().items()}
         self.assertEqual(actual, expected)
+
+    def test_multilingual_argument_generalization_and_withdrawals(self):
+        variants = [r for r in self.rows if r['category'] == 'multilingual_parameters']
+        self.assertEqual(len(variants), 390)
+        self.assertEqual({r['locale'] for r in variants}, set(LANGUAGES))
+        for row in variants:
+            request = next(m['content'] for m in row['messages'] if m['role'] == 'user')
+            self.assertFalse(has_json_request(row))
+            fn = row['messages'][-1]['tool_calls'][0]['function']
+            args = fn['arguments']
+            variant = int(row['group'].rsplit('-', 1)[1])
+            if 'capture_minutes' in row['group']:
+                self.assertEqual(args['exposure_seconds'], (1.25, 2.75, 4.5)[variant] * 60)
+            if 'slew_degrees' in row['group']:
+                self.assertEqual(args['ra'], (199.125, 72.375, 308.625)[variant] / 15)
+            if fn['name'] == 'set_switch':
+                self.assertEqual(args['index'], (6, 9, 12)[variant])
+                self.assertEqual(args['value'], (37.25, 62.5, 0)[variant])
+            if fn['name'] == 'get_job': self.assertIn(args['job_id'], request)
+        denials = [r for r in self.rows if r['category'] == 'multilingual_withdrawal']
+        modifying = {n for n, d in definitions().items() if not d['annotations']['readOnlyHint']}
+        self.assertEqual(len(denials), len(modifying) * len(LANGUAGES))
+        for name in modifying:
+            self.assertEqual({r['locale'] for r in denials if r['group'].endswith('-' + name)}, set(LANGUAGES))
+        self.assertTrue(all(r['expected']['first_tool'] is None and not r['messages'][-1].get('tool_calls') for r in denials))
+        histories = [r for r in self.rows if r['category'] == 'multilingual_job_history']
+        self.assertEqual(len(histories), len(LANGUAGES))
+        for row in histories:
+            calls = [c['function'] for m in row['messages'] for c in m.get('tool_calls', [])]
+            self.assertEqual([c['name'] for c in calls], ['get_job', 'get_job'])
+            self.assertEqual(calls[0]['arguments']['job_id'], calls[1]['arguments']['job_id'])
 
     def test_new_result_fixtures_match_actual_mcp_shapes(self):
         for row in self.rows:

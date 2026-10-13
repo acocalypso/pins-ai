@@ -9,7 +9,7 @@ from curriculum_v3 import curriculum_rows as legacy_rows
 from chat_dataset_common import CHAT_POLICY, LANGUAGES, chat_definitions
 from v2_contracts import POLICY, definitions
 
-PROFILE = 'v5-natural-chat-proposals'
+PROFILE = 'v6-multilingual-chat-proposals'
 OUTPUT_RESERVE = 192
 DATA = ROOT / 'training/datasets/mcp-chat'
 DENIAL = dict(zip(LANGUAGES, (

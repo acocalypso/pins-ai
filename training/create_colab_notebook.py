@@ -58,9 +58,9 @@ def main():
         DRIVE_FOLDER = Path('/content/drive/MyDrive/pins-ai')
         RESUME_SOURCE = DRIVE_FOLDER / 'runs/qwen3-pins-v3-colab-20261011-165756'
         # Alternatively: DRIVE_FOLDER / 'qwen3-pins-v3-colab-20261011-165756-results.zip'
-        RUN_NAME = 'qwen3-pins-v5-colab-'  + datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
-        TRAIN_CONFIG = 'training/configs/config-v3.json'
-        SFT_DATA = 'artifacts/v5/sft'
+        RUN_NAME = 'qwen3-pins-v6-colab-'  + datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
+        TRAIN_CONFIG = 'training/configs/config-v6.json'
+        SFT_DATA = 'artifacts/v6/sft'
         PRIOR_ADAPTER = DRIVE_FOLDER / 'runs/qwen3-pins-v2-colab-20261011-131536/full/adapter'
         REPOSITORY = 'https://github.com/acocalypso/pins-ai.git'
         BRANCH = 'main'
@@ -191,7 +191,7 @@ def main():
         verifies its hash. No unpinned model or automatic dependency upgrade.
         Only train/validation are exported. Test, eval_gold and hard_gold stay
         outside the training examples. All original package hashes are checked.
-        The default curriculum is **v5 natural chat proposals**: plain multilingual
+        The default curriculum is **v6 multilingual chat proposals**: plain multilingual
         requests, clarification and dependent workflows; proposals do not grant
         hardware approval. Original datasets remain archived unchanged. This is a
         changed recipe: select `TRAINING_MODE = 'fresh'`, not an old checkpoint resume.
@@ -254,12 +254,8 @@ def main():
                     '--config', TRAIN_CONFIG, '--data', SFT_DATA, '--resume-from-checkpoint', RESUME_CHECKPOINT,
                     '--resume-smoke-steps', '1', '--logging-steps', '1', '--output', SMOKE], 'smoke.log')
             else:
-                smoke_config = json.loads((PROJECT / TRAIN_CONFIG).read_text())
-                smoke_config['gradientAccumulation'] = 8
-                smoke_path = RUN_ROOT / 'smoke-config.json'
-                smoke_path.write_text(json.dumps(smoke_config, indent=2))
                 run_pipeline(['training/train.py', '--base', '.local/training/base', '--dataset-mode', 'mcp',
-                    '--config', smoke_path, '--data', SFT_DATA, '--max-steps', '1', '--logging-steps', '1', '--output', SMOKE], 'smoke.log')
+                    '--config', TRAIN_CONFIG, '--data', SFT_DATA, '--max-steps', '1', '--logging-steps', '1', '--output', SMOKE], 'smoke.log')
             run_pipeline(['training/evaluate_v2.py', '--suite', 'validation_smoke', '--prompt-mode', 'chat', '--per-language', '2',
                 '--max-new-tokens', '192', '--adapter', SMOKE / 'adapter', '--output', RUN_ROOT / 'smoke-reload.json'], 'smoke-reload.log')
             smoke_report = json.loads((RUN_ROOT / 'smoke-reload.json').read_text())
@@ -271,10 +267,19 @@ def main():
         ## Full run, up to three epochs with early stopping
         Use FP16/NF4, rank8/alpha16, microbatch1, accumulation16, context1536,
         seed3407, learning rate5e-5. Validation/checkpoints every100 optimizer
-        steps; stop after two checks without improvement of at least0.002.
+        steps. Select checkpoints by generated tool-balanced exact accuracy,
+        penalizing unwanted proposals and truncated outputs, rather than eval_loss.
+        Stop after four checks without selection-score improvement of at least0.005.
+        Generated validation uses a deterministic development-only sample; no gold
+        cases are used for checkpoint selection. This is not a hardware safety proof.
         This changes data and training settings together; results are an engineering
         comparison, not a controlled attribution experiment. Logs show train_loss
-        every five optimizer steps and eval_loss at each validation check.
+        every five optimizer steps and eval_loss at each validation check, plus
+        eval_tool_exact, eval_tool_macro_exact, eval_schema_valid,
+        eval_unsafe_proposals, eval_generation_truncated and eval_selection_score.
+        Changed data/configuration requires fresh training from the pinned base.
+        To continue an old run exactly, use its original configuration and source
+        revision; do not substitute this v6 profile for the old recipe.
         Checkpoints, metrics, dependency versions and the final best adapter are
         written to Drive. Interrupting a cell stops its child process. Abrupt VM
         deletion may leave metadata marked started; it never implies completion.
@@ -308,10 +313,19 @@ def main():
                                        ('validation', 'eval_loss', 'Validation')]:
                 points = [m for m in metrics if m['event'] == event]
                 ax.plot([m['step'] for m in points], [m[key] for m in points], marker='o', label=label)
-            ax.set(xlabel='Optimizer step', ylabel='Loss', title='PINS Qwen3 v5 training')
+            ax.set(xlabel='Optimizer step', ylabel='Loss', title='PINS Qwen3 v6 training')
             ax.legend(); ax.grid(alpha=0.2); fig.tight_layout()
             fig.savefig(RUN_ROOT / 'loss-curves.png', dpi=150)
             plt.show()
+            generated = [m for m in metrics if m['event'] == 'validation' and 'eval_tool_exact' in m]
+            if generated:
+                fig, ax = plt.subplots(figsize=(8, 4))
+                for key in ('eval_tool_exact', 'eval_tool_macro_exact', 'eval_schema_valid'):
+                    ax.plot([m['step'] for m in generated], [m[key] for m in generated], marker='o', label=key)
+                ax.set(xlabel='Optimizer step', ylabel='Rate', ylim=(0, 1), title='Development tool accuracy')
+                ax.legend(); ax.grid(alpha=0.2); fig.tight_layout()
+                fig.savefig(RUN_ROOT / 'tool-accuracy-curves.png', dpi=150)
+                plt.show()
             print((FULL / 'metrics-latest.json').read_text())
         else:
             print('No full-run metrics yet.')
@@ -332,7 +346,7 @@ def main():
         if RUN_EVALUATION:
             completed = json.loads((FULL / 'training-run.json').read_text())
             assert completed['status'] == 'completed' and not completed['smokeOnly']
-            comparisons = [('v5', FULL / 'adapter'), ('base', None)]
+            comparisons = [('v6', FULL / 'adapter'), ('base', None)]
             if PRIOR_ADAPTER.is_dir(): comparisons.insert(1, ('prior-v2', PRIOR_ADAPTER))
             else: print('Prior v2 adapter not found on Drive; its comparison is pending.')
             for name, adapter in comparisons:

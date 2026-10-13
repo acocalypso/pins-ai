@@ -1,17 +1,19 @@
 # Natural chat training for PINS MCP
 
-This is the **default v5 train-only corpus** used by `prepare_v2.py --curriculum`.
+This is the **default v6 train-only corpus** used by `prepare_v2.py --curriculum`.
 It covers the existing 32 MCP tools in English, German, French, Spanish, Italian,
 Portuguese, Dutch, Polish, Japanese and Simplified Chinese. It does not create an
 MCP server, execute equipment commands or promote a model.
 
-`train.jsonl` contains 4,669 conversations: 638 newly authored chat/workflow cases
+`train.jsonl` contains 5,319 conversations: 1,288 newly authored chat/workflow cases
 and 4,031 selected legacy cases. `manifest.json` records input/source/policy hashes,
 selection reasons and simulated provenance; `coverage.json` records tool, language,
 argument, boundary and workflow counts. UTF-8 bytes are protected in Git.
 
-The authored modules are `training/chat_intent_curriculum.py` and
-`training/chat_workflow_curriculum.py`. Positive user requests supply natural
+The authored modules are `training/chat_intent_curriculum.py`,
+`training/chat_workflow_curriculum.py` and `training/chat_generalization_curriculum.py`.
+V6 adds 390 parameter variants, 250 withdrawal contrasts across all modifying
+tools and languages, and ten observed-job polling histories. Positive user requests supply natural
 language values rather than copied JSON or MCP function names. Examples include
 unit conversion, decimal commas, spelling variations, corrections, follow-up
 references, sequence/template discovery, connected/unknown states, exact job IDs,
@@ -48,10 +50,10 @@ python training/build_chat_dataset.py
 dotnet run --project training/tools/RouterAudit -- \
   training/datasets/mcp-chat/train.jsonl \
   training/datasets/mcp-v2/data/verified-tools-list.json \
-  artifacts/router-chat-v5.json
+  artifacts/router-chat-v6.json
 python training/tests/chat_dataset_tests.py
 python training/prepare_v2.py --curriculum --max-tokens 1536 \
-  --base .local/training/base --output artifacts/training-data/current-v5
+  --base .local/training/base --output artifacts/training-data/current-v6
 ```
 
 Preparation supervises assistant tokens only, renders native Qwen3 calls, removes
@@ -63,7 +65,7 @@ automatically changed. Real Pi timing with a new model remains to be measured.
 Start fresh from the pinned Hugging Face base, run a matching GPU smoke/reload,
 then full training as explained in [the training guide](../../README.md).
 Colab pulls this data from Git; existing Drive archives remain source-verified.
-Its default run name is `qwen3-pins-v5-colab-<UTC timestamp>`.
+Its default run name is `qwen3-pins-v6-colab-<UTC timestamp>`.
 
 ## Limits that training cannot fix
 
@@ -74,4 +76,5 @@ plain chat requests. If retrieval omits the right tool, a better model cannot us
 it. Fix and re-evaluate retrieval before claiming end-to-end chat improvement.
 No new model was trained or tested by this data change. Independent multilingual
 review, reviewed holdout, base/prior/new evaluation and quantized Pi testing remain
-required before promotion. See [the audit](../../../docs/chat-training-data-v5.md).
+required before promotion. See [the v6 measurements and recipe](../../../docs/training-accuracy-v6.md)
+and [the historical v5 audit](../../../docs/chat-training-data-v5.md).

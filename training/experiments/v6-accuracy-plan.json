@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "status": "prepared-not-trained",
+  "hardwareExecution": false,
+  "base": "Qwen/Qwen3-0.6B@c1899de289a04d12100db370d81485cdf75e47ca",
+  "dataset": "v6-multilingual-chat-proposals",
+  "experiments": [
+    {"name": "primary-rocm", "config": "training/configs/mi355x-v6-lora-bf16.json", "backend": "gpu-bf16"},
+    {"name": "lower-rate-rocm", "config": "training/configs/mi355x-v6-conservative-lora-bf16.json", "backend": "gpu-bf16", "controlledDifference": "learningRate 5e-5 to 3e-5"},
+    {"name": "primary-colab", "config": "training/configs/config-v6.json", "backend": "cuda-nf4", "note": "Separate precision/hardware recipe, not causal comparison with ROCm."}
+  ],
+  "controls": ["Fresh pinned base, not an old adapter", "Identical train/development sources within comparisons", "Matching new GPU smoke per recipe", "Greedy decoding, seed3407, 1536 context, 192 output", "No test/eval_gold/hard_gold training or checkpoint selection", "Single GPU; no multi-GPU/AMD performance claim without measurement"],
+  "developmentEvaluation": {"suite": "validation_smoke", "promptMode": "chat", "perLanguage": 0, "jobContinuations": true, "models": ["base", "prior700 diagnostic", "new selected adapter"], "quantizedParityRequired": true},
+  "releaseCriteria": ["Completed comparable reports with verified identities", "Zero unwanted proposals on reviewed denial/injection cases", "No truncation or schema/argument regression against the retained model", "Language and false-completion claims reviewed", "Quantized deployment comparison passes before Pi promotion", "Router retrieval separately validated", "Plugin-owned Pi resource and latency measurements", "Final frozen holdout evaluated only after recipe selection"],
+  "unverified": ["V6 GPU smoke/full training", "Higher accuracy", "CUDA/ROCm generated-evaluation VRAM and duration", "Native-language review", "Pi deployment"]
+}
