@@ -1,0 +1,821 @@
+{
+  "conversations": 4669,
+  "assistantTurns": 8065,
+  "languages": {
+    "zh": 413,
+    "pl": 411,
+    "pt": 409,
+    "fr": 413,
+    "es": 414,
+    "de": 687,
+    "it": 409,
+    "nl": 414,
+    "ja": 412,
+    "en": 687
+  },
+  "categories": {
+    "job_followup": 140,
+    "tool_success": 1190,
+    "live_info_no_tools": 10,
+    "tool_error": 45,
+    "grounded_reply": 50,
+    "context_job": 10,
+    "chat_math": 10,
+    "prompt_injection": 10,
+    "missing_coords": 10,
+    "tools_offline": 10,
+    "missing_exposure": 10,
+    "code_switch": 4,
+    "no_approval": 230,
+    "no_start": 10,
+    "device_contrast": 440,
+    "safety_explicit_denial": 10,
+    "safety_switch_exact_1": 10,
+    "safety_switch_exact_5": 10,
+    "safety_switch_missing_value": 10,
+    "safety_switch_unknown_channel": 10,
+    "safety_target_unicode_decimal": 10,
+    "safety_save_unicode_draft": 10,
+    "safety_target_missing_coordinates": 10,
+    "safety_partial_stop_feedback": 10,
+    "sequence_plan": 22,
+    "comprehensive_arguments": 140,
+    "comprehensive_unavailable": 130,
+    "comprehensive_error": 320,
+    "comprehensive_approval": 90,
+    "comprehensive_busy": 90,
+    "comprehensive_revoked": 90,
+    "comprehensive_boundary": 146,
+    "comprehensive_missing": 74,
+    "comprehensive_poll": 450,
+    "comprehensive_cancellation": 20,
+    "comprehensive_recover": 10,
+    "comprehensive_grounded": 30,
+    "comprehensive_workflow": 30,
+    "comprehensive_injection": 10,
+    "comprehensive_reading": 22,
+    "comprehensive_units": 4,
+    "comprehensive_crossfield": 44,
+    "comprehensive_unsupported": 40,
+    "natural_chat_intent": 320,
+    "chat_arguments": 96,
+    "chat_correction": 6,
+    "chat_context_reference": 2,
+    "chat_clarification": 40,
+    "chat_no_action_question": 16,
+    "chat_unsupported": 6,
+    "chat_denial": 16,
+    "chat_no_tools": 2,
+    "workflow_sequence_discovery": 10,
+    "workflow_sequence_proposal": 14,
+    "workflow_sequence_clarification": 6,
+    "workflow_status_grounding": 24,
+    "workflow_image_observation": 4,
+    "workflow_connections": 8,
+    "workflow_cross_tool_plan": 4,
+    "workflow_connections_stop": 14,
+    "workflow_job_discovery": 14,
+    "workflow_job_cancellation": 6,
+    "workflow_job_grounding": 6,
+    "workflow_stop_verification": 2,
+    "workflow_argument_correction": 4,
+    "workflow_explicit_denial": 6,
+    "workflow_untrusted_feedback": 12
+  },
+  "tools": {
+    "get_status": {
+      "conversations": 248,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "get_recent_images": {
+      "conversations": 84,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "count"
+      ],
+      "boundaryArguments": [
+        "count"
+      ],
+      "uncoveredArguments": []
+    },
+    "get_sequence": {
+      "conversations": 79,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "max_depth"
+      ],
+      "boundaryArguments": [
+        "max_depth"
+      ],
+      "uncoveredArguments": []
+    },
+    "list_saved_sequences": {
+      "conversations": 83,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "list_target_templates": {
+      "conversations": 83,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "get_job": {
+      "conversations": 689,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "job_id",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "job_id",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "list_jobs": {
+      "conversations": 94,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "stop_all": {
+      "conversations": 80,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "cancel_job": {
+      "conversations": 65,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "job_id",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [
+        "abandon",
+        "job_id",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "stop_sequence": {
+      "conversations": 70,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "stop_guiding": {
+      "conversations": 101,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [
+        "force",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "connect_device": {
+      "conversations": 351,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "device"
+      ],
+      "boundaryArguments": [
+        "device",
+        "force",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "disconnect_device": {
+      "conversations": 321,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "device"
+      ],
+      "boundaryArguments": [
+        "device",
+        "force",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "slew_mount": {
+      "conversations": 109,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "dec",
+        "ra"
+      ],
+      "boundaryArguments": [
+        "dec",
+        "force",
+        "ra",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "park_mount": {
+      "conversations": 110,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [
+        "force",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "unpark_mount": {
+      "conversations": 110,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [
+        "force",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "home_mount": {
+      "conversations": 111,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [
+        "force",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "set_tracking": {
+      "conversations": 61,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "enabled"
+      ],
+      "boundaryArguments": [
+        "enabled",
+        "force"
+      ],
+      "uncoveredArguments": []
+    },
+    "capture_image": {
+      "conversations": 108,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "binning",
+        "exposure_seconds",
+        "filter",
+        "gain",
+        "offset",
+        "save"
+      ],
+      "boundaryArguments": [
+        "binning",
+        "exposure_seconds",
+        "filter",
+        "force",
+        "gain",
+        "offset",
+        "save",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "cool_camera": {
+      "conversations": 105,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "duration_minutes",
+        "target_celsius"
+      ],
+      "boundaryArguments": [
+        "duration_minutes",
+        "force",
+        "target_celsius",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "warm_camera": {
+      "conversations": 100,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "duration_minutes"
+      ],
+      "boundaryArguments": [
+        "duration_minutes",
+        "force",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "move_focuser": {
+      "conversations": 103,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "position"
+      ],
+      "boundaryArguments": [
+        "force",
+        "position",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "run_autofocus": {
+      "conversations": 111,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [
+        "force",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "change_filter": {
+      "conversations": 105,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "name",
+        "position"
+      ],
+      "boundaryArguments": [
+        "force",
+        "name",
+        "position",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "start_guiding": {
+      "conversations": 100,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "force_calibration"
+      ],
+      "boundaryArguments": [
+        "force",
+        "force_calibration",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "set_switch": {
+      "conversations": 123,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "index",
+        "value"
+      ],
+      "boundaryArguments": [
+        "force",
+        "index",
+        "value",
+        "wait_seconds"
+      ],
+      "uncoveredArguments": []
+    },
+    "load_sequence": {
+      "conversations": 62,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "name"
+      ],
+      "boundaryArguments": [
+        "name"
+      ],
+      "uncoveredArguments": []
+    },
+    "add_target": {
+      "conversations": 99,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "autofocus_at_start",
+        "dec",
+        "dither_every",
+        "exposures",
+        "name",
+        "ra",
+        "rotation_degrees",
+        "slew_and_center",
+        "start_guiding",
+        "template"
+      ],
+      "boundaryArguments": [
+        "autofocus_at_start",
+        "dec",
+        "dither_every",
+        "exposures",
+        "force",
+        "name",
+        "ra",
+        "rotation_degrees",
+        "slew_and_center",
+        "start_guiding",
+        "template"
+      ],
+      "uncoveredArguments": []
+    },
+    "clear_targets": {
+      "conversations": 71,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "save_sequence": {
+      "conversations": 71,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "name"
+      ],
+      "boundaryArguments": [
+        "name",
+        "overwrite"
+      ],
+      "uncoveredArguments": []
+    },
+    "start_sequence": {
+      "conversations": 71,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [
+        "skip_validation"
+      ],
+      "uncoveredArguments": []
+    },
+    "reset_sequence": {
+      "conversations": 70,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    }
+  },
+  "jsonInUserConversations": 694,
+  "multiUserTurnConversations": 263,
+  "multipleModifyingTools": 4,
+  "maxExposedTools": 3,
+  "nativeReview": "pending"
+}

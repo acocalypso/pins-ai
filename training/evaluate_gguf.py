@@ -27,19 +27,24 @@ def main():
     p.add_argument('--llama-source', type=Path, default=ROOT / '.tools/llama.cpp')
     p.add_argument('--tokenizer', type=Path, default=ROOT / '.local/training/base')
     p.add_argument('--suite', choices=('validation_smoke', 'eval_gold', 'hard_gold'), default='hard_gold')
+    p.add_argument('--prompt-mode', choices=('legacy', 'chat'), default='legacy')
     p.add_argument('--per-language', type=int, default=0)
     p.add_argument('--job-continuations', action='store_true')
     p.add_argument('--max-new-tokens', type=int, default=128)
     p.add_argument('--output', type=Path, required=True)
     args = p.parse_args()
+    if args.prompt_mode == 'chat' and args.suite != 'validation_smoke':
+        p.error('Chat projection is for development validation; gold remains unchanged')
     if platform.machine().lower() in ('arm64', 'aarch64'):
         p.error('Run offline training evaluation on a workstation; Pi inference must remain PINS-owned')
     if args.output.exists() or args.per_language < 0 or not 1 <= args.max_new_tokens <= 256:
         p.error('Use a new output file and a bounded token budget')
     from transformers import AutoTokenizer
     tokenizer = AutoTokenizer.from_pretrained(args.tokenizer, local_files_only=True, trust_remote_code=False)
-    rows, path, inputs = select_cases(args.suite, args.per_language, args.job_continuations)
-    cases = prepare_cases(tokenizer, rows)
+    rows, path, inputs = select_cases(args.suite, args.per_language, args.job_continuations, args.prompt_mode)
+    cases = prepare_cases(tokenizer, rows, args.prompt_mode)
+    from chat_dataset_common import CHAT_POLICY
+    evaluation_policy = CHAT_POLICY if args.prompt_mode == 'chat' else POLICY
     for c in cases:
         if len(tokenizer.encode(c['prompt'], add_special_tokens=False)) + args.max_new_tokens > 1536:
             raise ValueError('Case exceeds plugin context budget: ' + c['id'])
@@ -51,7 +56,8 @@ def main():
                 'runtimeCommit': actual, 'serverSha256': sha256(args.server), 'suite': args.suite,
                 'inputSha256': inputs, 'contractSha256': sha256(VERIFIED), 'adapterContractSha256': sha256(ADAPTER),
                 'scorerVersion': SCORER_VERSION, 'scoringImplementationSha256': scoring_hash(),
-                'policySha256': fingerprint(POLICY), 'templateSha256': fingerprint(tokenizer.chat_template),
+                'policySha256': fingerprint(evaluation_policy), 'promptMode': args.prompt_mode,
+                'templateSha256': fingerprint(tokenizer.chat_template),
                 'generation': {'maxNewTokens': args.max_new_tokens, 'temperature': 0, 'seed': 3407,
                                'threads': 2, 'contextTokens': 1536, 'stop': ['<|im_end|>']},
                 'selection': {'perLanguage': args.per_language, 'jobContinuationsRequested': args.job_continuations},

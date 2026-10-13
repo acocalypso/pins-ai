@@ -33,6 +33,7 @@ training/                    Off-device model specialization
   data/                      Authored baseline, sequence examples and text gold
   datasets/mcp-v2/            Original/audited multilingual MCP data and manifests
   datasets/mcp-comprehensive/ Train-only coverage of current MCP capabilities
+  datasets/mcp-chat/          Current natural chat/proposal curriculum and coverage
   notebooks/                 Generated Colab workbook
   tests/                     Data isolation, loss, resume and backend checks
 docs/                        Architecture, safety and dated evidence
@@ -44,6 +45,9 @@ All training examples and contract snapshots are versioned under `training/`.
 `test`, `eval_gold` and `hard_gold` are evaluation-only. Existing dataset byte
 hashes and the 326-example informational baseline are preserved. Checkpoints and
 local training base weights stay outside Git; deployment GGUF files use Git LFS.
+New training uses [v5 natural chat data](training/datasets/mcp-chat/README.md).
+Its [audit](docs/chat-training-data-v5.md) separates data validity from runtime
+retrieval and model accuracy; start a fresh adapter, not an old checkpoint resume.
 
 ## Clone
 

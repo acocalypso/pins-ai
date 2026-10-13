@@ -69,7 +69,9 @@ def main():
     mcp_mode = run is not None and run.get('datasetMode') == 'mcp'
     if mcp_mode:
         from v2_contracts import POLICY, VERIFIED, ADAPTER
-        prompt_hash = fingerprint(POLICY)
+        from chat_curriculum import PROFILE
+        from chat_dataset_common import CHAT_POLICY
+        prompt_hash = fingerprint(CHAT_POLICY if run['dataset'].get('sourceProfile') == PROFILE else POLICY)
         if run['dataset']['contractSha256'] != sha256(VERIFIED):
             raise ValueError('MCP contract changed since training; re-audit before export')
         if run['dataset'].get('adapterContractSha256') != sha256(ADAPTER):

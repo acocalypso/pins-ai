@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Only pure retrieval, schema exposure and argument validation are invoked. -->
+    <ProjectReference Include="../../../plugin/src/Pins.AI.Runtime/Pins.AI.Runtime.csproj" />
+  </ItemGroup>
+</Project>

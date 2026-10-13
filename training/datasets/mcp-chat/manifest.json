@@ -1,0 +1,43 @@
+{
+  "version": "v5-natural-chat-proposals",
+  "split": "train",
+  "legacySelected": 4031,
+  "newAuthored": 638,
+  "excludedLegacy": {
+    "repeated_device_phrasing": 380,
+    "obsolete_approval_stage": 20,
+    "json_argument_copying": 2566,
+    "plugin_wait_limit": 190
+  },
+  "sourceHashes": {
+    "training/build_chat_dataset.py": "48d2be00ba859346b0bcee9eaeef5683aae087c070ec5cb3132d8d5241bab8dc",
+    "training/chat_dataset_common.py": "52779a2d1d4c29f599156a861e90b58f12bd4560cc099c1e7d82698631feadaa",
+    "training/chat_curriculum.py": "39135920dc0bea73d35eb107e02e816d2759eb69fc6c77ec56850c649b23f067",
+    "training/chat_intent_curriculum.py": "f8b09b57e5dbf953ac8345708618c3c44f15c0cfdd1bfeb9366e281082470fb0",
+    "training/chat_workflow_curriculum.py": "37de2019c62883bd64de5013035488d991ee42776a5240d31161534782b8c2d5",
+    "training/curriculum_v3.py": "6ce8bbfa9b3a9aa9dcfec677a5d39b55cf1aeb6b90217327e6ae17d300163130",
+    "training/sequence_curriculum.py": "7c5df92d54ebdaafee7d3ce1302a86cff640b570228f4c075c1b360a5ee4e6cb",
+    "training/v2_contracts.py": "babc91c649656f682d7179c28c7909942a312bb44aeb4ca8bbc37a398a0d211d",
+    "training/v2_adapter.py": "2cc197f4d1858798b2f5b2ac800bfa93894a73c743107f0e8abd2de0b45d58f4",
+    "training/common.py": "36a34fe32798f0e9e1664f29bbf15cdd21eef2e7daf1d78d370aa09dd8b48c6e",
+    "training/datasets/mcp-v2/scripts/build_dataset.py": "d21b53dd438184687589efee51564088c85af0fefe6ea3255a4e9d1309fe6b86",
+    "plugin/src/Pins.AI.Runtime/ToolGateway.cs": "28e8582a48696d46613c6429c5752166c2b3e9522ea896745838ca93d2d9fac2",
+    "plugin/src/Pins.AI.Runtime/ToolPromptSchema.cs": "bce016cde4b881a5b23cb4321322edfcd54797a2f150c6ed150a67dc0dab3858",
+    "plugin/src/Pins.AI.Runtime/Contracts.cs": "84398df2a4e55c6be1a4525bc8ed874755caeef25408375d0fc158a037ac0327",
+    "plugin/src/Pins.AI.Runtime/AiConfiguration.cs": "8ca99fd71bb329facab984e4906f81c9b4539773f6281fa7ecf1a0882c7ebd38",
+    "training/datasets/mcp-v2/data/audited/train.jsonl": "bbbd4c54b1268000e74e70abb34f48940f62808aad9e94a190230d702381a988",
+    "training/datasets/mcp-comprehensive/train.jsonl": "5cab7077c045e676b07fff698916dea38d083703164dd5b926b8d0df2487b43e",
+    "training/datasets/mcp-comprehensive/manifest.json": "d643e271a07a3ae24ed48c56b46db1e0656071cf6d41edf45d34be61743332f0",
+    "training/data/sequence-plans.jsonl": "d93763f3fde2476be9842d7627fc9eb4f467f6c13ba2bad9372e60b16b6bd733",
+    "training/datasets/mcp-v2/data/verified-tools-list.json": "3a252bcb6201c76fd4ac8a46c3828a13e014bfdd22dd364b03f884a291fcfe3f",
+    "training/datasets/mcp-v2/data/verified-adapter-contract.json": "a7e2ce81c30ec565b203d169409a46df2c413595c5e339df2446c336c7c415f5"
+  },
+  "policySha256": "ec3cab4db64073c672fd2820dcae7b29e47c300da76a5b09b2502b7e88b3aad9",
+  "trainSha256": "1814582b5acd0cee0eca1a42583fea149bb27beb43abac972cd0ff39cf04bbdd",
+  "coverageSha256": "b8a8f08317b73a591a86f6bb090e13a1ab51aeefb6b0a253cd85d85a38c9da81",
+  "hardwareExecution": false,
+  "heldOutInputs": [],
+  "linguisticReview": "pending",
+  "conversations": 4669,
+  "assistantTurns": 8065
+}

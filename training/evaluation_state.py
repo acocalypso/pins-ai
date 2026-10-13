@@ -15,14 +15,22 @@ from v2_contracts import PACKAGE, POLICY, compact_tools, parse_prediction, rende
 REPORT_VERSION = 3
 
 
-def select_cases(suite, per_language=0, job_continuations=False):
+def select_cases(suite, per_language=0, job_continuations=False, prompt_mode='legacy'):
+    if prompt_mode not in ('legacy', 'chat') or (prompt_mode == 'chat' and suite != 'validation_smoke'):
+        raise ValueError('Chat projection is for development validation only; gold stays unchanged')
     if per_language < 0:
         raise ValueError('per-language must be nonnegative')
     path = PACKAGE / 'data/audited/validation.jsonl' if suite == 'validation_smoke' else PACKAGE / 'data' / f'{suite}.jsonl'
     rows = read_jsonl(path)
+    if prompt_mode == 'chat':
+        from chat_curriculum import project
+        rows = [project(r) for r in rows]
     if suite == 'validation_smoke':
         rows = [{**r, 'messages': r['messages'][:2]} for r in rows]
     inputs = {path.relative_to(PACKAGE).as_posix(): sha256(path)}
+    if prompt_mode == 'chat':
+        from common import ROOT
+        inputs['chatProjectionSha256'] = sha256(ROOT / 'training/chat_curriculum.py')
     if per_language:
         selected = []
         for locale in sorted({r['locale'] for r in rows}):
@@ -47,16 +55,25 @@ def select_cases(suite, per_language=0, job_continuations=False):
     return rows, path, inputs
 
 
-def prepare_cases(tokenizer, rows):
+def prepare_cases(tokenizer, rows, prompt_mode='legacy'):
     prepared = []
     for row in rows:
         messages = copy.deepcopy(row['messages'])
-        context = messages[0]['content']
-        suffixes = [context.find(marker) for marker in (' Trusted gateway', ' Verified MCP') if marker in context]
-        messages[0]['content'] = POLICY + (context[min(suffixes):] if suffixes else '')
+        if prompt_mode == 'legacy':
+            context = messages[0]['content']
+            suffixes = [context.find(marker) for marker in (' Trusted gateway', ' Verified MCP') if marker in context]
+            messages[0]['content'] = POLICY + (context[min(suffixes):] if suffixes else '')
+        elif prompt_mode != 'chat':
+            raise ValueError('Unknown evaluation prompt mode')
         names = [tool['name'] for tool in row['tools']]
-        prompt = render(tokenizer, messages, compact_tools(names), True)
+        if prompt_mode == 'chat':
+            from chat_dataset_common import chat_tools
+            tools = chat_tools(names)
+        else:
+            tools = compact_tools(names)
+        prompt = render(tokenizer, messages, tools, True)
         prepared.append({**row, 'prompt': prompt, 'allowedNames': names,
+                         'toolMode': prompt_mode,
                          'caseSha256': fingerprint(row), 'promptSha256': fingerprint(prompt)})
     return prepared
 
@@ -70,6 +87,9 @@ def score(case, text):
     error = None
     try:
         call = parse_prediction(text, case['allowedNames'])
+        if call and case.get('toolMode') == 'chat':
+            from chat_dataset_common import validate_chat_call
+            validate_chat_call(call['name'], call['arguments'], case['allowedNames'])
         valid = True
     except (ValueError, json.JSONDecodeError, ValidationError) as exc:
         call, valid, error = None, False, str(exc)
@@ -81,7 +101,9 @@ def score(case, text):
 
 
 def scoring_hash():
-    return fingerprint([inspect.getsource(fn) for fn in (score, parse_prediction, validate_call)])
+    from chat_dataset_common import validate_chat_call, chat_definitions
+    return fingerprint([inspect.getsource(fn) for fn in (score, parse_prediction, validate_call,
+                                                         validate_chat_call, chat_definitions)])
 
 
 def summarize(report):

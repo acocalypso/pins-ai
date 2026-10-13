@@ -58,9 +58,9 @@ def main():
         DRIVE_FOLDER = Path('/content/drive/MyDrive/pins-ai')
         RESUME_SOURCE = DRIVE_FOLDER / 'runs/qwen3-pins-v3-colab-20261011-165756'
         # Alternatively: DRIVE_FOLDER / 'qwen3-pins-v3-colab-20261011-165756-results.zip'
-        RUN_NAME = 'qwen3-pins-v4-colab-'  + datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
+        RUN_NAME = 'qwen3-pins-v5-colab-'  + datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         TRAIN_CONFIG = 'training/configs/config-v3.json'
-        SFT_DATA = 'artifacts/v4/sft'
+        SFT_DATA = 'artifacts/v5/sft'
         PRIOR_ADAPTER = DRIVE_FOLDER / 'runs/qwen3-pins-v2-colab-20261011-131536/full/adapter'
         REPOSITORY = 'https://github.com/acocalypso/pins-ai.git'
         BRANCH = 'main'
@@ -191,10 +191,15 @@ def main():
         verifies its hash. No unpinned model or automatic dependency upgrade.
         Only train/validation are exported. Test, eval_gold and hard_gold stay
         outside the training examples. All original package hashes are checked.
+        The default curriculum is **v5 natural chat proposals**: plain multilingual
+        requests, clarification and dependent workflows; proposals do not grant
+        hardware approval. Original datasets remain archived unchanged. This is a
+        changed recipe: select `TRAINING_MODE = 'fresh'`, not an old checkpoint resume.
     ''')
     cell('code', '''
         run_pipeline(['training/fetch_base.py', '--download', '--accept-license'], 'fetch-base.log')
         run_pipeline(['training/datasets/mcp-v2/scripts/validate_dataset.py'], 'package-validation.log')
+        run_pipeline(['training/tests/chat_dataset_tests.py'], 'chat-data-validation.log')
         run_pipeline(['training/prepare_v2.py', '--curriculum', '--max-tokens', '1536',
                       '--output', SFT_DATA], 'prepare-sft.log')
         run_pipeline(['training/tests/v2_tests.py'], 'v2-tests.log')
@@ -255,8 +260,8 @@ def main():
                 smoke_path.write_text(json.dumps(smoke_config, indent=2))
                 run_pipeline(['training/train.py', '--base', '.local/training/base', '--dataset-mode', 'mcp',
                     '--config', smoke_path, '--data', SFT_DATA, '--max-steps', '1', '--logging-steps', '1', '--output', SMOKE], 'smoke.log')
-            run_pipeline(['training/evaluate_v2.py', '--suite', 'validation_smoke', '--per-language', '2',
-                '--adapter', SMOKE / 'adapter', '--output', RUN_ROOT / 'smoke-reload.json'], 'smoke-reload.log')
+            run_pipeline(['training/evaluate_v2.py', '--suite', 'validation_smoke', '--prompt-mode', 'chat', '--per-language', '2',
+                '--max-new-tokens', '192', '--adapter', SMOKE / 'adapter', '--output', RUN_ROOT / 'smoke-reload.json'], 'smoke-reload.log')
             smoke_report = json.loads((RUN_ROOT / 'smoke-reload.json').read_text())
             assert smoke_report.get('completed')
         else:
@@ -303,7 +308,7 @@ def main():
                                        ('validation', 'eval_loss', 'Validation')]:
                 points = [m for m in metrics if m['event'] == event]
                 ax.plot([m['step'] for m in points], [m[key] for m in points], marker='o', label=label)
-            ax.set(xlabel='Optimizer step', ylabel='Loss', title='PINS Qwen3 v4 training')
+            ax.set(xlabel='Optimizer step', ylabel='Loss', title='PINS Qwen3 v5 training')
             ax.legend(); ax.grid(alpha=0.2); fig.tight_layout()
             fig.savefig(RUN_ROOT / 'loss-curves.png', dpi=150)
             plt.show()
@@ -327,13 +332,13 @@ def main():
         if RUN_EVALUATION:
             completed = json.loads((FULL / 'training-run.json').read_text())
             assert completed['status'] == 'completed' and not completed['smokeOnly']
-            comparisons = [('v4', FULL / 'adapter'), ('base', None)]
+            comparisons = [('v5', FULL / 'adapter'), ('base', None)]
             if PRIOR_ADAPTER.is_dir(): comparisons.insert(1, ('prior-v2', PRIOR_ADAPTER))
             else: print('Prior v2 adapter not found on Drive; its comparison is pending.')
             for name, adapter in comparisons:
                 extra = ['--adapter', adapter] if adapter else []
-                run_pipeline(['training/evaluate_v2.py', '--suite', 'validation_smoke', '--job-continuations',
-                    *extra, '--output', RUN_ROOT / f'{name}-eval.json'], f'{name}-eval.log')
+                run_pipeline(['training/evaluate_v2.py', '--suite', 'validation_smoke', '--prompt-mode', 'chat',
+                    '--max-new-tokens', '192', *extra, '--output', RUN_ROOT / f'{name}-eval.json'], f'{name}-eval.log')
                 if RUN_FINAL_GOLD:
                     run_pipeline(['training/evaluate_v2.py', '--suite', 'hard_gold',
                         *extra, '--output', RUN_ROOT / f'{name}-hard-gold.json'], f'{name}-hard-gold.log')

@@ -45,7 +45,7 @@ def main():
         smoke = json.loads((args.smoke_run / 'training-run.json').read_text(encoding='utf-8'))
         if (smoke.get('status') != 'completed' or not smoke.get('smokeOnly') or
             (config['precision'] != 'auto' and smoke.get('precision') != config['precision']) or
-            smoke.get('method') != method or smoke.get('promptSha256') != fingerprint(POLICY) or
+            smoke.get('method') != method or
             smoke['dataset'].get('contractSha256') != sha256(VERIFIED) or
             smoke['dataset'].get('adapterContractSha256') != sha256(ADAPTER) or
             smoke['dataset'].get('auditSha256') != sha256(PACKAGE / 'data/contract-audit.json') or
@@ -71,10 +71,18 @@ def main():
             if any(smoke['dataset'].get(key) != data_info.get(key) for key in ('sourceProfile', 'curriculumSha256', 'splits')):
                 raise ValueError('GPU smoke must use the identical prepared curriculum and splits')
         if data_info.get('sourceProfile'):
-            from curriculum_v3 import PROFILE
-            if data_info['sourceProfile'] != PROFILE or data_info.get('curriculumSha256') != sha256(ROOT / 'training/curriculum_v3.py'):
+            from chat_curriculum import PROFILE, OUTPUT_RESERVE
+            if data_info['sourceProfile'] != PROFILE or data_info.get('curriculumSha256') != sha256(ROOT / 'training/chat_curriculum.py'):
                 raise ValueError('Unknown or changed curriculum; prepare again')
-        prompt_hash = fingerprint(POLICY)
+            if (data_info.get('chatManifestSha256') != sha256(ROOT / 'training/datasets/mcp-chat/manifest.json')
+                    or data_info.get('deduplicateSupervision') is not True):
+                raise ValueError('Chat curriculum changed; prepare again and run a matching smoke')
+            if data_info.get('inferenceMaxOutputTokens') != OUTPUT_RESERVE:
+                raise ValueError('Prepared data does not match the inference output reserve')
+        from chat_dataset_common import CHAT_POLICY
+        prompt_hash = fingerprint(CHAT_POLICY if data_info.get('sourceProfile') else POLICY)
+        if args.smoke_run is not None and args.max_steps is None and smoke.get('promptSha256') != prompt_hash:
+            raise ValueError('GPU smoke policy differs from prepared data')
         if data_info['policySha256'] != prompt_hash or data_info['contractSha256'] != sha256(VERIFIED):
             raise ValueError('MCP policy/contract changed; prepare v2 again')
         if data_info.get('adapterContractSha256') != sha256(ADAPTER):
@@ -144,15 +152,19 @@ def main():
         validation_rows = read_jsonl(args.data / 'validation.jsonl')
         for split, prepared in (('train', train_rows), ('validation', validation_rows)):
             if data_info.get('sourceProfile'):
-                from curriculum_v3 import curriculum_rows
+                from chat_curriculum import curriculum_rows
                 source_rows = curriculum_rows(split)
                 if fingerprint(source_rows) != data_info['splits'][split]['sourceRowsSha256']:
                     raise ValueError('Curriculum changed after preparation')
             else:
                 source_rows = read_jsonl(PACKAGE / 'data/audited' / f'{split}.jsonl')
-            expected_rows = [assistant_example(tokenizer, row, turn, config['maxLength'])
-                             for row in source_rows
-                             for turn, message in enumerate(row['messages']) if message['role'] == 'assistant']
+            if data_info.get('sourceProfile'):
+                from chat_curriculum import convert_rows
+                expected_rows = convert_rows(tokenizer, source_rows, config['maxLength'], deduplicate=split == 'train')
+            else:
+                expected_rows = [assistant_example(tokenizer, row, turn, config['maxLength'])
+                                 for row in source_rows
+                                 for turn, message in enumerate(row['messages']) if message['role'] == 'assistant']
             if prepared != expected_rows:
                 raise ValueError('Prepared supervision differs from audited assistant turns; no gold substitution allowed')
         if {r['group'] for r in train_rows} & {r['group'] for r in validation_rows}:

@@ -10,7 +10,7 @@
   "launcherPath": "/usr/lib/pins-ai/pins-ai-exec",
   "contextTokens": 1536,
   "threads": 2,
-  "maxOutputTokens": 96,
+  "maxOutputTokens": 192,
   "temperature": 0,
   "inferenceTimeoutSeconds": 30,
   "startupTimeoutSeconds": 90,

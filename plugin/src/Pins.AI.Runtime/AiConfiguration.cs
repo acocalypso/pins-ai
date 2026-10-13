@@ -15,7 +15,7 @@ public sealed record AiConfiguration {
     public string LauncherPath { get; init; } = "";
     public int ContextTokens { get; init; } = 2048;
     public int Threads { get; init; } = 2;
-    public int MaxOutputTokens { get; init; } = 128;
+    public int MaxOutputTokens { get; init; } = 192;
     public double Temperature { get; init; } = 0.2;
     public int InferenceTimeoutSeconds { get; init; } = 60;
     public int StartupTimeoutSeconds { get; init; } = 90;

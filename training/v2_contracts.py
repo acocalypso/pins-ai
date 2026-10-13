@@ -49,7 +49,7 @@ def compact_tools(names):
     tools = definitions()
     return [{'type': 'function', 'function': {'name': name,
              'description': ('Append a DSO container with Smart Exposure blocks to the loaded sequence; does not start it or create a blank root. Supply J2000 ra in hours, dec in degrees, and exposures OR template.'
-                             if name == 'add_target' else tools[name]['description'].split('. ')[0][:180]),
+                             if name == 'add_target' else tools[name]['description'][:180]),
              'parameters': strip_descriptions(tools[name]['inputSchema'])}} for name in names]
 
 
@@ -89,11 +89,17 @@ def render(tokenizer, messages, tools, generation):
                                          add_generation_prompt=generation, enable_thinking=False)
 
 
-def assistant_example(tokenizer, row, turn, max_length=0):
+def assistant_example(tokenizer, row, turn, max_length=0, tool_mode='mcp'):
     messages = row['messages']
     if messages[turn]['role'] != 'assistant':
         raise ValueError('Only assistant turns are supervised')
-    tools = compact_tools([t['name'] for t in row['tools']])
+    if tool_mode == 'chat':
+        from chat_dataset_common import chat_tools
+        tools = chat_tools([t['name'] for t in row['tools']])
+    elif tool_mode == 'mcp':
+        tools = compact_tools([t['name'] for t in row['tools']])
+    else:
+        raise ValueError('Unknown tool schema mode')
     prompt = render(tokenizer, messages[:turn], tools, True)
     full = render(tokenizer, messages[:turn + 1], tools, False)
     if not full.startswith(prompt):
@@ -110,6 +116,9 @@ def assistant_example(tokenizer, row, turn, max_length=0):
     for call in messages[turn].get('tool_calls', []):
         fn = call['function']
         validate_call(fn['name'], fn['arguments'], [t['name'] for t in row['tools']])
+        if tool_mode == 'chat':
+            from chat_dataset_common import validate_chat_call
+            validate_chat_call(fn['name'], fn['arguments'], [t['name'] for t in row['tools']])
         if '<tool_call>' not in completion or '</tool_call>' not in completion:
             raise ValueError('Tokenizer did not render native tool-call format')
     return {'id': row['id'] + f'/turn{turn}', 'locale': row['locale'], 'category': row['category'],

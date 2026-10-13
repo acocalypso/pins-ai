@@ -56,6 +56,7 @@ def main():
     parser.add_argument('--base', type=Path, default=ROOT / '.local/training/base')
     parser.add_argument('--adapter', type=Path)
     parser.add_argument('--suite', choices=('eval_gold', 'hard_gold', 'validation_smoke'), default='eval_gold')
+    parser.add_argument('--prompt-mode', choices=('legacy', 'chat'), default='legacy', help='Chat proposals are supported for development validation only')
     parser.add_argument('--per-language', type=int, default=0, help='0=full set; positive selects deterministic tool/no-tool subsets')
     parser.add_argument('--max-new-tokens', type=int, default=128)
     parser.add_argument('--output', type=Path, required=True)
@@ -64,6 +65,8 @@ def main():
     parser.add_argument('--backend', choices=('cuda-nf4', 'gpu-bf16', 'cpu-fp32'), default='cuda-nf4')
     parser.add_argument('--allow-incomplete-checkpoint', action='store_true', help='Diagnostic only: evaluate metadata-selected best saved checkpoint')
     args = parser.parse_args()
+    if args.prompt_mode == 'chat' and args.suite != 'validation_smoke':
+        parser.error('Chat projection is for development validation; gold remains unchanged')
     if args.output.exists() or (args.resume_from and args.output.resolve() == args.resume_from.resolve()):
         parser.error('Never overwrite previous evaluation evidence')
     if args.max_new_tokens <= 0 or args.per_language < 0:
@@ -84,8 +87,10 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(args.base, local_files_only=True, trust_remote_code=False)
     if run and fingerprint(tokenizer.chat_template) != run['templateSha256']:
         raise ValueError('Adapter training tokenizer template mismatch')
-    rows, path, inputs_hashes = select_cases(args.suite, args.per_language, args.job_continuations)
-    cases = prepare_cases(tokenizer, rows)
+    rows, path, inputs_hashes = select_cases(args.suite, args.per_language, args.job_continuations, args.prompt_mode)
+    cases = prepare_cases(tokenizer, rows, args.prompt_mode)
+    from chat_dataset_common import CHAT_POLICY
+    evaluation_policy = CHAT_POLICY if args.prompt_mode == 'chat' else POLICY
     eos_id = tokenizer.convert_tokens_to_ids('<|im_end|>')
     generation = {'maxNewTokens': args.max_new_tokens, 'doSample': False, 'numBeams': 1,
                   'enableThinking': False, 'padTokenId': tokenizer.eos_token_id, 'eosTokenId': eos_id,
@@ -96,7 +101,8 @@ def main():
     identity = {'model': 'adapter' if args.adapter else 'base', 'adapter': adapter_info, 'base': base_info,
                 'suite': args.suite, 'inputSha256': inputs_hashes, 'contractSha256': sha256(VERIFIED),
                 'adapterContractSha256': sha256(ADAPTER), 'scorerVersion': SCORER_VERSION,
-                'scoringImplementationSha256': scoring_hash(), 'policySha256': fingerprint(POLICY),
+                'scoringImplementationSha256': scoring_hash(), 'policySha256': fingerprint(evaluation_policy),
+                'promptMode': args.prompt_mode,
                 'templateSha256': fingerprint(tokenizer.chat_template), 'generation': generation,
                 'selection': {'perLanguage': args.per_language, 'jobContinuationsRequested': args.job_continuations},
                 'caseInputsSha256': fingerprint([{'id': c['id'], 'caseSha256': c['caseSha256'], 'promptSha256': c['promptSha256']} for c in cases]),

@@ -36,7 +36,7 @@ All training data is in Git and included in this checkout:
 
 - `training/data/authored.jsonl`: reviewed additions to the original text baseline.
 - `training/data/gold.jsonl`: text evaluation cases, not training input.
-- `training/data/sequence-plans.jsonl`: 20 train-only English/German conversations.
+- `training/data/sequence-plans.jsonl`: 22 train-only English/German conversations.
 - `training/datasets/mcp-v2/data/train.jsonl`: original 924 synthetic conversations.
 - `training/datasets/mcp-v2/data/validation.jsonl`: 583 validation conversations.
 - `training/datasets/mcp-v2/data/test.jsonl`: 593 held-out conversations.
@@ -45,12 +45,21 @@ All training data is in Git and included in this checkout:
 - `training/datasets/mcp-comprehensive/train.jsonl`: train-only coverage of all 32
   current MCP tools and ten languages, including arguments, boundaries, job
   outcomes, authorization and unsupported requests. See its [coverage guide](datasets/mcp-comprehensive/README.md).
+- **Current default:** `training/datasets/mcp-chat/train.jsonl`: the v5 natural
+  chat/proposal curriculum. Read its [guide](datasets/mcp-chat/README.md) and
+  [measured audit](../docs/chat-training-data-v5.md) before a new run.
 - `training/datasets/mcp-v2/data/manifest.json`: immutable original data hashes;
   `contract-audit.json` and `verified-tools-list.json` identify audited contracts.
 
 `training/prepare.py` regenerates the preserved 326-example informational baseline.
-`training/prepare_v2.py --curriculum` builds the current MCP curriculum, including
-device/safety contrasts and sequence plans. It renders native Qwen tool calls and
+`training/prepare_v2.py --curriculum` builds the current natural chat curriculum,
+including device/safety contrasts and sequence plans. It uses the actual AI gateway
+surface (numeric coordinates, waits up to five seconds, no override properties).
+Tool calls are proposals before approval; only the gateway can execute them.
+Original/audited split files remain unchanged. Active train/validation copies strip
+approval answer keys and convert obsolete no-approval refusals into explicit
+withdrawals. This is a new recipe; previous checkpoint loss/scores are not directly
+comparable with these projected inputs. It renders native Qwen tool calls and
 supervises assistant tokens only. It reads train/validation, never test/gold for
 training. Preparation fails on bad calls, lost coverage or overlong examples;
 it does not silently truncate or remove a troublesome tool class.
@@ -142,6 +151,7 @@ python training/datasets/mcp-v2/scripts/validate_dataset.py
 python training/tests/training_tests.py
 python training/tests/curriculum_tests.py
 python training/tests/comprehensive_tests.py
+python training/tests/chat_dataset_tests.py
 python training/tests/colab_tests.py
 python training/tests/preflight_tests.py
 python training/fetch_base.py --download --accept-license
@@ -183,7 +193,7 @@ Run a short GPU smoke, then verify adapter reload on validation cases:
 python training/train.py --base .local/training/base --dataset-mode mcp \
   --data "$DATA" --config "$CONFIG" --max-steps 4 --logging-steps 1 --output "$RUN/smoke"
 python training/evaluate_v2.py --base .local/training/base --backend "$BACKEND" \
-  --adapter "$RUN/smoke/adapter" --suite validation_smoke --per-language 2 \
+  --adapter "$RUN/smoke/adapter" --suite validation_smoke --prompt-mode chat --per-language 2 --max-new-tokens 192 \
   --output "$RUN/smoke-reload.json"
 ```
 
@@ -208,7 +218,7 @@ $Backend='cuda-nf4'
 $Run='artifacts/training-runs/qwen3-'+(Get-Date -Format 'yyyyMMdd-HHmmss')
 $Data='artifacts/training-data/current'
 python training/train.py --base .local/training/base --dataset-mode mcp --data $Data --config $Config --max-steps 4 --logging-steps 1 --output "$Run/smoke"
-python training/evaluate_v2.py --base .local/training/base --backend $Backend --adapter "$Run/smoke/adapter" --suite validation_smoke --per-language 2 --output "$Run/smoke-reload.json"
+python training/evaluate_v2.py --base .local/training/base --backend $Backend --adapter "$Run/smoke/adapter" --suite validation_smoke --prompt-mode chat --per-language 2 --max-new-tokens 192 --output "$Run/smoke-reload.json"
 python training/train.py --base .local/training/base --dataset-mode mcp --data $Data --config $Config --smoke-run "$Run/smoke" --logging-steps 5 --output "$Run/full"
 ```
 
@@ -257,7 +267,7 @@ python training/train.py --base .local/training/base --dataset-mode mcp \
   --data "$DATA" --config "$CONFIG" --resume-from-checkpoint "$CHECKPOINT" \
   --resume-smoke-steps 1 --logging-steps 1 --output "$RUN/smoke"
 python training/evaluate_v2.py --base .local/training/base --backend "$BACKEND" \
-  --adapter "$RUN/smoke/adapter" --suite validation_smoke --per-language 2 \
+  --adapter "$RUN/smoke/adapter" --suite validation_smoke --prompt-mode chat --per-language 2 --max-new-tokens 192 \
   --output "$RUN/smoke-reload.json"
 python training/train.py --base .local/training/base --dataset-mode mcp \
   --data "$DATA" --config "$CONFIG" --resume-from-checkpoint "$CHECKPOINT" \
@@ -274,7 +284,12 @@ adapter-only warm start, not an exact resume, and is refused here.
 ## Compare accuracy and export a candidate
 
 During development, compare base/prior/new on `validation_smoke`. Use separate new
-output files and the same backend/generation settings. Once the recipe is frozen,
+output files, `--prompt-mode chat --max-new-tokens 192`, and the same backend/generation settings.
+This mode uses the same proposal-stage projection as current training, preserves
+all 583 validation scenario IDs, and does not run gold suites. The default legacy
+gold prompt mode remains available for historical comparisons; its older approval
+fixtures do not establish current chat accuracy. An independently authored and
+reviewed deployment holdout is still required. Once the recipe is frozen,
 run final `eval_gold` and `hard_gold` for base, completed prior adapter and new
 adapter. Never tune data/prompts against those held-out scores.
 

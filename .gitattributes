@@ -2,4 +2,5 @@
 training/datasets/mcp-v2/data/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 training/data/** -text
 training/datasets/mcp-comprehensive/*.json* -text
+training/datasets/mcp-chat/*.json* -text
 plugin/models/bundled/*.gguf filter=lfs diff=lfs merge=lfs -text
