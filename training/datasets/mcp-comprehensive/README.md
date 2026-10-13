@@ -12,7 +12,8 @@ hashes normalize UTF-8 line endings; dataset/contract hashes cover exact bytes.
 
 Current expansion: **4,496 conversations / 7,106 assistant turns**. Combined with
 the existing curriculum: **7,185 conversations / 11,636 assistant turns**.
-See [measured preparation results](../../../docs/comprehensive-training-data.md).
+See [current preparation and model results](../../../docs/model-report.md)
+and [the complete training process](../../../docs/training.md).
 
 ## Capability coverage
 

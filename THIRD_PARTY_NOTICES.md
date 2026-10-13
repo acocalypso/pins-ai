@@ -8,7 +8,7 @@ Qwen/Qwen3-0.6B base converted to Q4_K_M and the separate diagnostic checkpoint
 below. The base revision, exact hashes and incomplete-training status are in
 `plugin/models/bundled.json`; Apache-2.0 is included beside the weights. No merge occurs.
 The model weights are versioned using LFS and copied into the Debian package;
-installation performs no model downloads. `docs/pi-checkpoint700.md` records
+installation performs no model downloads. [The model report](docs/model-report.md) records
 the diagnostic live MCP results and unresolved quality limitations.
 
 The following historical optional-candidate notes describe the original plugin

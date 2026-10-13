@@ -8,13 +8,13 @@ implement another MCP server or a separately managed AI daemon.
 
 ## Start here
 
-- **Train a model:** [training/README.md](training/README.md) — setup, data,
+- **Train a model:** [training process](docs/training.md) — setup, data,
   Colab/NVIDIA and MI355X/ROCm profiles, smoke tests, full training, loss monitoring,
   checkpoints, evaluation and GGUF export.
 - **Build/install the plugin:** [plugin/README.md](plugin/README.md).
-- **Contribute:** [CONTRIBUTING.md](CONTRIBUTING.md), [architecture](docs/architecture.md),
-  [MCP chat](docs/mcp-chat.md), and [gateway safety](docs/gateway-safety.md).
-- **Measured results and current limits:** [Pi verification](docs/pi-sequence-chat-verification.md).
+- **Current models, comparisons and Pi results:** [model report](docs/model-report.md).
+- **Runtime, MCP API and safety:** [plugin guide](plugin/README.md).
+- **Contribute:** [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Project structure
 
@@ -35,8 +35,9 @@ training/                    Off-device model specialization
   datasets/mcp-comprehensive/ Train-only coverage of current MCP capabilities
   datasets/mcp-chat/          Current natural chat/proposal curriculum and coverage
   notebooks/                 Generated Colab workbook
+  experiments/               Comparison evidence, historical results and experiment plans
   tests/                     Data isolation, loss, resume and backend checks
-docs/                        Architecture, safety and dated evidence
+docs/                        Training process and consolidated model report
 artifacts/                   Ignored generated SFT, runs, checkpoints and exports
 .local/                      Ignored environments, base weights and host DLLs
 ```
@@ -46,7 +47,7 @@ All training examples and contract snapshots are versioned under `training/`.
 hashes and the 326-example informational baseline are preserved. Checkpoints and
 local training base weights stay outside Git; deployment GGUF files use Git LFS.
 New training uses [v6 multilingual chat data](training/datasets/mcp-chat/README.md).
-Its [comparison and training recipe](docs/training-accuracy-v6.md) separate data validity from runtime
+The [model report](docs/model-report.md) separates data validity from runtime
 retrieval and model accuracy; start a fresh adapter, not an old checkpoint resume.
 
 ## Clone
@@ -76,14 +77,18 @@ on the Pi.
 MCP chat and Debian packaging work on the tested Pi 5 with 4 GB RAM. The packaged
 default uses two CPU threads and a 75°C cutoff. The bundled checkpoint-700 adapter
 is **diagnostic**, not a production-quality model: live sequence planning still
-failed validation. New sequence examples are ready for retraining; adding them
-does not update existing weights. Active-imaging contention and sustained hot
+failed validation. The completed step-1900 candidate did not beat the prior adapters
+in the matched runtime comparison and was not promoted. V6 data and accuracy-based
+checkpoint selection are prepared for fresh training; adding examples does not
+update existing weights. Active-imaging contention and sustained hot
 operation remain unverified.
 
 MI355X support is prepared as single-GPU BF16 LoRA on ROCm, with backend and resume
-contract tests. Real AMD setup/training and performance remain unverified until
-hardware access. The Colab T4/NVIDIA FP16/NF4 recipe is retained.
+contract tests. The uploaded completed run recorded RX 7900 XT, not MI355X;
+actual MI355X/v6 training and performance remain unverified. The Colab T4/NVIDIA
+FP16/NF4 recipe is retained.
 
 See [LICENSE](LICENSE), [third-party notices](THIRD_PARTY_NOTICES.md), and dataset
-provenance. Earlier dated reports in `docs/` describe historical states; the entry
-points above describe the current layout and commands.
+provenance. `docs/` contains two maintained documents; machine-readable historical
+evidence lives with training experiments and plugin benchmarks. Superseded
+narrative reports remain available in Git history.

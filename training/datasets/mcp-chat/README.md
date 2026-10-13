@@ -76,5 +76,5 @@ plain chat requests. If retrieval omits the right tool, a better model cannot us
 it. Fix and re-evaluate retrieval before claiming end-to-end chat improvement.
 No new model was trained or tested by this data change. Independent multilingual
 review, reviewed holdout, base/prior/new evaluation and quantized Pi testing remain
-required before promotion. See [the v6 measurements and recipe](../../../docs/training-accuracy-v6.md)
-and [the historical v5 audit](../../../docs/chat-training-data-v5.md).
+required before promotion. See [the consolidated model report](../../../docs/model-report.md)
+and [the training process](../../../docs/training.md).

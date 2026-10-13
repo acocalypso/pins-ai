@@ -12,4 +12,4 @@ run. No merge was performed. The Apache-2.0 base license is included here.
 The synthetic PINS training examples are CC0-1.0; implementation code is MIT.
 
 This is a diagnostic model, not a production quality acceptance. See
-`../../docs/pi-checkpoint700.md` for measured quality and thermal limitations.
+[the model report](../../../docs/model-report.md) for measured quality and thermal limitations.
