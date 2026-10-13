@@ -222,7 +222,10 @@ def main():
         run['resumeSmokeSteps'] = args.resume_smoke_steps
     write_json(args.output / 'training-run.json', run)
     (args.output / 'pip-freeze.txt').write_text(subprocess.check_output([os.sys.executable, '-m', 'pip', 'freeze'], text=True))
-    evaluation_steps = config.get('evaluationSteps') if not args.max_steps else None
+    # Smoke uses a tiny subset: an epoch can be just one optimizer step.
+    # Validate/save once at the smoke budget instead of repeating all generated
+    # cases after each tiny epoch. Full and resumed runs retain their schedule.
+    evaluation_steps = args.max_steps or config.get('evaluationSteps')
     training_args = TrainingArguments(output_dir=str(args.output / 'checkpoints'),
         num_train_epochs=config['epochs'], max_steps=args.max_steps or -1,
         learning_rate=config['learningRate'], per_device_train_batch_size=config['batchSize'],

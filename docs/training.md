@@ -226,6 +226,10 @@ DATA=artifacts/training-data/current
 
 Run a short GPU smoke, then verify adapter reload on validation cases:
 
+Smoke validation/checkpoint saving runs once at its final optimizer step. It still
+checks the complete configured generated-validation sample. Full training retains
+its configured 100-step interval; smoke quality is not a release accuracy claim.
+
 ```bash
 python training/train.py --base .local/training/base --dataset-mode mcp \
   --data "$DATA" --config "$CONFIG" --max-steps 4 --logging-steps 1 --output "$RUN/smoke"
