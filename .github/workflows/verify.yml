@@ -22,12 +22,12 @@ jobs:
       - run: python -m pip install jsonschema==4.25.1 transformers==4.57.6
       - run: python training/prepare.py
       - run: python training/tests/training_tests.py
-      - run: python training/datasets/mcp-v2/scripts/validate_dataset.py
+      - run: python training/dataset/scripts/validate_dataset.py
       - run: python training/tests/v2_tests.py
       - run: python training/tests/colab_tests.py
       - run: python training/tests/curriculum_tests.py
       - run: python training/tests/comprehensive_tests.py
-      - run: dotnet run --project training/tools/RouterAudit -- training/datasets/mcp-chat/train.jsonl training/datasets/mcp-v2/data/verified-tools-list.json artifacts/router-chat-v6.json
+      - run: dotnet run --project training/tools/RouterAudit -- training/dataset/train.jsonl training/dataset/data/verified-tools-list.json artifacts/router-chat-v6.json
       - run: python training/tests/chat_dataset_tests.py
       - run: python training/tests/generation_validation_tests.py
       - run: python training/tests/preflight_tests.py
@@ -36,7 +36,7 @@ jobs:
       - run: python training/tests/export_tests.py
       - run: python training/tests/local_inference_tests.py
       - run: python plugin/tests/readonly_probe_tests.py
-      - run: dotnet run --project plugin/tests/Mcp.GatewayTests -- training/datasets/mcp-v2/data/verified-tools-list.json
+      - run: dotnet run --project plugin/tests/Mcp.GatewayTests -- training/dataset/data/verified-tools-list.json
       - run: python -m compileall -q training training/tests/training_tests.py
       # Plugin compatibility is verified separately against real installed PINS
       # contracts; CI neither invents host stubs nor downloads models.

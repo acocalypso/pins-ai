@@ -1,4 +1,9 @@
-# Comprehensive PINS MCP training curriculum
+# Capability source examples
+
+These are preserved sources within the unified dataset, not a second training
+entry point. Train the selected runtime-aligned corpus at
+[`../../train.jsonl`](../../train.jsonl) through the documented curriculum.
+
 
 Train-only, synthetic conversations for every tool in the team's existing MCP
 server, audited at `6fef6c4bd73a8e1f24a36235dba6cbb9eff3d3d2` on `unstable`.
@@ -12,8 +17,8 @@ hashes normalize UTF-8 line endings; dataset/contract hashes cover exact bytes.
 
 Current expansion: **4,496 conversations / 7,106 assistant turns**. Combined with
 the existing curriculum: **7,185 conversations / 11,636 assistant turns**.
-See [current preparation and model results](../../../docs/model-report.md)
-and [the complete training process](../../../docs/training.md).
+See [current preparation and model results](../../../../docs/model-report.md)
+and [the complete training process](../../../../docs/training.md).
 
 ## Capability coverage
 
@@ -85,5 +90,5 @@ only to match verified contracts/provenance, not to improve measured scores.
 **Start a fresh adapter from the pinned Hugging Face base.** This changes data,
 policy and contracts, so checkpoint 700 and old full-run checkpoints are not exact
 continuations. Passing data/tokenizer checks is not a GPU smoke or a model accuracy
-result. Follow [the training guide](../../README.md) for smoke, training, loss,
+result. Follow [the training guide](../../../../docs/training.md) for smoke, training, loss,
 evaluation and export. Model weights and Pi deployment are unchanged.

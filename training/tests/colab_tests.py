@@ -21,7 +21,7 @@ class DriveDataTests(unittest.TestCase):
         self.drive = Path(self.temp.name) / 'drive'
         self.project.mkdir()
         self.drive.mkdir()
-        self.data = self.project / 'training/datasets/mcp-v2/data'
+        self.data = self.project / 'training/dataset/data'
         self.data.mkdir(parents=True)
         for name in ('manifest.json', 'contract-audit.json', 'train.jsonl'):
             (self.data / name).write_text('{}\n', encoding='utf-8')
@@ -30,12 +30,13 @@ class DriveDataTests(unittest.TestCase):
         subprocess.run(['git', 'init', '--quiet', str(self.project)], check=True)
         subprocess.run(['git', 'add', '.'], cwd=self.project, check=True, capture_output=True)
 
-    def make_bundle(self, mismatch=False, legacy=False):
+    def make_bundle(self, mismatch=False, legacy=False, previous_layout=False):
         with zipfile.ZipFile(self.drive / 'pins-ai-training-0.1.0.zip', 'w') as archive:
             for path in self.data.iterdir():
                 content = b'changed' if mismatch and path.name == 'train.jsonl' else path.read_bytes()
                 name=path.relative_to(self.project).as_posix()
-                if legacy: name=name.replace('training/datasets/mcp-v2','PINS_MCP_AI_Training_v2')
+                if legacy: name=name.replace('training/dataset','PINS_MCP_AI_Training_v2')
+                if previous_layout: name=name.replace('training/dataset','training/datasets/mcp-v2')
                 archive.writestr(name, content)
             archive.writestr('training/train.py', 'untrusted code must not be imported')
 
@@ -49,6 +50,14 @@ class DriveDataTests(unittest.TestCase):
     def test_existing_drive_zip_with_legacy_layout_is_supported(self):
         self.make_bundle(legacy=True)
         self.assertEqual(use_drive_data(self.project,self.drive)['verifiedFiles'],2)
+
+    def test_previous_three_folder_archive_and_directory_are_supported(self):
+        self.make_bundle(previous_layout=True)
+        self.assertEqual(use_drive_data(self.project,self.drive)['verifiedFiles'],2)
+        folder=self.drive/'training/datasets/mcp-v2/data'
+        folder.mkdir(parents=True)
+        for path in self.data.iterdir(): (folder/path.name).write_bytes(path.read_bytes())
+        self.assertEqual(use_drive_data(self.project,self.drive)['kind'],'directory')
 
     def test_mismatch_preserves_checkout(self):
         self.make_bundle(mismatch=True)

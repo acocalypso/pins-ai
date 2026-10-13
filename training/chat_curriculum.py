@@ -11,7 +11,7 @@ from v2_contracts import POLICY, definitions
 
 PROFILE = 'v6-multilingual-chat-proposals'
 OUTPUT_RESERVE = 192
-DATA = ROOT / 'training/datasets/mcp-chat'
+DATA = ROOT / 'training/dataset'
 DENIAL = dict(zip(LANGUAGES, (
     'Do not prepare a proposal or perform this action; I have withdrawn the request.',
     'Erstelle keinen Vorschlag und führe diese Aktion nicht aus; ich ziehe die Anfrage zurück.',

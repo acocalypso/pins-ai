@@ -11,7 +11,7 @@ from curriculum_v3 import language_source, EXTRA_LABELS
 from v2_contracts import PACKAGE, VERIFIED, POLICY, definitions, validate_call
 from v2_adapter import START_REPLIES, STOP_REPLIES
 
-DESTINATION = ROOT / 'training/datasets/mcp-comprehensive'
+DESTINATION = ROOT / 'training/dataset/sources/comprehensive'
 LANGUAGES = tuple(EXTRA_LABELS)
 VERSION = 'mcp-comprehensive-1'
 

@@ -86,7 +86,7 @@ def examples():
 
 
 if __name__ == '__main__':
-    destination = Path(__file__).parent / 'data/sequence-plans.jsonl'
+    destination = Path(__file__).parent / 'dataset/baseline/sequence-plans.jsonl'
     rows = examples()
     write_jsonl(destination, rows)
     print(f'Wrote {len(rows)} train-only examples to {destination}')

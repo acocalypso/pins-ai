@@ -25,10 +25,10 @@ def main():
         from chat_dataset_common import CHAT_POLICY
         report.update(sourceProfile=PROFILE, curriculumSha256=sha256(ROOT / 'training/chat_curriculum.py'),
                       legacyPolicySha256=fingerprint(POLICY), policySha256=fingerprint(CHAT_POLICY))
-        report['chatManifestSha256'] = sha256(ROOT / 'training/datasets/mcp-chat/manifest.json')
+        report['chatManifestSha256'] = sha256(ROOT / 'training/dataset/manifest.json')
         report['deduplicateSupervision'] = True
         report['inferenceMaxOutputTokens'] = OUTPUT_RESERVE
-        report['comprehensiveManifestSha256'] = sha256(ROOT / 'training/datasets/mcp-comprehensive/manifest.json')
+        report['comprehensiveManifestSha256'] = sha256(ROOT / 'training/dataset/sources/comprehensive/manifest.json')
     groups = set()
     for split in ('train', 'validation'):
         source = PACKAGE / 'data/audited' / f'{split}.jsonl'

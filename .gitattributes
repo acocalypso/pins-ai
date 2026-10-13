@@ -1,6 +1,6 @@
 # Dataset and contract checksums cover exact bytes on Windows and Linux.
-training/datasets/mcp-v2/data/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-training/data/** -text
-training/datasets/mcp-comprehensive/*.json* -text
-training/datasets/mcp-chat/*.json* -text
+training/dataset/data/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+training/dataset/baseline/** -text
+training/dataset/sources/comprehensive/*.json* -text
+training/dataset/*.json* -text
 plugin/models/bundled/*.gguf filter=lfs diff=lfs merge=lfs -text

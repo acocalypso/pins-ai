@@ -8,7 +8,7 @@ import zipfile
 
 def use_drive_data(project, drive_folder):
     project, drive_folder = Path(project), Path(drive_folder)
-    prefix = 'training/datasets/mcp-v2/data/'
+    prefix = 'training/dataset/data/'
     tracked = subprocess.check_output(
         ['git', 'ls-files', '--', prefix], cwd=project, text=True).splitlines()
     if not tracked or prefix + 'contract-audit.json' not in tracked:
@@ -17,8 +17,8 @@ def use_drive_data(project, drive_folder):
     # come from the current Git code, so MCP updates require no stale ZIP upload.
     manifest = json.loads((project / prefix / 'manifest.json').read_text(encoding='utf-8'))
     tracked = [prefix + 'manifest.json', *[prefix + n for n in manifest['sha256']]]
-    legacy_prefix = 'PINS_MCP_AI_Training_v2/data/'
-    folders = [drive_folder / prefix, drive_folder / legacy_prefix, drive_folder / 'data']
+    legacy_prefixes = ('training/datasets/mcp-v2/data/', 'PINS_MCP_AI_Training_v2/data/')
+    folders = [drive_folder / p for p in (prefix, *legacy_prefixes, 'data/')]
     folder = next((p for p in folders if (p / 'manifest.json').is_file()), None)
     bundle = drive_folder / 'pins-ai-training-0.1.0.zip'
     payloads = {}
@@ -30,7 +30,11 @@ def use_drive_data(project, drive_folder):
     elif bundle.is_file():
         with zipfile.ZipFile(bundle) as archive:
             for name in tracked:
-                archive_name = name if name in archive.namelist() else legacy_prefix + name[len(prefix):]
+                relative = name[len(prefix):]
+                archive_name = next((p + relative for p in (prefix, *legacy_prefixes)
+                                     if p + relative in archive.namelist()), None)
+                if archive_name is None:
+                    raise FileNotFoundError('Drive archive lacks immutable dataset file: ' + relative)
                 payloads[name] = archive.read(archive_name)
         origin = {'kind': 'zip', 'path': str(bundle),
                   'sha256': hashlib.sha256(bundle.read_bytes()).hexdigest()}

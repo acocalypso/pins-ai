@@ -8,8 +8,8 @@ Read [the model report](../docs/model-report.md) for the current bundled model,
 measured comparisons, Pi observations and remaining limits.
 
 All commands in the guide run from the repository root. `configs/` contains
-versioned GPU recipes; `datasets/` and `data/` contain the training/evaluation
-assets; `notebooks/` contains the generated Colab workbook; `experiments/` holds
+versioned GPU recipes; `dataset/` contains all training/evaluation assets and
+preserved sources; `notebooks/` contains the Colab workbook; `experiments/` holds
 machine-readable evidence and experiment plans. Generated runs, base weights,
 checkpoints and environments stay in ignored `artifacts/` and `.local/` paths.
 

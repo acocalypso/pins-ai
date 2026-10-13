@@ -53,23 +53,26 @@ GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/acocalypso/pins-ai.git
 cd pins-ai
 ```
 
-All training data is in Git and included in this checkout:
+All training data is in Git under **`training/dataset/`**. The single active
+training file is `training/dataset/train.jsonl`. Other JSONL files are retained
+sources or isolated validation/test/gold, not additional datasets to train or
+blindly concatenate. The contents are:
 
-- `training/data/authored.jsonl`: reviewed additions to the original text baseline.
-- `training/data/gold.jsonl`: text evaluation cases, not training input.
-- `training/data/sequence-plans.jsonl`: 22 train-only English/German conversations.
-- `training/datasets/mcp-v2/data/train.jsonl`: original 924 synthetic conversations.
-- `training/datasets/mcp-v2/data/validation.jsonl`: 583 validation conversations.
-- `training/datasets/mcp-v2/data/test.jsonl`: 593 held-out conversations.
-- `training/datasets/mcp-v2/data/eval_gold.jsonl` and `hard_gold.jsonl`: final evaluation only.
-- `training/datasets/mcp-v2/data/audited/`: schema-corrected splits used by preparation.
-- `training/datasets/mcp-comprehensive/train.jsonl`: train-only coverage of all 32
+- `training/dataset/baseline/authored.jsonl`: reviewed additions to the original text baseline.
+- `training/dataset/baseline/gold.jsonl`: text evaluation cases, not training input.
+- `training/dataset/baseline/sequence-plans.jsonl`: 22 train-only English/German conversations.
+- `training/dataset/data/train.jsonl`: original 924 synthetic conversations.
+- `training/dataset/data/validation.jsonl`: 583 validation conversations.
+- `training/dataset/data/test.jsonl`: 593 held-out conversations.
+- `training/dataset/data/eval_gold.jsonl` and `hard_gold.jsonl`: final evaluation only.
+- `training/dataset/data/audited/`: schema-corrected splits used by preparation.
+- `training/dataset/sources/comprehensive/train.jsonl`: train-only coverage of all 32
   current MCP tools and ten languages, including arguments, boundaries, job
-  outcomes, authorization and unsupported requests. See its [coverage guide](../training/datasets/mcp-comprehensive/README.md).
-- **Current default:** `training/datasets/mcp-chat/train.jsonl`: the v6 multilingual
-  chat/proposal curriculum. Read its [guide](../training/datasets/mcp-chat/README.md) and
+  outcomes, authorization and unsupported requests. See its [coverage guide](../training/dataset/sources/comprehensive/README.md).
+- **Current default:** `training/dataset/train.jsonl`: the v6 multilingual
+  chat/proposal curriculum. Read its [guide](../training/dataset/README.md) and
   [comparison and accuracy recipe](model-report.md) before a new run.
-- `training/datasets/mcp-v2/data/manifest.json`: immutable original data hashes;
+- `training/dataset/data/manifest.json`: immutable original data hashes;
   `contract-audit.json` and `verified-tools-list.json` identify audited contracts.
 
 `training/prepare.py` regenerates the preserved 326-example informational baseline.
@@ -168,7 +171,7 @@ only after measurement, using a new run and a matching new smoke test.
 With either GPU environment active:
 
 ```bash
-python training/datasets/mcp-v2/scripts/validate_dataset.py
+python training/dataset/scripts/validate_dataset.py
 python training/tests/training_tests.py
 python training/tests/curriculum_tests.py
 python training/tests/comprehensive_tests.py
@@ -193,8 +196,8 @@ For actual gateway-schema parity, on a development machine with .NET SDK 10:
 
 ```bash
 dotnet run --project training/tools/RouterAudit -- \
-  training/datasets/mcp-chat/train.jsonl \
-  training/datasets/mcp-v2/data/verified-tools-list.json artifacts/router-chat-v6.json
+  training/dataset/train.jsonl \
+  training/dataset/data/verified-tools-list.json artifacts/router-chat-v6.json
 python training/tests/chat_dataset_tests.py
 ```
 

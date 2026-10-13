@@ -21,6 +21,19 @@ class ChatDatasetTests(unittest.TestCase):
         cls.validation = curriculum_rows('validation')
         cls.manifest = json.loads((DATA / 'manifest.json').read_text(encoding='utf-8'))
 
+    def test_single_dataset_entry_point_and_package_wrapper(self):
+        import subprocess
+        self.assertEqual(DATA, ROOT/'training/dataset')
+        self.assertFalse((ROOT/'training/datasets').exists())
+        self.assertFalse((ROOT/'training/data').exists())
+        result = subprocess.run([sys.executable, str(DATA/'scripts/prepare_qwen3_sft.py'), '--dry-run'],
+                                capture_output=True, encoding='utf-8', check=True)
+        self.assertEqual(json.loads(result.stdout), self.rows[0])
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('unified_entrypoint', DATA/'scripts/prepare_qwen3_sft.py')
+        module=importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+        self.assertEqual(module.REPOSITORY, ROOT)
+
     def test_reproducibility_provenance_and_no_heldout_generator_inputs(self):
         self.assertEqual(self.rows, build_rows()[0])
         self.assertEqual(self.manifest['sourceHashes'], source_hashes())

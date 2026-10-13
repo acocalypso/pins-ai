@@ -17,15 +17,15 @@ def source_hashes():
              'training/chat_generalization_curriculum.py',
              'training/sequence_curriculum.py', 'training/v2_contracts.py',
              'training/v2_adapter.py', 'training/common.py',
-             'training/datasets/mcp-v2/scripts/build_dataset.py',
+             'training/dataset/scripts/build_dataset.py',
              'plugin/src/Pins.AI.Runtime/ToolGateway.cs',
              'plugin/src/Pins.AI.Runtime/ToolPromptSchema.cs',
              'plugin/src/Pins.AI.Runtime/Contracts.cs',
              'plugin/src/Pins.AI.Runtime/AiConfiguration.cs']
     hashes = {p: source_sha(ROOT / p) for p in paths}
-    paths = ['training/datasets/mcp-v2/data/audited/train.jsonl',
-             'training/datasets/mcp-comprehensive/train.jsonl',
-             'training/datasets/mcp-comprehensive/manifest.json', 'training/data/sequence-plans.jsonl',
+    paths = ['training/dataset/data/audited/train.jsonl',
+             'training/dataset/sources/comprehensive/train.jsonl',
+             'training/dataset/sources/comprehensive/manifest.json', 'training/dataset/baseline/sequence-plans.jsonl',
              VERIFIED.relative_to(ROOT).as_posix(), ADAPTER.relative_to(ROOT).as_posix()]
     return {**hashes, **{p: sha256(ROOT / p) for p in paths}}
 

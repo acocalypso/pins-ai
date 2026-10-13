@@ -102,7 +102,7 @@ def main():
         sys.path.insert(0, str(PROJECT / 'training'))
         from colab_workspace import use_drive_data
         drive_data = use_drive_data(PROJECT, DRIVE_FOLDER)
-        audit = json.loads((PROJECT / 'training/datasets/mcp-v2/data/contract-audit.json').read_text())
+        audit = json.loads((PROJECT / 'training/dataset/data/contract-audit.json').read_text())
         if audit['sourceRevision'] != '6fef6c4bd73a8e1f24a36235dba6cbb9eff3d3d2':
             raise ValueError('Rebuild this notebook/bundle for the newer audited MCP revision')
         RUN_ROOT = DRIVE_FOLDER / 'runs' / RUN_NAME
@@ -198,7 +198,7 @@ def main():
     ''')
     cell('code', '''
         run_pipeline(['training/fetch_base.py', '--download', '--accept-license'], 'fetch-base.log')
-        run_pipeline(['training/datasets/mcp-v2/scripts/validate_dataset.py'], 'package-validation.log')
+        run_pipeline(['training/dataset/scripts/validate_dataset.py'], 'package-validation.log')
         run_pipeline(['training/tests/chat_dataset_tests.py'], 'chat-data-validation.log')
         run_pipeline(['training/prepare_v2.py', '--curriculum', '--max-tokens', '1536',
                       '--output', SFT_DATA], 'prepare-sft.log')

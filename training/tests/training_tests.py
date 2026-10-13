@@ -26,8 +26,8 @@ class TokenizerFixture:
 
 class PipelineTests(unittest.TestCase):
     def setUp(self):
-        self.gold = read_jsonl(ROOT / 'training/data/gold.jsonl')
-        self.rows = generate() + read_jsonl(ROOT / 'training/data/authored.jsonl')
+        self.gold = read_jsonl(ROOT / 'training/dataset/baseline/gold.jsonl')
+        self.rows = generate() + read_jsonl(ROOT / 'training/dataset/baseline/authored.jsonl')
 
     def test_arithmetic_ground_truth(self):
         self.assertEqual(minutes(30, 120), '60')

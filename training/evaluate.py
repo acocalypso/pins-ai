@@ -7,7 +7,7 @@ import statistics
 
 from common import ROOT, fingerprint, read_jsonl, sha256, write_json
 
-GOLD = Path(__file__).with_name('data') / 'gold.jsonl'
+GOLD = Path(__file__).parent / 'dataset/baseline' / 'gold.jsonl'
 
 
 def score(report, gold, reviews=None, threads=1):

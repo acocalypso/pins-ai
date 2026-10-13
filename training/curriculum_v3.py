@@ -131,8 +131,8 @@ def curriculum_rows(split):
         item['tools'].sort(key=lambda t: fingerprint(item['id'] + t['name']))
         added.append(item)
     added.extend(safety_rows(source, catalog))
-    added.extend(read_jsonl(Path(__file__).parent / 'data/sequence-plans.jsonl'))
-    comprehensive = Path(__file__).parent / 'datasets/mcp-comprehensive'
+    added.extend(read_jsonl(Path(__file__).parent / 'dataset/baseline/sequence-plans.jsonl'))
+    comprehensive = Path(__file__).parent / 'dataset/sources/comprehensive'
     import json
     from common import sha256
     manifest = json.loads((comprehensive / 'manifest.json').read_text(encoding='utf-8'))

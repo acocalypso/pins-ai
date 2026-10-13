@@ -77,7 +77,7 @@ def main():
             from chat_curriculum import PROFILE, OUTPUT_RESERVE
             if data_info['sourceProfile'] != PROFILE or data_info.get('curriculumSha256') != sha256(ROOT / 'training/chat_curriculum.py'):
                 raise ValueError('Unknown or changed curriculum; prepare again')
-            if (data_info.get('chatManifestSha256') != sha256(ROOT / 'training/datasets/mcp-chat/manifest.json')
+            if (data_info.get('chatManifestSha256') != sha256(ROOT / 'training/dataset/manifest.json')
                     or data_info.get('deduplicateSupervision') is not True):
                 raise ValueError('Chat curriculum changed; prepare again and run a matching smoke')
             if data_info.get('inferenceMaxOutputTokens') != OUTPUT_RESERVE:

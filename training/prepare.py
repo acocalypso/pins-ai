@@ -51,8 +51,8 @@ def main():
     parser.add_argument('--output', type=Path, default=ROOT / 'artifacts/training/data')
     parser.add_argument('--extra-chat', type=Path, action='append', default=[])
     args = parser.parse_args()
-    gold_path = Path(__file__).with_name('data') / 'gold.jsonl'
-    seed_path = Path(__file__).with_name('data') / 'authored.jsonl'
+    gold_path = Path(__file__).parent / 'dataset/baseline' / 'gold.jsonl'
+    seed_path = Path(__file__).parent / 'dataset/baseline' / 'authored.jsonl'
     gold = read_jsonl(gold_path)
     rows = generate() + read_jsonl(seed_path)
     for path in args.extra_chat:

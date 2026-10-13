@@ -1,0 +1,165 @@
+{
+  "version": 1,
+  "date": "2026-10-13",
+  "activeTrain": "training/dataset/train.jsonl",
+  "trainingSelectionChanged": false,
+  "hardwareExecution": false,
+  "originalAndHeldoutBytesPreserved": true,
+  "files": [
+    {
+      "originalPath": "training/datasets/mcp-chat/coverage.json",
+      "path": "training/dataset/coverage.json",
+      "originalSha256": "d81171f1641925585392ee28805078fd9567dd72c3d0b6ccd5b416e754ebe800",
+      "sha256": "d81171f1641925585392ee28805078fd9567dd72c3d0b6ccd5b416e754ebe800",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/datasets/mcp-chat/manifest.json",
+      "path": "training/dataset/manifest.json",
+      "originalSha256": "44742656428bc24781b46f70597816fbaad4d75e3c698e4817c408818c6b06de",
+      "sha256": "259a3ada4536f8a2a575cc91e781085e467ecb851fe488ae5d56d589b2c60188",
+      "derivedMetadataRefreshed": true
+    },
+    {
+      "originalPath": "training/datasets/mcp-chat/train.jsonl",
+      "path": "training/dataset/train.jsonl",
+      "originalSha256": "556359c389ef2669de40abd836f466fe53bf92c52c49c552858521f05293cf89",
+      "sha256": "556359c389ef2669de40abd836f466fe53bf92c52c49c552858521f05293cf89",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/datasets/mcp-comprehensive/coverage.json",
+      "path": "training/dataset/sources/comprehensive/coverage.json",
+      "originalSha256": "592af5256100c97e7bda241739205337c8846b18930ccaec0e4706cad91e0115",
+      "sha256": "592af5256100c97e7bda241739205337c8846b18930ccaec0e4706cad91e0115",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/datasets/mcp-comprehensive/manifest.json",
+      "path": "training/dataset/sources/comprehensive/manifest.json",
+      "originalSha256": "d643e271a07a3ae24ed48c56b46db1e0656071cf6d41edf45d34be61743332f0",
+      "sha256": "41f7c7146c55306f3e95ada1e759d04efb54cdf482be2577ca98250209a85b0c",
+      "derivedMetadataRefreshed": true
+    },
+    {
+      "originalPath": "training/datasets/mcp-comprehensive/train.jsonl",
+      "path": "training/dataset/sources/comprehensive/train.jsonl",
+      "originalSha256": "5cab7077c045e676b07fff698916dea38d083703164dd5b926b8d0df2487b43e",
+      "sha256": "5cab7077c045e676b07fff698916dea38d083703164dd5b926b8d0df2487b43e",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/datasets/mcp-v2/data/contract-audit.json",
+      "path": "training/dataset/data/contract-audit.json",
+      "originalSha256": "0bc6af49d27888af6293fb7927a9afa93e48da4956e4346008880fd35340dba5",
+      "sha256": "0bc6af49d27888af6293fb7927a9afa93e48da4956e4346008880fd35340dba5",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/datasets/mcp-v2/data/eval_gold.jsonl",
+      "path": "training/dataset/data/eval_gold.jsonl",
+      "originalSha256": "e27da77d5596c910ba1969fae944e0b41bd327d20d3fe2599c244730d1148c81",
+      "sha256": "e27da77d5596c910ba1969fae944e0b41bd327d20d3fe2599c244730d1148c81",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/datasets/mcp-v2/data/hard_gold.jsonl",
+      "path": "training/dataset/data/hard_gold.jsonl",
+      "originalSha256": "da6b7d19d9bdd6424e8c4ca21697e6e5b7e67b3d5ce66f479a99ad50fa2cc85c",
+      "sha256": "da6b7d19d9bdd6424e8c4ca21697e6e5b7e67b3d5ce66f479a99ad50fa2cc85c",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/datasets/mcp-v2/data/manifest.json",
+      "path": "training/dataset/data/manifest.json",
+      "originalSha256": "962f67e4cba57990d85247d5108ee565cf39cc9a9fdd3e067a7c95780f873fd8",
+      "sha256": "962f67e4cba57990d85247d5108ee565cf39cc9a9fdd3e067a7c95780f873fd8",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/datasets/mcp-v2/data/test.jsonl",
+      "path": "training/dataset/data/test.jsonl",
+      "originalSha256": "d0490afc3e9e9411173e351aefc62b82c869896940a583188164d1c6d9dd7fce",
+      "sha256": "d0490afc3e9e9411173e351aefc62b82c869896940a583188164d1c6d9dd7fce",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/datasets/mcp-v2/data/tool_catalog.json",
+      "path": "training/dataset/data/tool_catalog.json",
+      "originalSha256": "19e4543972fd7986cc86674ade89abdecd8a8f973976eb7d4cfcaf24a57dfc51",
+      "sha256": "19e4543972fd7986cc86674ade89abdecd8a8f973976eb7d4cfcaf24a57dfc51",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/datasets/mcp-v2/data/train.jsonl",
+      "path": "training/dataset/data/train.jsonl",
+      "originalSha256": "b59bcfac4cc6758fbc3ab43094c3c23899230ff9b832ef85e561a50ddfa7f2ba",
+      "sha256": "b59bcfac4cc6758fbc3ab43094c3c23899230ff9b832ef85e561a50ddfa7f2ba",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/datasets/mcp-v2/data/validation.jsonl",
+      "path": "training/dataset/data/validation.jsonl",
+      "originalSha256": "0d5116a63cfcea206e1105faa1e0288341d3eae85e59b0a18f1b1699fa87b280",
+      "sha256": "0d5116a63cfcea206e1105faa1e0288341d3eae85e59b0a18f1b1699fa87b280",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/datasets/mcp-v2/data/verified-adapter-contract.json",
+      "path": "training/dataset/data/verified-adapter-contract.json",
+      "originalSha256": "a7e2ce81c30ec565b203d169409a46df2c413595c5e339df2446c336c7c415f5",
+      "sha256": "a7e2ce81c30ec565b203d169409a46df2c413595c5e339df2446c336c7c415f5",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/datasets/mcp-v2/data/verified-tools-list.json",
+      "path": "training/dataset/data/verified-tools-list.json",
+      "originalSha256": "3a252bcb6201c76fd4ac8a46c3828a13e014bfdd22dd364b03f884a291fcfe3f",
+      "sha256": "3a252bcb6201c76fd4ac8a46c3828a13e014bfdd22dd364b03f884a291fcfe3f",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/datasets/mcp-v2/data/audited/test.jsonl",
+      "path": "training/dataset/data/audited/test.jsonl",
+      "originalSha256": "a0d22ccc7fb75fa620567ca95ffdcefde6b3c411cd025517c0f2de099ee8e39b",
+      "sha256": "a0d22ccc7fb75fa620567ca95ffdcefde6b3c411cd025517c0f2de099ee8e39b",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/datasets/mcp-v2/data/audited/train.jsonl",
+      "path": "training/dataset/data/audited/train.jsonl",
+      "originalSha256": "bbbd4c54b1268000e74e70abb34f48940f62808aad9e94a190230d702381a988",
+      "sha256": "bbbd4c54b1268000e74e70abb34f48940f62808aad9e94a190230d702381a988",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/datasets/mcp-v2/data/audited/validation.jsonl",
+      "path": "training/dataset/data/audited/validation.jsonl",
+      "originalSha256": "20f9172f73a25825089a310a97f449f2df5191392229d9d95d987b68a4f275b1",
+      "sha256": "20f9172f73a25825089a310a97f449f2df5191392229d9d95d987b68a4f275b1",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/data/authored.jsonl",
+      "path": "training/dataset/baseline/authored.jsonl",
+      "originalSha256": "f550d1e9d692b848c0f5169519154213c48510fe42d2c79c14651915f1022251",
+      "sha256": "f550d1e9d692b848c0f5169519154213c48510fe42d2c79c14651915f1022251",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/data/gold.jsonl",
+      "path": "training/dataset/baseline/gold.jsonl",
+      "originalSha256": "665dd75adb69624e1e76c205c5366a2c150d27a944f33608389c7e90e0e64454",
+      "sha256": "665dd75adb69624e1e76c205c5366a2c150d27a944f33608389c7e90e0e64454",
+      "derivedMetadataRefreshed": false
+    },
+    {
+      "originalPath": "training/data/sequence-plans.jsonl",
+      "path": "training/dataset/baseline/sequence-plans.jsonl",
+      "originalSha256": "d93763f3fde2476be9842d7627fc9eb4f467f6c13ba2bad9372e60b16b6bd733",
+      "sha256": "d93763f3fde2476be9842d7627fc9eb4f467f6c13ba2bad9372e60b16b6bd733",
+      "derivedMetadataRefreshed": false
+    }
+  ],
+  "note": "Derived manifests refreshed for relocated source paths; no held-out rows added to training."
+}

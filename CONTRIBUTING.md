@@ -8,8 +8,8 @@ Run from the repository root. Offline checks:
 
 ```bash
 dotnet run --project plugin/tests/Pins.AI.Tests -c Release
-dotnet run --project plugin/tests/Mcp.GatewayTests -- training/datasets/mcp-v2/data/verified-tools-list.json
-python training/datasets/mcp-v2/scripts/validate_dataset.py
+dotnet run --project plugin/tests/Mcp.GatewayTests -- training/dataset/data/verified-tools-list.json
+python training/dataset/scripts/validate_dataset.py
 python training/tests/training_tests.py
 python training/tests/v2_tests.py
 python training/tests/curriculum_tests.py
@@ -30,7 +30,7 @@ The Linux runtime lifecycle fixture is `python plugin/tests/runtime-smoke.py`;
 it is not runnable on Windows. Production packaging is Linux ARM64.
 
 Preserve the original dataset manifest and byte hashes. Put newly authored
-training examples under `training/data/` and wire them into the train-only
+training examples under `training/dataset/sources/` and wire them into the train-only
 curriculum. Keep held-out cases isolated; do not generate training data from
 evaluation failures in `test`, `eval_gold` or `hard_gold`. Public issue/user requests
 can seed new training examples after privacy and provenance review. Linguistic

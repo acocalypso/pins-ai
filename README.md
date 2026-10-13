@@ -30,10 +30,8 @@ plugin/                      Linux inference plugin and deployment
 training/                    Off-device model specialization
   *.py                       Preparation, training, resume, evaluation and export
   configs/                   NVIDIA FP16/NF4 and ROCm BF16 LoRA profiles
-  data/                      Authored baseline, sequence examples and text gold
-  datasets/mcp-v2/            Original/audited multilingual MCP data and manifests
-  datasets/mcp-comprehensive/ Train-only coverage of current MCP capabilities
-  datasets/mcp-chat/          Current natural chat/proposal curriculum and coverage
+  dataset/                   Single dataset: active train, frozen splits/contracts,
+                             capability sources and preserved baseline assets
   notebooks/                 Generated Colab workbook
   experiments/               Comparison evidence, historical results and experiment plans
   tests/                     Data isolation, loss, resume and backend checks
@@ -42,11 +40,11 @@ artifacts/                   Ignored generated SFT, runs, checkpoints and export
 .local/                      Ignored environments, base weights and host DLLs
 ```
 
-All training examples and contract snapshots are versioned under `training/`.
+All training examples and contract snapshots are versioned under `training/dataset/`.
 `test`, `eval_gold` and `hard_gold` are evaluation-only. Existing dataset byte
 hashes and the 326-example informational baseline are preserved. Checkpoints and
 local training base weights stay outside Git; deployment GGUF files use Git LFS.
-New training uses [v6 multilingual chat data](training/datasets/mcp-chat/README.md).
+New training uses [v6 multilingual chat data](training/dataset/README.md).
 The [model report](docs/model-report.md) separates data validity from runtime
 retrieval and model accuracy; start a fresh adapter, not an old checkpoint resume.
 
