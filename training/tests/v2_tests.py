@@ -19,7 +19,8 @@ class V2Tests(unittest.TestCase):
         groups = [{r['group'] for r in read_jsonl(PACKAGE / 'data/audited' / f'{s}.jsonl')}
                   for s in ('train', 'validation', 'test')]
         self.assertFalse(groups[0] & groups[1] or groups[0] & groups[2] or groups[1] & groups[2])
-        self.assertEqual(len(definitions()), 32)
+        self.assertEqual(len(__import__("v2_contracts").legacy_definitions()), 32)
+        self.assertEqual(len(definitions()), 48)
         self.assertIn('wait_seconds', definitions()['stop_guiding']['inputSchema']['properties'])
 
     def test_all_audited_arguments_match_current_contract(self):

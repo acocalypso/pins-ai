@@ -23,8 +23,8 @@ def main():
         row = json.loads((PACKAGE / 'train.jsonl').read_text(encoding='utf-8').splitlines()[0])
         print(json.dumps(row, ensure_ascii=False, indent=2))
         return
-    if not (PACKAGE / 'data/contract-audit.json').is_file():
-        parser.error('Run training/audit_v2.py against actual source-generated tools/list first')
+    if not (PACKAGE / 'contracts/audit.json').is_file():
+        parser.error('Run training/update_mcp_catalog.py against the existing source-generated tools/list first')
     command = [sys.executable, str(REPOSITORY / 'training/prepare_v2.py'), '--curriculum', '--base', str(args.model),
                '--max-tokens', str(args.max_tokens)]
     raise SystemExit(subprocess.call(command, cwd=REPOSITORY))

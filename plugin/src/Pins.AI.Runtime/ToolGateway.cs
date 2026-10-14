@@ -14,8 +14,8 @@ public sealed record ToolPreview(string RequestId, string Tool, JsonObject Argum
 
 // No caller/model-provided system string can authorize this gateway.
 public sealed class ToolGateway {
-    private static readonly HashSet<string> Reads = ["get_status", "get_recent_images", "get_sequence", "list_saved_sequences", "list_target_templates", "get_job", "list_jobs"];
-    private static readonly HashSet<string> Allowed = [.. Reads, "stop_all", "cancel_job", "stop_sequence", "stop_guiding", "connect_device", "disconnect_device", "slew_mount", "park_mount", "unpark_mount", "home_mount", "set_tracking", "capture_image", "cool_camera", "warm_camera", "move_focuser", "run_autofocus", "change_filter", "start_guiding", "set_switch", "load_sequence", "add_target", "clear_targets", "save_sequence", "start_sequence", "reset_sequence"];
+    private static readonly HashSet<string> Reads = ["get_status", "get_recent_images", "get_sequence", "list_saved_sequences", "list_target_templates", "get_job", "list_jobs", "get_guider_report", "get_guiding_coach_report", "list_guide_incidents", "get_guide_incident", "read_log", "find_targets", "plan_targets", "get_session_summary", "get_system_health", "get_events"];
+    private static readonly HashSet<string> Allowed = [.. Reads, "stop_all", "cancel_job", "stop_sequence", "stop_guiding", "connect_device", "disconnect_device", "slew_mount", "park_mount", "unpark_mount", "home_mount", "set_tracking", "capture_image", "cool_camera", "warm_camera", "move_focuser", "run_autofocus", "change_filter", "start_guiding", "set_switch", "load_sequence", "add_target", "clear_targets", "save_sequence", "start_sequence", "reset_sequence", "secure_observatory", "plate_solve", "center_target", "move_rotator", "control_flat_device", "control_dome"];
     private readonly Dictionary<string, JsonObject> catalog;
     private readonly Dictionary<string, (ToolPreview Preview, string Digest, string State)> pending = [];
     private readonly IOperatorAuthority? authority;
@@ -38,7 +38,7 @@ public sealed class ToolGateway {
         arguments = JsonNode.Parse(arguments.ToJsonString())!.AsObject();
         if (!catalog.TryGetValue(name, out var tool)) throw new ArgumentException("Unknown or unexposed tool.");
         Schema(arguments, tool["inputSchema"]!.AsObject());
-        foreach (var field in new[] { "force", "skip_validation", "overwrite", "abandon" })
+        foreach (var field in new[] { "force", "skip_validation", "overwrite", "abandon", "close_dome_without_mount" })
             if (arguments[field]?.GetValue<bool>() == true) throw new ArgumentException("Safety overrides are disabled.");
         if (arguments["wait_seconds"] is { } wait && wait.GetValue<double>() > 5) throw new ArgumentException("AI tool wait is limited to five seconds.");
         if (name == "change_filter" && arguments.ContainsKey("name") == arguments.ContainsKey("position")) throw new ArgumentException("Choose exactly one filter selector.");
@@ -46,11 +46,31 @@ public sealed class ToolGateway {
             if (arguments["dither_every"] is { } dither && dither.GetValue<double>() > 32)
                 throw new ArgumentException("NINA exposure-plan adapter limits dither_every to 32.");
             if (arguments.ContainsKey("template") == arguments.ContainsKey("exposures")) throw new ArgumentException("Choose exactly one target plan.");
-            if (arguments.ContainsKey("template") && new[] { "slew_and_center", "start_guiding", "autofocus_at_start", "dither_every" }.Any(arguments.ContainsKey))
+            if (arguments.ContainsKey("template") && new[] { "slew_and_center", "start_guiding", "autofocus_at_start", "dither_every", "meridian_flip" }.Any(arguments.ContainsKey))
                 throw new ArgumentException("Template forbids exposure-plan options.");
         }
         foreach (var field in new[] { "ra", "dec" })
             if (arguments[field] is JsonValue value && !value.TryGetValue<double>(out _)) throw new ArgumentException("AI requires verified numeric J2000 coordinates.");
+        if (name == "find_targets") {
+            if (!new[] { "name", "types", "constellation", "max_magnitude", "min_size_arcmin", "max_size_arcmin" }.Any(arguments.ContainsKey))
+                throw new ArgumentException("A catalog selector is required.");
+            if ((arguments["min_size_arcmin"]?.GetValue<double>() ?? 0) > (arguments["max_size_arcmin"]?.GetValue<double>() ?? 10000))
+                throw new ArgumentException("Conflicting catalog size limits.");
+        }
+        if (name == "get_events" && (arguments["wait_seconds"]?.GetValue<double>() ?? 0) > 0 && !arguments.ContainsKey("since_id"))
+            throw new ArgumentException("Event waiting requires an observed cursor.");
+        if (name == "control_dome" && arguments.ContainsKey("azimuth") != (arguments["action"]!.GetValue<string>() == "slew_to_azimuth"))
+            throw new ArgumentException("Azimuth is required only for dome slew.");
+        if (name == "control_flat_device" && arguments.ContainsKey("brightness") != (arguments["action"]!.GetValue<string>() == "set_brightness"))
+            throw new ArgumentException("Brightness is required only for set_brightness.");
+        if (name == "plan_targets") {
+            if (arguments["date"] is { } date && !DateOnly.TryParseExact(date.GetValue<string>(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out _))
+                throw new ArgumentException("Invalid planning calendar date.");
+            foreach (var target in arguments["targets"]!.AsArray())
+                foreach (var coordinate in new[] { "ra", "dec" })
+                    if (target?[coordinate] is not JsonValue value || !value.TryGetValue<double>(out _))
+                        throw new ArgumentException("Planning requires observed numeric J2000 coordinates.");
+        }
         if (name == "save_sequence") {
             var file = arguments["name"]!.GetValue<string>().Trim();
             if (file.EndsWith(".json", StringComparison.OrdinalIgnoreCase)) file = file[..^5].TrimEnd();
@@ -113,17 +133,23 @@ public sealed class ToolGateway {
         try { _ = StateDigest(context); } catch (ArgumentException) { canPropose = false; }
         foreach (var (name, tool) in catalog) {
             if (!Reads.Contains(name) && (!canPropose ||
-                context.SequenceRunning && name is not ("stop_all" or "stop_sequence" or "cancel_job") ||
+                context.SequenceRunning && name is not ("stop_all" or "stop_sequence" or "cancel_job" or "secure_observatory") ||
                 name == "set_switch" && context.SwitchCapabilities?.Values.Any(c => c.Writable) != true)) continue;
             var copy = (JsonObject)tool.DeepClone();
             var schema = copy["inputSchema"]!.AsObject();
-            foreach (var field in new[] { "force", "skip_validation", "overwrite", "abandon" }) schema["properties"]!.AsObject().Remove(field);
+            foreach (var field in new[] { "force", "skip_validation", "overwrite", "abandon", "close_dome_without_mount" }) schema["properties"]!.AsObject().Remove(field);
             if (schema["properties"]?["wait_seconds"] is JsonObject wait) { wait["maximum"] = 5; wait["default"] = 0; }
             foreach (var coordinate in new[] { "ra", "dec" }) {
                 if (schema["properties"]?[coordinate] is JsonObject value && value["anyOf"] is JsonArray variants) {
                     var numeric = variants.First(v => v?["type"]?.GetValue<string>() == "number")!;
                     schema["properties"]![coordinate] = numeric.DeepClone();
                 }
+            }
+            if (name == "plan_targets") {
+                var nested = schema["properties"]?["targets"]?["items"]?["properties"]!.AsObject();
+                foreach (var coordinate in new[] { "ra", "dec" })
+                    if (nested?[coordinate]?["anyOf"] is JsonArray variants)
+                        nested[coordinate] = variants.First(v => v?["type"]?.GetValue<string>() == "number")!.DeepClone();
             }
             tools.Add(copy);
         }
@@ -203,7 +229,7 @@ public sealed class ToolGateway {
         if (Reads.Contains(name)) return;
         var age = clock.GetUtcNow() - context.ObservedAt;
         if (age < TimeSpan.Zero || age > TimeSpan.FromSeconds(10)) throw new ArgumentException("Fresh verified rig state is required.");
-        if (context.SequenceRunning && name is not ("stop_all" or "stop_sequence" or "cancel_job")) throw new ArgumentException("Sequence is running; AI mutation refused.");
+        if (context.SequenceRunning && name is not ("stop_all" or "stop_sequence" or "cancel_job" or "secure_observatory")) throw new ArgumentException("Sequence is running; AI mutation refused.");
         if (name == "set_switch") {
             var index = arguments["index"]!.GetValue<int>(); var value = arguments["value"]!.GetValue<double>();
             if (context.SwitchCapabilities is null || !context.SwitchCapabilities.TryGetValue(index, out var capability) ||

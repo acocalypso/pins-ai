@@ -75,7 +75,7 @@ class ChatDatasetTests(unittest.TestCase):
             self.assertNotIn('application approval for this exact proposal exists', system)
             self.assertNotIn('"arguments"', system)
         positives = [r for r in self.rows if r['category'] == 'natural_chat_intent']
-        self.assertEqual(len(positives), 320)
+        self.assertEqual(len(positives), len(definitions()) * len(LANGUAGES))
         self.assertTrue(any(r['expected']['first_tool'] == 'add_target' for r in positives))
 
     def test_every_native_call_is_valid_bounded_and_never_uses_override(self):
@@ -93,9 +93,9 @@ class ChatDatasetTests(unittest.TestCase):
 
     def test_validation_projection_preserves_source_and_has_real_denials(self):
         original = read_jsonl(PACKAGE / 'data/audited/validation.jsonl')
-        self.assertEqual(len(original), len(self.validation))
-        self.assertEqual([r['id'] for r in original], [r['id'] for r in self.validation])
-        self.assertEqual(self.validation, [dict(project(r), provenance={**project(r)['provenance'], 'split': 'validation'})
+        self.assertGreater(len(self.validation), len(original))
+        self.assertEqual([r['id'] for r in original], [r['id'] for r in self.validation[:len(original)]])
+        self.assertEqual(self.validation[:len(original)], [dict(project(r), provenance={**project(r)['provenance'], 'split': 'validation'})
                                           for r in original])
         for row in self.rows + self.validation:
             if row['category'] in ('no_approval', 'comprehensive_approval', 'comprehensive_revoked', 'safety_explicit_denial'):
@@ -148,13 +148,13 @@ class ChatDatasetTests(unittest.TestCase):
                           assistant('Still running.')])
 
     def test_parity_with_actual_gateway_exposed_schemas(self):
-        path = ROOT / 'artifacts/router-chat-v6.json'
+        path = ROOT / 'artifacts/router-chat-v7.json'
         if not path.is_file():
             self.skipTest('Run the offline RouterAudit command to produce actual gateway schemas')
         report = json.loads(path.read_text(encoding='utf-8'))
         self.assertEqual(report['inputs']['trainSha256'], sha256(DATA / 'train.jsonl'),
                          'Re-run RouterAudit after changing the chat corpus')
-        self.assertEqual(report['inputs']['catalogSha256'], sha256(PACKAGE / 'data/verified-tools-list.json'))
+        self.assertEqual(report['inputs']['catalogSha256'], sha256(__import__('v2_contracts').VERIFIED))
         calls = sum(len(m.get('tool_calls', [])) for r in self.rows for m in r['messages'])
         self.assertEqual(report['callValidation']['callsChecked'], calls)
         self.assertFalse(report['hardwareExecution'])

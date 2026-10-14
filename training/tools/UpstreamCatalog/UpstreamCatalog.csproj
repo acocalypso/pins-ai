@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PinsSource Condition="'$(PinsSource)' == ''">$(MSBuildThisFileDirectory)../../../../pins</PinsSource>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(PinsSource)/NINA.Mcp/NINA.Mcp.csproj" />
+  </ItemGroup>
+</Project>

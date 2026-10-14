@@ -28,8 +28,8 @@ GGUF and evaluate deployment parity. Only then consider Pi promotion. See
 
 | Environment | Python / PyTorch | Dependencies | Configuration | Evaluation backend |
 |---|---|---|---|---|
-| NVIDIA workstation / Colab T4 | Python 3.11, torch 2.7.1 CUDA 12.6 | `training/requirements.txt` | `training/configs/config-v6.json` (FP16/NF4 QLoRA) | `cuda-nf4` |
-| AMD Instinct MI355X, Linux x86-64 | AMD-supported ROCm/PyTorch with gfx950 kernels; example below | `training/requirements-common.txt` | `training/configs/mi355x-v6-lora-bf16.json` (BF16 LoRA) | `gpu-bf16` |
+| NVIDIA workstation / Colab T4 | Python 3.11, torch 2.7.1 CUDA 12.6 | `training/requirements.txt` | `training/configs/config-v7.json` (FP16/NF4 QLoRA) | `cuda-nf4` |
+| AMD Instinct MI355X, Linux x86-64 | AMD-supported ROCm/PyTorch with gfx950 kernels; example below | `training/requirements-common.txt` | `training/configs/mi355x-v7-lora-bf16.json` (BF16 LoRA) | `gpu-bf16` |
 
 Use Git and Python; Git LFS is needed only for the bundled deployment GGUF files.
 The optional actual gateway-schema audit below additionally needs .NET SDK 10;
@@ -66,10 +66,10 @@ blindly concatenate. The contents are:
 - `training/dataset/data/test.jsonl`: 593 held-out conversations.
 - `training/dataset/data/eval_gold.jsonl` and `hard_gold.jsonl`: final evaluation only.
 - `training/dataset/data/audited/`: schema-corrected splits used by preparation.
-- `training/dataset/sources/comprehensive/train.jsonl`: train-only coverage of all 32
-  current MCP tools and ten languages, including arguments, boundaries, job
+- `training/dataset/sources/comprehensive/train.jsonl`: historical train-only coverage of the original 32
+  MCP tools and ten languages, including arguments, boundaries, job
   outcomes, authorization and unsupported requests. See its [coverage guide](../training/dataset/sources/comprehensive/README.md).
-- **Current default:** `training/dataset/train.jsonl`: the v6 multilingual
+- **Current default:** `training/dataset/train.jsonl`: the v7 multilingual MCP48
   chat/proposal curriculum. Read its [guide](../training/dataset/README.md) and
   [comparison and accuracy recipe](model-report.md) before a new run.
 - `training/dataset/data/manifest.json`: immutable original data hashes;
@@ -197,7 +197,7 @@ For actual gateway-schema parity, on a development machine with .NET SDK 10:
 ```bash
 dotnet run --project training/tools/RouterAudit -- \
   training/dataset/train.jsonl \
-  training/dataset/data/verified-tools-list.json artifacts/router-chat-v6.json
+  training/dataset/contracts/tools-list.json artifacts/router-chat-v7.json
 python training/tests/chat_dataset_tests.py
 ```
 
@@ -209,7 +209,7 @@ check; it must not be reported as a measured gateway audit. CI runs the audit.
 Choose the environment profile. Linux NVIDIA:
 
 ```bash
-CONFIG=training/configs/config-v6.json
+CONFIG=training/configs/config-v7.json
 BACKEND=cuda-nf4
 RUN=artifacts/training-runs/qwen3-$(date -u +%Y%m%d-%H%M%S)
 DATA=artifacts/training-data/current
@@ -218,7 +218,7 @@ DATA=artifacts/training-data/current
 Linux ROCm uses the same commands below with:
 
 ```bash
-CONFIG=training/configs/mi355x-v6-lora-bf16.json
+CONFIG=training/configs/mi355x-v7-lora-bf16.json
 BACKEND=gpu-bf16
 RUN=artifacts/training-runs/qwen3-mi355x-$(date -u +%Y%m%d-%H%M%S)
 DATA=artifacts/training-data/current
@@ -254,7 +254,7 @@ instead of bash variables. Set them as below, and put commands on one line or us
 PowerShell's backtick for line continuation (not bash's backslash):
 
 ```powershell
-$Config='training/configs/config-v6.json'
+$Config='training/configs/config-v7.json'
 $Backend='cuda-nf4'
 $Run='artifacts/training-runs/qwen3-'+(Get-Date -Format 'yyyyMMdd-HHmmss')
 $Data='artifacts/training-data/current'
@@ -294,14 +294,14 @@ Get-Content "$Run/full/metrics-latest.json"
 
 Checkpoints are in `full/checkpoints/checkpoint-<step>/`. The standard profiles
 save/evaluate every 100 optimizer steps, **not after every batch**. Retention is
-four checkpoints for v6, subject to Trainer's best/latest handling; they are not an archive
+four checkpoints for v7, subject to Trainer's best/latest handling; they are not an archive
 of every save. The completed `full/adapter/` contains the validation-selected best
 adapter. `training-run.json` records versions, hashes, configuration and status.
 `bestCheckpointScore` is the selected score, not a loss; final `metrics.eval_loss`
 remains the measured loss at the selected checkpoint. Existing v3/legacy AMD
 profiles retain their original loss selection and retention for exact resumes.
-Changed v6 data requires fresh training from the base. A lower-rate AMD ablation
-is available in `training/configs/mi355x-v6-conservative-lora-bf16.json`; it is experimental,
+Changed v7 data requires fresh training from the base. A lower-rate AMD ablation
+is available in `training/configs/mi355x-v7-conservative-lora-bf16.json`; it is experimental,
 not a measured improvement. See the [experiment plan](../training/experiments/v6-accuracy-plan.json).
 
 ## Resume an interrupted run
@@ -343,7 +343,7 @@ adapter-only warm start, not an exact resume, and is refused here.
 During development, compare base/prior/new on `validation_smoke`. Use separate new
 output files, `--prompt-mode chat --max-new-tokens 192`, and the same backend/generation settings.
 This mode uses the same proposal-stage projection as current training, preserves
-all 583 validation scenario IDs, and does not run gold suites. The default legacy
+the original 583 validation scenario IDs plus independent new-tool development cases, and does not run gold suites. The default legacy
 gold prompt mode remains available for historical comparisons; its older approval
 fixtures do not establish current chat accuracy. An independently authored and
 reviewed deployment holdout is still required. Once the recipe is frozen,
@@ -457,7 +457,7 @@ on a new Colab allocation. The MI355X image/setup, real GPU smoke, full BF16 tra
 BF16 checkpoint restoration on hardware and quantized-model parity are pending
 hardware access. No AMD throughput or accuracy is claimed.
 
-V6 contains 5,319 conversations, including 650 new multilingual parameter,
+Historical v6 contains 5,319 conversations, including 650 new multilingual parameter,
 withdrawal and observed-job histories. Pinned-tokenizer preparation measured
 7,588 unique assistant training turns, 1,147 duplicates removed and zero skipped
 examples. Maximum train sequence/completion lengths are 1,318/139 tokens.
@@ -472,7 +472,37 @@ retain their original behavior; use an old run's original source revision too.
 
 Current validation and comparison evidence is in
 [the model report](model-report.md), including the independent router limitation.
-The data/configuration changes have not yet produced a trained v6 model.
+The current v7 profile follows upstream unstable `c4d8f5a` with 48 tools. It adds
+272 authored conversations, removes 12 obsolete capability refusals from the
+active projection, and preserves all frozen source/evaluation bytes. It has
+5,579 conversations and 7,860 unique prepared train turns; zero skipped examples.
+Development validation combines 583 original scenarios with 44 independent new
+English/German cases (627 conversations). New-tool native requests cover all ten
+training languages; their development supplement covers English/German only.
+No trained v7 model, new GPU smoke, Colab execution or Pi deployment is claimed.
+Use `config-v7.json` for T4/NVIDIA or `mi355x-v7-lora-bf16.json` for supported ROCm,
+a fresh pinned base, newly prepared data and a new matching smoke run. Do not
+resume an old adapter as an exact continuation under the new contracts.
+
+To refresh contracts after a future upstream update, check out the intended
+PINS commit in an adjacent `../pins` source repository, then run:
+
+```bash
+dotnet run --project training/tools/UpstreamCatalog -- artifacts/new-mcp-tools.json
+python training/update_mcp_catalog.py --source ../pins --tools-list artifacts/new-mcp-tools.json
+python training/build_comprehensive_dataset.py
+python training/build_chat_dataset.py
+python training/tests/upstream_contract_tests.py
+```
+
+The catalog exporter compiles the existing MCP dispatcher and only invokes
+`tools/list` with an equipment proxy that throws on hardware access. It is an
+off-device .NET console development tool; its executable output is never shipped
+in the Linux ARM64 Debian plugin. If PINS sources are elsewhere, pass
+`-p:PinsSource=/absolute/path/to/pins` to `dotnet run` and the same `--source` to
+the updater. Training later needs only the committed snapshots, not PINS source.
+New tools or schema semantics still require reviewed authoring, regeneration and
+tests; exporting a catalog alone does not create usable training examples.
 
 ## Restore and resume evaluation
 

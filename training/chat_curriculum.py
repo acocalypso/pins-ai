@@ -9,7 +9,7 @@ from curriculum_v3 import curriculum_rows as legacy_rows
 from chat_dataset_common import CHAT_POLICY, LANGUAGES, chat_definitions
 from v2_contracts import POLICY, definitions
 
-PROFILE = 'v6-multilingual-chat-proposals'
+PROFILE = 'v7-upstream-mcp48-chat-proposals'
 OUTPUT_RESERVE = 192
 DATA = ROOT / 'training/dataset'
 DENIAL = dict(zip(LANGUAGES, (
@@ -95,6 +95,9 @@ def source_rows():
     rejected = Counter()
     for row in legacy_rows('train'):
         category = row['category']
+        if any('unsupported-' + k in row['group'] for k in ('dome', 'flat', 'rotator', 'solve', 'catalog', 'sync')):
+            rejected['superseded_upstream_capability'] += 1
+            continue
         if any(c['function']['arguments'].get('wait_seconds', 0) > 5
                for m in row['messages'] for c in m.get('tool_calls', [])):
             rejected['plugin_wait_limit'] += 1
@@ -121,7 +124,8 @@ def curriculum_rows(split):
         rows = [project(r) for r in legacy_rows(split)]
         for row in rows:
             row['provenance']['split'] = split
-        return rows
+        from upstream_tool_curriculum import validation_rows
+        return rows + validation_rows()
     if split != 'train':
         raise ValueError('Only train/validation are preparation inputs; gold remains held out')
     manifest = json.loads((DATA / 'manifest.json').read_text(encoding='utf-8'))

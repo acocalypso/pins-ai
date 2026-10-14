@@ -24,12 +24,14 @@ def select_cases(suite, per_language=0, job_continuations=False, prompt_mode='le
     rows = read_jsonl(path)
     if prompt_mode == 'chat':
         from chat_curriculum import project
-        rows = [project(r) for r in rows]
+        from upstream_tool_curriculum import validation_rows
+        rows = [project(r) for r in rows] + validation_rows()
     if suite == 'validation_smoke':
         rows = [{**r, 'messages': r['messages'][:2]} for r in rows]
     inputs = {path.relative_to(PACKAGE).as_posix(): sha256(path)}
     if prompt_mode == 'chat':
         from common import ROOT
+        inputs['upstreamValidationSourceSha256'] = sha256(ROOT / 'training/upstream_tool_curriculum.py')
         inputs['chatProjectionSha256'] = sha256(ROOT / 'training/chat_curriculum.py')
     if per_language:
         selected = []

@@ -1,17 +1,17 @@
 {
-  "conversations": 5319,
-  "assistantTurns": 8735,
+  "conversations": 5579,
+  "assistantTurns": 9007,
   "languages": {
-    "zh": 478,
-    "pl": 476,
-    "pt": 474,
-    "fr": 478,
-    "es": 479,
-    "de": 752,
-    "it": 474,
-    "nl": 479,
-    "ja": 477,
-    "en": 752
+    "zh": 500,
+    "pl": 498,
+    "pt": 496,
+    "fr": 500,
+    "es": 501,
+    "de": 768,
+    "it": 496,
+    "nl": 501,
+    "ja": 499,
+    "en": 820
   },
   "categories": {
     "job_followup": 140,
@@ -21,7 +21,7 @@
     "grounded_reply": 50,
     "context_job": 10,
     "chat_math": 10,
-    "prompt_injection": 10,
+    "prompt_injection": 11,
     "missing_coords": 10,
     "tools_offline": 10,
     "missing_exposure": 10,
@@ -56,12 +56,12 @@
     "comprehensive_reading": 22,
     "comprehensive_units": 4,
     "comprehensive_crossfield": 44,
-    "comprehensive_unsupported": 40,
-    "natural_chat_intent": 320,
+    "comprehensive_unsupported": 28,
+    "natural_chat_intent": 480,
     "chat_arguments": 96,
     "chat_correction": 6,
     "chat_context_reference": 2,
-    "chat_clarification": 40,
+    "chat_clarification": 51,
     "chat_no_action_question": 16,
     "chat_unsupported": 6,
     "chat_denial": 16,
@@ -82,8 +82,9 @@
     "workflow_explicit_denial": 6,
     "workflow_untrusted_feedback": 12,
     "multilingual_parameters": 390,
-    "multilingual_withdrawal": 250,
-    "multilingual_job_history": 10
+    "multilingual_withdrawal": 310,
+    "multilingual_job_history": 10,
+    "upstream_arguments": 40
   },
   "tools": {
     "get_status": {
@@ -185,7 +186,7 @@
       "uncoveredArguments": []
     },
     "get_job": {
-      "conversations": 729,
+      "conversations": 735,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -223,6 +224,231 @@
         "zh"
       ],
       "positiveArguments": [],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "get_guider_report": {
+      "conversations": 10,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "alerts",
+        "steps"
+      ],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "get_guiding_coach_report": {
+      "conversations": 10,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "history",
+        "include_samples"
+      ],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "list_guide_incidents": {
+      "conversations": 11,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "count"
+      ],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "get_guide_incident": {
+      "conversations": 11,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "frames",
+        "id"
+      ],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "read_log": {
+      "conversations": 15,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "contains",
+        "lines",
+        "min_level",
+        "previous_run",
+        "since_minutes"
+      ],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "plan_targets": {
+      "conversations": 12,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "darkness",
+        "date",
+        "hourly",
+        "min_altitude",
+        "targets"
+      ],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "find_targets": {
+      "conversations": 16,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "constellation",
+        "limit",
+        "max_magnitude",
+        "max_size_arcmin",
+        "min_size_arcmin",
+        "name",
+        "order",
+        "types"
+      ],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "get_session_summary": {
+      "conversations": 13,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "group_by",
+        "image_type",
+        "since_hours"
+      ],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "get_system_health": {
+      "conversations": 10,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "client_time"
+      ],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "get_events": {
+      "conversations": 14,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "kinds",
+        "limit",
+        "min_severity",
+        "run_id",
+        "since_id",
+        "wait_seconds"
+      ],
       "boundaryArguments": [],
       "uncoveredArguments": []
     },
@@ -306,6 +532,30 @@
         "force",
         "wait_seconds"
       ],
+      "uncoveredArguments": []
+    },
+    "secure_observatory": {
+      "conversations": 12,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "close_cover",
+        "close_dome",
+        "park",
+        "wait_seconds",
+        "warm_camera"
+      ],
+      "boundaryArguments": [],
       "uncoveredArguments": []
     },
     "connect_device": {
@@ -673,6 +923,115 @@
       ],
       "uncoveredArguments": []
     },
+    "plate_solve": {
+      "conversations": 12,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "sync",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "center_target": {
+      "conversations": 12,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "dec",
+        "ra",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "move_rotator": {
+      "conversations": 12,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "mechanical",
+        "position",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "control_flat_device": {
+      "conversations": 15,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "action",
+        "brightness",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
+    "control_dome": {
+      "conversations": 18,
+      "naturalIntentLocales": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt",
+        "zh"
+      ],
+      "positiveArguments": [
+        "action",
+        "azimuth",
+        "wait_seconds"
+      ],
+      "boundaryArguments": [],
+      "uncoveredArguments": []
+    },
     "load_sequence": {
       "conversations": 92,
       "naturalIntentLocales": [
@@ -696,7 +1055,7 @@
       "uncoveredArguments": []
     },
     "add_target": {
-      "conversations": 129,
+      "conversations": 131,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -714,6 +1073,7 @@
         "dec",
         "dither_every",
         "exposures",
+        "meridian_flip",
         "name",
         "ra",
         "rotation_degrees",
@@ -817,7 +1177,7 @@
     }
   },
   "jsonInUserConversations": 694,
-  "multiUserTurnConversations": 273,
+  "multiUserTurnConversations": 285,
   "multipleModifyingTools": 4,
   "maxExposedTools": 3,
   "nativeReview": "pending"

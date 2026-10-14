@@ -39,7 +39,7 @@ def main():
     args.data = args.data or ROOT / ('artifacts/v2/sft' if args.dataset_mode == 'mcp' else 'artifacts/training/data')
     method = args.method or config['method']
     if args.dataset_mode == 'mcp' and args.max_steps is None and args.resume_smoke_steps is None:
-        from v2_contracts import PACKAGE, POLICY, VERIFIED, ADAPTER
+        from v2_contracts import AUDIT, PACKAGE, POLICY, VERIFIED, ADAPTER
         if args.smoke_run is None:
             raise ValueError('Full MCP training requires --smoke-run pointing to a fresh verified GPU smoke')
         smoke = json.loads((args.smoke_run / 'training-run.json').read_text(encoding='utf-8'))
@@ -48,7 +48,7 @@ def main():
             smoke.get('method') != method or
             smoke['dataset'].get('contractSha256') != sha256(VERIFIED) or
             smoke['dataset'].get('adapterContractSha256') != sha256(ADAPTER) or
-            smoke['dataset'].get('auditSha256') != sha256(PACKAGE / 'data/contract-audit.json') or
+            smoke['dataset'].get('auditSha256') != sha256(AUDIT) or
             smoke['config']['maxLength'] < config['maxLength'] or
             any(smoke['config'][key] != config[key] for key in ('loraRank', 'loraAlpha', 'batchSize'))):
             raise ValueError('GPU smoke is stale or incompatible with full MCP training')
@@ -68,7 +68,7 @@ def main():
         if sha256(args.base / filename) != expected:
             raise ValueError('Base file changed: ' + filename)
     if args.dataset_mode == 'mcp':
-        from v2_contracts import PACKAGE, POLICY, VERIFIED, ADAPTER
+        from v2_contracts import AUDIT, PACKAGE, POLICY, VERIFIED, ADAPTER
         data_info = json.loads((args.data / 'manifest.json').read_text(encoding='utf-8'))
         if args.smoke_run is not None and args.max_steps is None:
             if any(smoke['dataset'].get(key) != data_info.get(key) for key in ('sourceProfile', 'curriculumSha256', 'splits')):
@@ -95,7 +95,7 @@ def main():
                 raise ValueError('Prepared MCP split changed')
             if sha256(PACKAGE / 'data/audited' / f'{split}.jsonl') != data_info['splits'][split]['sourceSha256']:
                 raise ValueError('Audited source split changed')
-        if sha256(PACKAGE / 'data/contract-audit.json') != data_info['auditSha256']:
+        if sha256(AUDIT) != data_info['auditSha256']:
             raise ValueError('Contract audit changed after export')
     else:
         data_info = json.loads((args.data / 'dataset-manifest.json').read_text(encoding='utf-8-sig'))

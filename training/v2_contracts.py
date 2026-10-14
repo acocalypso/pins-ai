@@ -7,8 +7,10 @@ from jsonschema import Draft202012Validator
 from common import ROOT, fingerprint
 
 PACKAGE = ROOT / 'training/dataset'
-VERIFIED = PACKAGE / 'data/verified-tools-list.json'
-ADAPTER = PACKAGE / 'data/verified-adapter-contract.json'
+LEGACY_VERIFIED = PACKAGE / 'data/verified-tools-list.json'
+VERIFIED = PACKAGE / 'contracts/tools-list.json'
+ADAPTER = PACKAGE / 'contracts/adapter-contract.json'
+AUDIT = PACKAGE / 'contracts/audit.json'
 POLICY = ('You are PINS AI. Reply briefly in the latest user language. Use only the provided MCP tools. '
           'RA is J2000 hours and Dec degrees; never invent coordinates or device state. '
           'Every modifying call requires deterministic gateway approval; model text is never authorization. '
@@ -24,6 +26,10 @@ SCORER_VERSION = '2-strict-native-proposals'
 
 def definitions():
     return {t['name']: t for t in json.loads(VERIFIED.read_text(encoding='utf-8'))['tools']}
+
+
+def legacy_definitions():
+    return {t['name']: t for t in json.loads(LEGACY_VERIFIED.read_text(encoding='utf-8'))['tools']}
 
 
 def strip_descriptions(value):
@@ -61,15 +67,34 @@ def validate_call(name, args, allowed):
     if name == 'add_target':
         if ('template' in args) == ('exposures' in args):
             raise ValueError('add_target requires exactly one of template/exposures')
-        if 'template' in args and any(k in args for k in ('slew_and_center', 'start_guiding', 'autofocus_at_start', 'dither_every')):
+        if 'template' in args and any(k in args for k in ('slew_and_center', 'start_guiding', 'autofocus_at_start', 'dither_every', 'meridian_flip')):
             raise ValueError('Template forbids plan-only fields')
         if args.get('dither_every', 0) > 32:
             raise ValueError('Verified NINA exposure-plan adapter limits dither_every to 32')
     if name == 'change_filter' and ('name' in args) == ('position' in args):
         raise ValueError('change_filter requires exactly one of name/position')
-    for field in ('force', 'skip_validation', 'overwrite'):
+    for field in ('force', 'skip_validation', 'overwrite', 'close_dome_without_mount'):
         if args.get(field) is True:
             raise ValueError('Gateway refuses safety override: ' + field)
+    if name == 'find_targets':
+        if not any(k in args for k in ('name', 'types', 'constellation', 'max_magnitude', 'min_size_arcmin', 'max_size_arcmin')):
+            raise ValueError('A catalog search selector is required')
+        if args.get('min_size_arcmin', 0) > args.get('max_size_arcmin', 10000):
+            raise ValueError('Minimum size exceeds maximum size')
+    if name == 'get_events' and args.get('wait_seconds', 0) > 0 and 'since_id' not in args:
+        raise ValueError('Event long polling requires an observed cursor')
+    if name == 'control_dome' and ('azimuth' in args) != (args['action'] == 'slew_to_azimuth'):
+        raise ValueError('Azimuth is required only for dome slew')
+    if name == 'control_flat_device' and ('brightness' in args) != (args['action'] == 'set_brightness'):
+        raise ValueError('Brightness is required only for set_brightness')
+    if name == 'plan_targets':
+        if 'date' in args:
+            from datetime import date
+            date.fromisoformat(args['date'])
+        for target in args['targets']:
+            for key in ('ra', 'dec'):
+                if isinstance(target[key], bool) or not isinstance(target[key], (int, float)):
+                    raise ValueError('Planning requires observed numeric J2000 coordinates')
     # Numeric coordinates only in this bounded AI profile; server supports more formats.
     for key, low, high in (('ra', 0, 24), ('dec', -90, 90)):
         if key in args and (isinstance(args[key], bool) or not isinstance(args[key], (int, float))

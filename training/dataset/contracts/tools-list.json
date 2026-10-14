@@ -1,0 +1,1925 @@
+{
+  "tools": [
+    {
+      "name": "get_status",
+      "title": "Get observatory status",
+      "description": "Snapshot of the whole observatory: every device slot (camera, mount, focuser, filter_wheel, guider, rotator, flat_device, dome, switch, weather, safety_monitor) with connected flag, device name and key readings (e.g. camera temperature in °C and cooler power, mount RA in hours / Dec in degrees (J2000; the mount's native epoch values are in raHoursMount/decDegreesMount), altitude, tracking, park state, focuser position in steps, current filter, guider state (e.g. Guiding, Looping, Calibrating, Stopped) and RMS in arcsec), whether the advanced sequence is running and which items run, and all running background jobs. Fast and side-effect free; it does not wait for hardware. Call it first in every session, before acting on hardware, and to monitor progress.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Get observatory status",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_recent_images",
+      "title": "Get recent images",
+      "description": "The newest entries of the image history (captures by the sequence and by capture_image), newest first: time, image type, filter, exposure in seconds, HFR (half flux radius in pixels, lower is sharper), detected star count, mean/median/standard deviation in ADU, camera temperature in °C, guiding RMS in arcsec, target name and file path, and for saved frames FWHM in pixels, eccentricity and the focuser position. get_session_summary aggregates them. Use it to judge focus (rising HFR → run_autofocus), clouds (star count drops), and sequence progress.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "description": "Number of images to return (1-50).",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 10
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Get recent images",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_sequence",
+      "title": "Get advanced sequence",
+      "description": "The sequence currently loaded in the advanced sequencer as a tree: each node has path (index path such as \"1/0/2\"), name, type, status (Created, Running, Finished, Failed, Skipped, Disabled), details (e.g. target coordinates, exposure time, filter, progress) and children. Also tells whether it is running. Use it to inspect a loaded sequence before start_sequence and to follow progress (which target and exposure block is active). notes flags targets that no meridian flip trigger covers.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "max_depth": {
+            "type": "integer",
+            "description": "Maximum tree depth to return (1-10, default 4); deeper nodes are omitted.",
+            "minimum": 1,
+            "maximum": 10,
+            "default": 4
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Get advanced sequence",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "list_saved_sequences",
+      "title": "List saved sequences",
+      "description": "Sequence files saved in the profile's sequence folder: name (pass it to load_sequence), file name and last modification time.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "List saved sequences",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "list_target_templates",
+      "title": "List target templates",
+      "description": "Names of the saved target templates (deep sky object containers prepared by the user with their preferred instructions: centering, autofocus triggers, exposure blocks, dithering). Pass one as 'template' to add_target to reuse the user's own imaging recipe instead of building an exposure plan.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "List target templates",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_job",
+      "title": "Get background job",
+      "description": "State of one background job started by a hardware tool (slew_mount, capture_image, run_autofocus, cool_camera, ...). Returns { job: { id, kind, description, resource, state (running | succeeded | failed | cancelled | abandoned), cancelRequested, startedAt, finishedAt, outcome: { success, message, data } } }. Set wait_seconds to long-poll: the call returns as soon as the job finishes or the wait elapses. Finished jobs are kept for one hour.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "description": "Job id as returned by the tool that started it, e.g. \"job-7f3a2c\".",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the job to finish before returning (0-55, default 0 = return immediately).",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 0
+          }
+        },
+        "required": [
+          "job_id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Get background job",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "list_jobs",
+      "title": "List background jobs",
+      "description": "All background jobs of this pins instance (from any MCP session): running jobs first, then finished jobs of the last hour, newest first, in the same shape as get_job. Use it to find a job id after losing track of it, or to see what currently holds the mount, camera, focuser or other device.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "List background jobs",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_guider_report",
+      "title": "Get guider report",
+      "description": "Detailed guiding diagnostics. With the pins internal guider (advanced: true): state, calibration, guide star (SNR, HFD), statistics of the recent window and of the whole session (RMS RA/Dec/total in arcsec and px, peak, RA/Dec drift in arcsec/min, polar alignment error estimate in arcmin, RA oscillation index, pulse duty %, star losses), loop timing (frame rate and where each cycle's milliseconds go: exposure, camera download, processing, pulses), what the Predictive algorithm learned (periodic error, drift), Dec backlash pulse, active coaching hints, the newest alerts with explanation and suggested fix (and the flight recorder incident they started), and optionally the newest guide steps (error and pulses per frame). Other guiders (e.g. PHD2) only report state and RMS. Use it to judge a night's guiding and to explain star losses or bad RMS; get_guide_incident has the frame-by-frame record of an incident. Side-effect free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "steps": {
+            "type": "integer",
+            "description": "Number of newest guide steps to include (0-200). Default 0.",
+            "minimum": 0,
+            "maximum": 200,
+            "default": 0
+          },
+          "alerts": {
+            "type": "integer",
+            "description": "Number of newest alerts to include (0-100). Default 20.",
+            "minimum": 0,
+            "maximum": 100,
+            "default": 20
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Get guider report",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_guiding_coach_report",
+      "title": "Get Guiding Coach report",
+      "description": "Results of the internal guider's Guiding Coach: the running or last session (phase, steps with progress, camera check of exposure × gain, sky and mount drift, mount response with Dec backlash and pulse response, guided trials of settings, findings) and the stored report cards, newest first (grade, error budget: seeing, centroid noise and mount in arcsec RMS, polar alignment error, periodic error, ranked findings with the setting changes they suggest). Raw drift samples and pulse lists are left out unless include_samples is set. Only the pins internal guider has a Guiding Coach; the session itself is started from Touch-N-Stars. Side-effect free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "history": {
+            "type": "integer",
+            "description": "Number of stored report cards to include, newest first (0-10). Default 3.",
+            "minimum": 0,
+            "maximum": 10,
+            "default": 3
+          },
+          "include_samples": {
+            "type": "boolean",
+            "description": "Include raw drift samples, backlash points and pulse lists. Default false.",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Get Guiding Coach report",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "list_guide_incidents",
+      "title": "List guiding incidents",
+      "description": "The internal guider's flight recorder: incidents (star lost, runaway, mount not responding, camera failures, spikes, manual marks) newest first, each with id, start and end time, kind, occurrences, whether it is still ongoing, the likely cause found by the diagnosis, frame count and size, plus whether recording is enabled and the storage budget. Use get_guide_incident with an id for the triggers, the diagnosis with its evidence and the frame-by-frame telemetry. Only the pins internal guider records incidents. Side-effect free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "description": "Maximum number of incidents, newest first (1-100). Default 20.",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 20
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "List guiding incidents",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_guide_incident",
+      "title": "Get guiding incident",
+      "description": "One incident of the internal guider's flight recorder (id from list_guide_incidents or from an alert in get_guider_report): triggers with error codes, markers (dither, settle, slew, notes), the diagnosis (likely cause, message and evidence such as SNR drop, star mass collapse, mount not moving), and with frames > 0 the newest frames of telemetry: per frame time, state, star found or lost status, offsets and RA/Dec error in arcsec, pulses sent, SNR, star mass, HFD and the mount state. Images are not returned. Side-effect free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Incident id as listed by list_guide_incidents.",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "^[A-Za-z0-9-]+$"
+          },
+          "frames": {
+            "type": "integer",
+            "description": "Number of telemetry frames to include, the last ones of the incident (0-600). Default 60.",
+            "minimum": 0,
+            "maximum": 600,
+            "default": 60
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Get guiding incident",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "read_log",
+      "title": "Read pins log",
+      "description": "The newest entries of the pins (N.I.N.A.) log, oldest first: local time, level, source file, member, line, message and the exception text when there is one. Filter by min_level (default warning: warnings and errors only), by text (contains, case-insensitive, matched against message, source, member and exception) and by age (since_minutes). Use it to find out why a sequence item, slew, plate solve, autofocus or connection failed: start with the default, then widen to info around the time of the failure. previous_run reads the log of the run before this one (after a crash or restart); when a run's log was split (monthly or size roll), its earlier parts are read too. Trace and debug entries only exist when the log level in the pins settings is set that low. The result says how much of the file was scanned. Side-effect free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lines": {
+            "type": "integer",
+            "description": "Maximum number of entries to return, the newest matching ones (1-500). Default 100.",
+            "minimum": 1,
+            "maximum": 500,
+            "default": 100
+          },
+          "min_level": {
+            "type": "string",
+            "enum": [
+              "trace",
+              "debug",
+              "info",
+              "warning",
+              "error"
+            ],
+            "description": "Lowest level to include: trace, debug, info, warning or error. Default warning."
+          },
+          "contains": {
+            "type": "string",
+            "description": "Only entries containing this text (case-insensitive), e.g. \"Platesolve\", \"Sequence\" or \"Exception\".",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "since_minutes": {
+            "type": "number",
+            "description": "Only entries from the last N minutes (0.1-10080).",
+            "minimum": 0.1,
+            "maximum": 10080
+          },
+          "previous_run": {
+            "type": "boolean",
+            "description": "Read the log of the previous pins run instead of the current one. Default false.",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Read pins log",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "plan_targets",
+      "title": "Plan targets for a night",
+      "description": "Night planning at the site in the pins profile (latitude, longitude, elevation, custom horizon), computed with NINA's astrometry (SOFA/NOVAS) for one observing night from the site's solar noon to the next: sunset, civil/nautical/astronomical dusk and dawn, sunrise and the dark hours; moon illumination, phase, rise and set; and for each target (J2000) its altitude and azimuth now, transit time and altitude, when it rises above and sets below the altitude limit (the higher of min_altitude and the custom horizon at its azimuth), usable hours in the dark, the longest usable window and the moon separation in degrees. Times are local with UTC offset, to 5 minutes. Use it to choose targets and order them, to check whether a target is still high enough, and before add_target. Side-effect free; does not move anything.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "targets": {
+            "type": "array",
+            "description": "Targets to plan (1-10), each with name, ra (J2000 hours) and dec (J2000 degrees).",
+            "minItems": 1,
+            "maxItems": 10,
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Target name for the result, e.g. \"M 31\".",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                "ra": {
+                  "anyOf": [
+                    {
+                      "type": "number",
+                      "minimum": 0,
+                      "exclusiveMaximum": 24
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 40
+                    }
+                  ],
+                  "description": "J2000 right ascension in HOURS (0 <= ra < 24): a number like 5.5883 or a sexagesimal string like \"05h35m17.3s\", \"5:35:17.3\" or \"5 35 17.3\". Degrees are not accepted: divide degrees by 15."
+                },
+                "dec": {
+                  "anyOf": [
+                    {
+                      "type": "number",
+                      "minimum": -90,
+                      "maximum": 90
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 40
+                    }
+                  ],
+                  "description": "J2000 declination in DEGREES (-90..90): a number like -5.391 or a sexagesimal string like \"-05°23'28\\\"\", \"-5:23:28\", \"-5d23m28s\" or \"-5 23 28\". The sign applies to the whole value (\"-00:30:00\" is -0.5°)."
+                }
+              },
+              "required": [
+                "name",
+                "ra",
+                "dec"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "date": {
+            "type": "string",
+            "description": "Date (yyyy-MM-dd) of the evening the night starts, at the site. Omit for the current night (the one that contains now; before the site's noon that is the night that began the previous evening).",
+            "minLength": 1,
+            "maxLength": 10,
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          },
+          "min_altitude": {
+            "type": "number",
+            "description": "Altitude limit in degrees (0-89). Default 30.",
+            "minimum": 0,
+            "maximum": 89,
+            "default": 30
+          },
+          "darkness": {
+            "type": "string",
+            "enum": [
+              "astronomical",
+              "nautical"
+            ],
+            "description": "Which twilight counts as dark: astronomical (sun below -18°, default) or nautical (below -12°)."
+          },
+          "hourly": {
+            "type": "boolean",
+            "description": "Also return an hourly table (sun, moon and each target's altitude) between civil dusk and dawn. Default false.",
+            "default": false
+          }
+        },
+        "required": [
+          "targets"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Plan targets for a night",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "find_targets",
+      "title": "Find targets in the catalog",
+      "description": "Searches NINA's offline deep sky catalog on the pins box (the sky atlas database: Messier, NGC, IC, Sharpless, common names), so coordinates never have to be guessed, also without internet. Returns J2000 RA in hours and Dec in degrees ready for plan_targets, add_target or center_target, plus type, constellation, magnitude, surface brightness, size in arcmin and position angle. Search by name (\"M 42\", \"NGC 7000\", \"Orion Nebula\", substring match; an exact designation or alias comes first, then names that start with it) or browse with filters: types (GALXY galaxy, BRTNB bright nebula, PLNNB planetary, OPNCL open cluster, GLOCL globular, DRKNB dark nebula, SNREM supernova remnant, CL+NB cluster with nebula, ASTER asterism), constellation (three-letter IAU code such as ORI or CYG), max_magnitude and size limits; order by name, magnitude (brightest first) or size (largest first). Side-effect free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Designation or common name to search for (substring, case-insensitive), e.g. \"M 31\" or \"Veil\".",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "types": {
+            "type": "string",
+            "description": "Comma-separated type codes, e.g. \"GALXY\" or \"BRTNB,SNREM\".",
+            "minLength": 1,
+            "maxLength": 200,
+            "pattern": "^[A-Za-z0-9+, ]+$"
+          },
+          "constellation": {
+            "type": "string",
+            "description": "Three-letter IAU constellation code, e.g. \"ORI\".",
+            "minLength": 1,
+            "maxLength": 3,
+            "pattern": "^[A-Za-z]{3}$"
+          },
+          "max_magnitude": {
+            "type": "number",
+            "description": "Only objects at least this bright (visual magnitude, e.g. 10).",
+            "minimum": -30,
+            "maximum": 30
+          },
+          "min_size_arcmin": {
+            "type": "number",
+            "description": "Only objects at least this large (major axis, arcmin).",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "max_size_arcmin": {
+            "type": "number",
+            "description": "Only objects at most this large (major axis, arcmin).",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "order": {
+            "type": "string",
+            "enum": [
+              "name",
+              "magnitude",
+              "size"
+            ],
+            "description": "Sort order: name (default with a name), magnitude (brightest first, default otherwise) or size (largest first)."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Maximum number of results (1-50). Default 10.",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 10
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Find targets in the catalog",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_session_summary",
+      "title": "Get session summary",
+      "description": "Summary of the frames taken in this pins run (the image history, also what the sequence captured), grouped by target and filter: frame count, total integration in hours, first and last frame time, HFR (pixels: median, 90th percentile, best, worst), star count, FWHM (pixels) and eccentricity medians, guiding RMS (arcsec, median and worst), camera temperature range, and suspect frames (HFR more than 30 % above the group median, or fewer than half the median stars: focus drift, clouds, dew or guiding trouble) with their ids. By default only LIGHT frames count; image_type all includes snapshots, flats and darks. Use it for the morning report and to decide whether a target needs more time. The history starts empty after a pins restart. Side-effect free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "group_by": {
+            "type": "string",
+            "enum": [
+              "target_filter",
+              "target",
+              "filter"
+            ],
+            "description": "Grouping: target_filter (default), target or filter."
+          },
+          "image_type": {
+            "type": "string",
+            "enum": [
+              "light",
+              "all"
+            ],
+            "description": "Frames to include: light (default) or all."
+          },
+          "since_hours": {
+            "type": "number",
+            "description": "Only frames from the last N hours (0.1-72).",
+            "minimum": 0.1,
+            "maximum": 72
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Get session summary",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_system_health",
+      "title": "Get system health",
+      "description": "Health of the pins box: local time and, when client_time is given, the clock error against it (a Raspberry Pi without RTC battery and without network starts with a wrong clock, which spoils plate solving, planning and meridian flips), whether the clock is NTP-synchronized, the UTC time the mount last reported, free disk space for images and for pins, CPU temperature, power problems (under-voltage, frequency capping, thermal throttling, now and since boot: brown-outs at the field power supply show up here), memory and load. warnings lists what needs attention. Call it at the start of a session and when frames fail to save or devices drop. Pass client_time only with a time read from a real clock (e.g. date -u on the client); a guessed time produces a false clock warning. Side-effect free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "client_time": {
+            "type": "string",
+            "description": "The client's current time as ISO 8601 with offset or Z, e.g. \"2026-10-13T21:05:00Z\", to measure the pins clock error.",
+            "minLength": 1,
+            "maxLength": 40
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Get system health",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_events",
+      "title": "Get events",
+      "description": "What happened in pins, oldest first: the safety monitor turning unsafe or safe, devices connecting or dropping, sequence start and end, images saved or failing to save (disk full), camera download timeouts, guiding started or stopped, meridian flips, mount park and unpark, internal guider alerts, star losses and flight recorder incidents. get_status only shows the state now; this shows what happened in between. Without since_id it returns the newest events; pass nextSinceId and runId from the previous result as since_id and run_id to get only newer ones, and wait_seconds to long-poll for the next event (a cheap way to watch a night). missed is true when events were dropped because the buffer (the last 2000; info events go first) moved on or pins restarted (each run starts with higher ids and a new runId). Filter by kinds and min_severity. Side-effect free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "since_id": {
+            "type": "integer",
+            "description": "Return only events after this id (nextSinceId of the previous call). Omit for the newest events.",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "run_id": {
+            "type": "string",
+            "description": "runId of the previous call: with since_id, a cursor from an earlier pins run is recognized even if the clock went back.",
+            "minLength": 1,
+            "maxLength": 16,
+            "pattern": "^[0-9A-Fa-f]+$"
+          },
+          "kinds": {
+            "type": "string",
+            "description": "Comma-separated kinds: safety, device, sequence, image, camera, guider, mount. Omit for all.",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "^[A-Za-z, ]+$"
+          },
+          "min_severity": {
+            "type": "string",
+            "enum": [
+              "info",
+              "warning",
+              "error",
+              "critical"
+            ],
+            "description": "Lowest severity: info (default), warning, error or critical."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Maximum number of events (1-200). Default 50.",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "With since_id: seconds to wait for a new matching event before returning empty (0-55, default 0: return at once).",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 0
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Get events",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "stop_all",
+      "title": "Stop everything",
+      "description": "Emergency stop. In this order: stops the advanced sequence (so it cannot start its next item), cancels every background job, aborts the running camera exposure, stops the mount if it is slewing and halts a focuser move started over MCP. Every step runs even if an earlier one fails; the result lists each step. It does NOT park the mount, stop guiding, warm the camera or disconnect anything; an idle mount is left alone (note that aborting a slew stops tracking on some mount drivers); a dome shutter that is closing keeps closing. Safe to repeat. Use it whenever the user says stop/abort or something looks wrong (unexpected movement, collision risk, clouds/rain). This tool is never refused: together with cancel_job it stays available in read-only mode, and it needs no force while a sequence runs. Afterwards check get_status.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Stop everything",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "cancel_job",
+      "title": "Cancel background job",
+      "description": "Requests cancellation of one running background job; the hardware operation is stopped where possible (exposure aborted, slew stopped, focuser halted, autofocus aborted). Waits up to wait_seconds (default 10) for the job to end and returns it in the get_job shape, with stopErrors listing driver stop commands that failed. Cancelling a job that already finished is not an error. If the job is still running after the wait (its device does not respond), abandon: true releases its resource anyway; the device may still be busy, so check get_status afterwards. Available even in read-only mode and while a sequence runs. To stop everything at once use stop_all.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "description": "Id of the job to cancel, e.g. \"job-7f3a2c\".",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the job to end after the cancel request (0-55, default 10).",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 10
+          },
+          "abandon": {
+            "type": "boolean",
+            "description": "If the job is still running after wait_seconds, end it as abandoned and release its resource although its operation has not stopped. Only for a job that does not react to cancellation.",
+            "default": false
+          }
+        },
+        "required": [
+          "job_id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Cancel background job",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "stop_sequence",
+      "title": "Stop sequence",
+      "description": "Stops the running advanced sequence (the current instruction is interrupted, e.g. the exposure is aborted). Does not park the mount, stop guiding or warm the camera. Progress is kept: start_sequence continues with unfinished items, reset_sequence starts over. Safe to call when nothing runs. Never refused by the sequence guard.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Stop sequence",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "stop_guiding",
+      "title": "Stop guiding",
+      "description": "Stops autoguiding. Does not move the mount; tracking continues. Claims no resource, so it also works while a start_guiding job is still calibrating (cancel that job with cancel_job to abort the start instead). While a sequence runs it needs force, because stopping guiding spoils the sequence's exposures.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Stop guiding",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "secure_observatory",
+      "title": "Secure the observatory",
+      "description": "Shuts the observatory down for the end of the night or for bad weather (rain, clouds, unsafe). In this order: stops the advanced sequence, cancels every background job and aborts the exposure (like stop_all), stops guiding, parks the mount, closes the dome shutter and the flat panel's dust cover, and optionally warms the camera. Steps for devices that are not connected are skipped. The dome is only closed when the mount is parked (closing a roof on an unparked telescope can damage it); a disconnected mount counts as not parked, because its position is unknown, unless close_dome_without_mount is set. The dome step only succeeds when the dome then reports its shutter closed. Not refused while a sequence runs and not blocked by other jobs; until the camera warming starts it holds all devices, so no other MCP tool can unpark or open in between (Touch-N-Stars and NINA itself are not blocked). Runs as a background job (parking and closing take minutes): poll get_job; outcome.data lists every step. While a shutdown runs, calling it again returns that job (its arguments are ignored) instead of starting a second one. Moves the telescope and the dome.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "park": {
+            "type": "boolean",
+            "description": "Park the mount. Default true.",
+            "default": true
+          },
+          "close_dome": {
+            "type": "boolean",
+            "description": "Close the dome shutter (after the mount parked). Default true.",
+            "default": true
+          },
+          "close_dome_without_mount": {
+            "type": "boolean",
+            "description": "Close the dome even though no mount is connected (its position is unknown). Only for sites without a mount under the dome, or when the user has checked that the telescope cannot be hit. Default false.",
+            "default": false
+          },
+          "close_cover": {
+            "type": "boolean",
+            "description": "Close the flat panel's dust cover. Default true.",
+            "default": true
+          },
+          "warm_camera": {
+            "type": "boolean",
+            "description": "Warm the camera over 10 minutes at the end. Default false.",
+            "default": false
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Secure the observatory",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "connect_device",
+      "title": "Connect device",
+      "description": "Connects the device selected in the active pins profile for one slot (camera, mount, focuser, filter_wheel, guider, rotator, flat_device, dome, switch, weather, safety_monitor). Which physical device is used is configured in the profile, not here. Connecting an already connected device is harmless. Runs as a background job holding that device. Check get_status first to see what is already connected.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "device": {
+            "type": "string",
+            "enum": [
+              "camera",
+              "mount",
+              "focuser",
+              "filter_wheel",
+              "guider",
+              "rotator",
+              "flat_device",
+              "dome",
+              "switch",
+              "weather",
+              "safety_monitor"
+            ],
+            "description": "Device slot."
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "required": [
+          "device"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Connect device",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "disconnect_device",
+      "title": "Disconnect device",
+      "description": "Disconnects one device slot. Disconnecting a cooled camera stops its cooler abruptly: run warm_camera first (refused while a cool_camera or warm_camera job runs). Refused while a job uses the device indirectly (focuser or filter wheel during a capture/autofocus job, mount during a guiding start). Disconnecting the mount does not park it: run park_mount first when ending a session. Runs as a background job holding that device.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "device": {
+            "type": "string",
+            "enum": [
+              "camera",
+              "mount",
+              "focuser",
+              "filter_wheel",
+              "guider",
+              "rotator",
+              "flat_device",
+              "dome",
+              "switch",
+              "weather",
+              "safety_monitor"
+            ],
+            "description": "Device slot."
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "required": [
+          "device"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Disconnect device",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "slew_mount",
+      "title": "Slew mount",
+      "description": "Slews the mount to J2000 coordinates (plain goto: no plate solving or centering; add_target with slew_and_center does that in a sequence). The mount must be connected and unparked (unpark_mount). Moves the telescope: make sure the user expects it. If guiding is active, stop_guiding first (the guide star is lost during the slew). Runs as a background job holding the mount; refused while a capture, autofocus or guiding start job runs. Stop it with cancel_job or stop_all. Afterwards check the position with get_status.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ra": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "exclusiveMaximum": 24
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              }
+            ],
+            "description": "J2000 right ascension in HOURS (0 <= ra < 24): a number like 5.5883 or a sexagesimal string like \"05h35m17.3s\", \"5:35:17.3\" or \"5 35 17.3\". Degrees are not accepted: divide degrees by 15."
+          },
+          "dec": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": -90,
+                "maximum": 90
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              }
+            ],
+            "description": "J2000 declination in DEGREES (-90..90): a number like -5.391 or a sexagesimal string like \"-05°23'28\\\"\", \"-5:23:28\", \"-5d23m28s\" or \"-5 23 28\". The sign applies to the whole value (\"-00:30:00\" is -0.5°)."
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "required": [
+          "ra",
+          "dec"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Slew mount",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "park_mount",
+      "title": "Park mount",
+      "description": "Moves the mount to its park position and stops tracking (end of session, bad weather). Moves the telescope; guiding is stopped first. Runs as a background job holding the mount; refused while a guiding start job runs. Use unpark_mount before the next slew.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Park mount",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "unpark_mount",
+      "title": "Unpark mount",
+      "description": "Unparks the mount so that it can slew and track. Some mounts move slightly. Runs as a background job holding the mount. Typical next steps: set_tracking, slew_mount.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Unpark mount",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "home_mount",
+      "title": "Find mount home",
+      "description": "Moves the mount to its home position (driver 'find home'; not every mount supports it). Moves the telescope; guiding is stopped first. Runs as a background job holding the mount; refused while a capture, autofocus or guiding start job runs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Find mount home",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "set_tracking",
+      "title": "Set mount tracking",
+      "description": "Turns sidereal tracking of the mount on or off and returns once the mount reports the new state (a few seconds at most). Tracking must be on for imaging; turn it off to keep a parked or idle mount from drifting into the pier. Refused while a slew, park, unpark or home job holds the mount.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": "True to start tracking, false to stop it."
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "required": [
+          "enabled"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Set mount tracking",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "capture_image",
+      "title": "Capture image",
+      "description": "Takes one exposure with the imaging camera (changing the filter first when 'filter' is set) and returns its statistics in outcome.data (HFR in pixels, star count, mean/median ADU). The frame is also added to the image history (get_recent_images). Use it for test frames: framing, focus check, exposure check. By default the frame is analysed but not saved; save: true writes it like a normal LIGHT frame (the file path appears in get_recent_images once it is written). Omitted gain/offset use the profile defaults; omitted binning keeps the camera's current binning. Runs as a background job holding the camera and refused while a focuser move, filter change or mount job (slew, park, home, centering), rotator move or flat device job runs; the default wait covers short exposures, poll get_job for long ones. For many frames build a sequence with add_target instead.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "exposure_seconds": {
+            "type": "number",
+            "description": "Exposure time in seconds (0.0001-3600).",
+            "minimum": 0.0001,
+            "maximum": 3600
+          },
+          "filter": {
+            "type": "string",
+            "description": "Filter name as configured in the filter wheel (see get_status), e.g. \"Ha\" or \"L\". Omit to keep the current filter.",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "gain": {
+            "type": "integer",
+            "description": "Camera gain (driver units). Omit for the profile default gain.",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "offset": {
+            "type": "integer",
+            "description": "Camera offset (driver units). Omit for the profile default offset.",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "binning": {
+            "type": "integer",
+            "description": "Symmetric binning factor (1-4; 2 = 2x2). Omit to keep the current binning.",
+            "minimum": 1,
+            "maximum": 4
+          },
+          "save": {
+            "type": "boolean",
+            "description": "Save the frame to disk as a LIGHT frame. Default false (snapshot, analysed only).",
+            "default": false
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "required": [
+          "exposure_seconds"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Capture image",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "cool_camera",
+      "title": "Cool camera",
+      "description": "Turns the camera cooler on and ramps the sensor to target_celsius over duration_minutes (a slow ramp avoids thermal stress and icing). Usually takes several minutes, so the call returns a running job: poll get_job or watch the camera temperature in get_status. The job holds the 'camera_cooler' resource, so test captures are possible meanwhile. Typical target: -10 °C (check what the user's camera can reach).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "target_celsius": {
+            "type": "number",
+            "description": "Target sensor temperature in °C (-50 to 30).",
+            "minimum": -50,
+            "maximum": 30
+          },
+          "duration_minutes": {
+            "type": "number",
+            "description": "Ramp duration in minutes (0-60, default 10; 0 = set the target at once).",
+            "minimum": 0,
+            "maximum": 60,
+            "default": 10
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "required": [
+          "target_celsius"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Cool camera",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "warm_camera",
+      "title": "Warm camera",
+      "description": "Ramps the camera sensor back to ambient over duration_minutes and then turns the cooler off. Do this at the end of a session before disconnecting the camera. Returns a running job (holds 'camera_cooler'); poll get_job.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "duration_minutes": {
+            "type": "number",
+            "description": "Ramp duration in minutes (0-60, default 10).",
+            "minimum": 0,
+            "maximum": 60,
+            "default": 10
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Warm camera",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "move_focuser",
+      "title": "Move focuser",
+      "description": "Moves the focuser to an absolute position in steps (see the current position in get_status). Runs as a background job holding the focuser; refused while a camera job (capture or autofocus) runs, because moving focus would spoil it. Prefer run_autofocus for finding focus; use this to return to a known good position.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "type": "integer",
+            "description": "Absolute target position in focuser steps (>= 0).",
+            "minimum": 0
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "required": [
+          "position"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Move focuser",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "run_autofocus",
+      "title": "Run autofocus",
+      "description": "Runs NINA's autofocus routine with the profile's autofocus settings on the current filter (change_filter first to focus on another filter): takes a series of exposures at several focuser positions, fits the HFR curve and moves to the best position. Needs a connected camera and focuser and stars in the field (the mount should track a star field). Takes one to several minutes, so it usually returns a running job: poll get_job. outcome.data holds the final position, HFR, filter and temperature. The job holds the 'camera' resource (autofocus uses camera and focuser) and is refused while a focuser, mount, rotator or flat device job runs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Run autofocus",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "change_filter",
+      "title": "Change filter",
+      "description": "Moves the filter wheel to a filter, given either by name (case-insensitive, as listed in get_status) or by zero-based position; pass exactly one of them. NINA applies the profile's focus offsets for the filter. Runs as a background job holding the filter wheel; refused while a camera job runs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Filter name, e.g. \"Ha\". Mutually exclusive with position.",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "position": {
+            "type": "integer",
+            "description": "Zero-based filter slot. Mutually exclusive with name.",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Change filter",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "start_guiding",
+      "title": "Start guiding",
+      "description": "Starts autoguiding with the connected guider (selects a guide star, calibrates if needed, then guides). The mount must track. Calibration can take a few minutes, so this may return a running job: poll get_job. Afterwards watch guider state and RMS (arcsec) in get_status; get_guider_report has the details. Refused while a mount job (slew, park, home, centering) runs. A sequence built with add_target starts guiding by itself.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "force_calibration": {
+            "type": "boolean",
+            "description": "Discard the existing calibration and calibrate again (after changing the guide setup or a large declination change). Default false.",
+            "default": false
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Start guiding",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "set_switch",
+      "title": "Set switch",
+      "description": "Sets one writable switch of the connected switch device (power outlets, dew heaters, USB ports). get_status lists the switches with index, name, current value, min, max and writable flag; on/off switches use 0 and 1. Switching power can cut off devices (camera, mount): confirm with the user first. Runs as a background job holding the switch device.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "integer",
+            "description": "Zero-based switch index as listed in get_status.",
+            "minimum": 0,
+            "maximum": 1000
+          },
+          "value": {
+            "type": "number",
+            "description": "New value within the switch's min..max (0/1 for on/off switches)."
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "required": [
+          "index",
+          "value"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Set switch",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "plate_solve",
+      "title": "Plate solve",
+      "description": "Takes one exposure at the current position with the profile's plate solve settings (exposure, filter, binning, gain, solver) and plate solves it. outcome.data holds the solved J2000 RA in hours and Dec in degrees, the position angle (degrees), pixel scale (arcsec/px), whether the image is flipped, and the distance from the position the mount reports (errorArcmin, raErrorArcsec, decErrorArcsec). Without a connected mount the solver searches blind. With sync: true the mount (and a connected rotator) is synced to the solution, which corrects its pointing. Does not move the mount; use center_target to slew onto coordinates. Runs as a background job holding the camera; refused while a mount, focuser, filter wheel, rotator or flat device job runs. Solving can take a minute: poll get_job.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sync": {
+            "type": "boolean",
+            "description": "Sync the mount (and a connected rotator) to the solved position. Default false: only report it.",
+            "default": false
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Plate solve",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "center_target",
+      "title": "Slew and center target",
+      "description": "Slews to J2000 coordinates and centers them with plate solving, like NINA's Center instruction: expose, solve, sync the mount (or apply the measured offset when syncing is disabled in the profile) and re-slew until the target is within the profile's centering threshold (at most 10 rounds). Uses the profile's plate solve settings. Guiding is stopped first and restarted afterwards when it was running (not when the slew to the target fails). The mount must be connected and unparked; the camera connected. Moves the telescope: make sure the user expects it. outcome.data holds the last solution and its remaining error from the target. Runs as a background job holding the mount, and also the camera, guider and filter wheel until it ends (after a cancel the filter wheel until NINA has restored the filter); refused while a capture, plate solve, autofocus, filter change, focuser, rotator, flat device or guiding start job runs. Takes one to several minutes: poll get_job. Stop it with cancel_job or stop_all.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ra": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "exclusiveMaximum": 24
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              }
+            ],
+            "description": "J2000 right ascension in HOURS (0 <= ra < 24): a number like 5.5883 or a sexagesimal string like \"05h35m17.3s\", \"5:35:17.3\" or \"5 35 17.3\". Degrees are not accepted: divide degrees by 15."
+          },
+          "dec": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": -90,
+                "maximum": 90
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              }
+            ],
+            "description": "J2000 declination in DEGREES (-90..90): a number like -5.391 or a sexagesimal string like \"-05°23'28\\\"\", \"-5:23:28\", \"-5d23m28s\" or \"-5 23 28\". The sign applies to the whole value (\"-00:30:00\" is -0.5°)."
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "required": [
+          "ra",
+          "dec"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Slew and center target",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "move_rotator",
+      "title": "Move rotator",
+      "description": "Turns the camera rotator to a position angle in degrees (0-360). By default this is the sky position angle, which needs a rotator synced by a plate solve (plate_solve with sync: true); before that the call is refused. mechanical: true moves to the mechanical position of the device instead. NINA may adjust the target to the rotator's allowed range (the result reports where it ended). Runs as a background job holding the rotator; refused while a capture, plate solve, centering or autofocus job runs, because rotating smears an exposure. get_status shows the current position.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "type": "number",
+            "description": "Target position angle in degrees (0 <= position < 360).",
+            "minimum": 0,
+            "exclusiveMaximum": 360
+          },
+          "mechanical": {
+            "type": "boolean",
+            "description": "Move to the mechanical position instead of the sky position angle. Default false.",
+            "default": false
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "required": [
+          "position"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Move rotator",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "control_flat_device",
+      "title": "Control flat panel",
+      "description": "Controls the flat panel / dust cover (flat_device): open or close the cover, switch the light on or off, or set its brightness (in the device's own units; get_status lists brightness, minBrightness and maxBrightness, and coverState and lightOn where the device supports them). Typical flats: close the cover, set the brightness, switch the light on, then take test exposures with capture_image; open the cover again before imaging the sky. Runs as a background job holding the flat device; refused while a capture, plate solve, centering or autofocus job runs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "open_cover",
+              "close_cover",
+              "light_on",
+              "light_off",
+              "set_brightness"
+            ],
+            "description": "What to do: open_cover, close_cover, light_on, light_off or set_brightness."
+          },
+          "brightness": {
+            "type": "integer",
+            "description": "Brightness for set_brightness, within the device's min..max (see get_status). Only allowed with set_brightness.",
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Control flat panel",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "control_dome",
+      "title": "Control dome",
+      "description": "Controls the dome or roll-off roof: open_shutter, close_shutter, park, find_home, slew_to_azimuth (azimuth in degrees from north through east), sync_to_mount (turn the slit to where the telescope points once), start_following / stop_following (keep the slit on the telescope as it moves). Opening exposes the telescope to the weather and closing can hit a telescope pointing low: check get_status (dome shutter, mount position, weather and safety_monitor) and confirm with the user. Other jobs do not block it, so closing stays possible in bad weather; while the advanced sequence runs it needs force like every hardware tool. If the profile parks the mount before shutter moves, NINA parks it as part of open_shutter and close_shutter. Runs as a background job holding the dome; shutters can take minutes, poll get_job; cancel_job stops the dome, except while the shutter closes (closing continues). Not every dome supports every action; roll-off roofs that open by unparking are not covered.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "open_shutter",
+              "close_shutter",
+              "park",
+              "find_home",
+              "slew_to_azimuth",
+              "sync_to_mount",
+              "start_following",
+              "stop_following"
+            ],
+            "description": "What to do: open_shutter, close_shutter, park, find_home, slew_to_azimuth, sync_to_mount, start_following, stop_following."
+          },
+          "azimuth": {
+            "type": "number",
+            "description": "Target azimuth in degrees (0 <= azimuth < 360) for slew_to_azimuth. Only allowed with that action.",
+            "minimum": 0,
+            "exclusiveMaximum": 360
+          },
+          "wait_seconds": {
+            "type": "number",
+            "description": "Seconds to wait for the operation to finish before returning (0-55, default 30). If it is still running, the result holds the job id: poll get_job. The operation continues in the background either way.",
+            "minimum": 0,
+            "maximum": 55,
+            "default": 30
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Control dome",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "load_sequence",
+      "title": "Load sequence",
+      "description": "Loads a saved sequence (name from list_saved_sequences) into the advanced sequencer, REPLACING the currently loaded sequence; unsaved edits (e.g. targets added with add_target) are lost, so save_sequence first if needed. Refused while a sequence runs. Does not start it: inspect with get_sequence, then start_sequence.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the saved sequence as listed by list_saved_sequences.",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Load sequence",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "add_target",
+      "title": "Add target to sequence",
+      "description": "Adds an imaging target to the end of the advanced sequence's target area. Two ways, pass exactly one: (1) 'template': a saved target template (list_target_templates) whose target name and coordinates are replaced; the template's own instructions are used and the plan options below are not allowed. (2) 'exposures': an exposure plan; pins builds the target from standard instructions in this order: slew and center with plate solving (slew_and_center, default true), autofocus (autofocus_at_start, default false), start guiding (start_guiding, default true), then one exposure block per entry (filter, exposure, count, gain/offset/binning, dithering every dither_every frames), with NINA's meridian flip trigger on the target (meridian_flip, default true; settings from the profile) so that a German equatorial mount flips instead of tracking into the pier. Coordinates are J2000. Only edits the sequence (nothing moves); check the result with get_sequence, then start_sequence. Adding while the sequence runs needs force.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Target name used for the sequence container and file names, e.g. \"M 42\".",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "ra": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "exclusiveMaximum": 24
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              }
+            ],
+            "description": "J2000 right ascension in HOURS (0 <= ra < 24): a number like 5.5883 or a sexagesimal string like \"05h35m17.3s\", \"5:35:17.3\" or \"5 35 17.3\". Degrees are not accepted: divide degrees by 15."
+          },
+          "dec": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": -90,
+                "maximum": 90
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              }
+            ],
+            "description": "J2000 declination in DEGREES (-90..90): a number like -5.391 or a sexagesimal string like \"-05°23'28\\\"\", \"-5:23:28\", \"-5d23m28s\" or \"-5 23 28\". The sign applies to the whole value (\"-00:30:00\" is -0.5°)."
+          },
+          "rotation_degrees": {
+            "type": "number",
+            "description": "Desired sky position angle of the camera in degrees (0 <= x < 360), used by slew-and-center with a rotator. Omit to keep the default.",
+            "minimum": 0,
+            "exclusiveMaximum": 360
+          },
+          "template": {
+            "type": "string",
+            "description": "Name of a saved target template (list_target_templates). Mutually exclusive with exposures.",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "exposures": {
+            "type": "array",
+            "description": "Exposure plan: one block per entry, executed in order. Mutually exclusive with template.",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "properties": {
+                "exposure_seconds": {
+                  "type": "number",
+                  "description": "Exposure time of each frame in seconds (0.0001-3600).",
+                  "minimum": 0.0001,
+                  "maximum": 3600
+                },
+                "count": {
+                  "type": "integer",
+                  "description": "Number of frames (1-1000).",
+                  "minimum": 1,
+                  "maximum": 1000
+                },
+                "filter": {
+                  "type": "string",
+                  "description": "Filter name as configured in the filter wheel, e.g. \"Ha\". Omit for no filter change.",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                "gain": {
+                  "type": "integer",
+                  "description": "Camera gain. Omit for the profile default.",
+                  "minimum": 0,
+                  "maximum": 100000
+                },
+                "offset": {
+                  "type": "integer",
+                  "description": "Camera offset. Omit for the profile default.",
+                  "minimum": 0,
+                  "maximum": 100000
+                },
+                "binning": {
+                  "type": "integer",
+                  "description": "Symmetric binning (1-4). Omit for 1x1 / profile default.",
+                  "minimum": 1,
+                  "maximum": 4
+                }
+              },
+              "required": [
+                "exposure_seconds",
+                "count"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "slew_and_center": {
+            "type": "boolean",
+            "description": "Exposure plan only: slew, plate solve and center (and rotate) before imaging. Default true.",
+            "default": true
+          },
+          "start_guiding": {
+            "type": "boolean",
+            "description": "Exposure plan only: start guiding before the exposures. Default true.",
+            "default": true
+          },
+          "autofocus_at_start": {
+            "type": "boolean",
+            "description": "Exposure plan only: run autofocus after centering. Default false.",
+            "default": false
+          },
+          "dither_every": {
+            "type": "integer",
+            "description": "Exposure plan only: dither after every N frames (0 = never, max 32 like NINA). Default 0.",
+            "minimum": 0,
+            "maximum": 32,
+            "default": 0
+          },
+          "meridian_flip": {
+            "type": "boolean",
+            "description": "Exposure plan only: add NINA's meridian flip trigger to the target. Default true; turn off for fork mounts.",
+            "default": true
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Run even though the advanced sequence is running. Only set this when the user explicitly asked for it; without it the call is refused while a sequence runs.",
+            "default": false
+          }
+        },
+        "required": [
+          "name",
+          "ra",
+          "dec"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Add target to sequence",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "clear_targets",
+      "title": "Clear sequence targets",
+      "description": "Removes all targets from the advanced sequence's target area; the start and end areas (cooling, unpark, park, warm-up instructions) stay. Unsaved targets are lost. Refused while the sequence runs. Use it before building a fresh plan with add_target.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Clear sequence targets",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "save_sequence",
+      "title": "Save sequence",
+      "description": "Saves the current advanced sequence to the profile's sequence folder under 'name' (without extension; it appears in list_saved_sequences and can be loaded later with load_sequence). Names may contain letters, digits, spaces, '-', '_' and '.', no path separators. An existing file with that name is only replaced with overwrite: true. Allowed while the sequence runs (it only writes a file); like NINA's Save As, the sequence then takes the new name, which also changes $$SEQUENCETITLE$$ in the file names of the frames still to come.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "File name without extension, e.g. \"M42 Ha-OIII 2026-10-11\".",
+            "minLength": 1,
+            "maxLength": 105
+          },
+          "overwrite": {
+            "type": "boolean",
+            "description": "Replace an existing sequence with the same name. Default false.",
+            "default": false
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Save sequence",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "start_sequence",
+      "title": "Start sequence",
+      "description": "Starts the advanced sequence that is loaded (load_sequence) or built (add_target) and returns as soon as it runs; it then runs on its own for hours, moving the mount, camera, focuser and guider. NINA validates the sequence first (devices connected, filters exist, ...) and refuses with the issues listed; skip_validation bypasses that check (not recommended). While it runs, other hardware and change tools are refused unless force is passed. Monitor with get_status, get_sequence and get_recent_images; stop with stop_sequence (or stop_all). Finished items are skipped on a new start: reset_sequence first to run everything again. Refused while a job started over MCP (slew, capture, autofocus, focuser move, filter change, guiding start, switch, device connection) still runs: wait for it with get_job or stop it with cancel_job. A running camera cooling job does not block the start. The result notes targets that no meridian flip trigger covers.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "skip_validation": {
+            "type": "boolean",
+            "description": "Start even when NINA's sequence validation reports issues. Default false.",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Start sequence",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "reset_sequence",
+      "title": "Reset sequence progress",
+      "description": "Resets the progress of every item in the advanced sequence (finished exposures count from zero again) so that start_sequence runs it from the beginning. Does not touch hardware. Refused while the sequence runs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Reset sequence progress",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    }
+  ]
+}

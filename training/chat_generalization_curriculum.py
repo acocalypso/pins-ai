@@ -191,7 +191,7 @@ def build_rows():
                     context or CONTEXT.get(tool, '')))
     # Clear imperative requests are proposals; withdrawing the same request is
     # a no-tool response. This contrast is based only on existing TRAIN phrases.
-    for tool, definition in definitions().items():
+    for tool, definition in ((n, t) for n, t in definitions().items() if n in PROMPTS):
         if definition['annotations']['readOnlyHint']:
             continue
         for language_index, locale in enumerate(LANGUAGES):

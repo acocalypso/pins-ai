@@ -8,12 +8,13 @@ Run from the repository root. Offline checks:
 
 ```bash
 dotnet run --project plugin/tests/Pins.AI.Tests -c Release
-dotnet run --project plugin/tests/Mcp.GatewayTests -- training/dataset/data/verified-tools-list.json
+dotnet run --project plugin/tests/Mcp.GatewayTests -- training/dataset/contracts/tools-list.json
 python training/dataset/scripts/validate_dataset.py
 python training/tests/training_tests.py
 python training/tests/v2_tests.py
 python training/tests/curriculum_tests.py
 python training/tests/comprehensive_tests.py
+python training/tests/upstream_contract_tests.py
 python training/tests/chat_dataset_tests.py
 python training/tests/generation_validation_tests.py
 python training/tests/colab_tests.py

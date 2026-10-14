@@ -14,7 +14,7 @@ host DLLs with the plugin.
 ```bash
 dotnet build plugin/src/Pins.AI.Plugin -c Release -p:HostDirectory=/absolute/path/to/host
 dotnet run --project plugin/tests/Pins.AI.Tests -c Release
-dotnet run --project plugin/tests/Mcp.GatewayTests -- training/dataset/data/verified-tools-list.json
+dotnet run --project plugin/tests/Mcp.GatewayTests -- training/dataset/contracts/tools-list.json
 ```
 
 For the complete **Linux ARM64 Debian package**, on an ARM64 build host with

@@ -44,7 +44,7 @@ All training examples and contract snapshots are versioned under `training/datas
 `test`, `eval_gold` and `hard_gold` are evaluation-only. Existing dataset byte
 hashes and the 326-example informational baseline are preserved. Checkpoints and
 local training base weights stay outside Git; deployment GGUF files use Git LFS.
-New training uses [v6 multilingual chat data](training/dataset/README.md).
+New training uses [v7 multilingual MCP48 chat data](training/dataset/README.md).
 The [model report](docs/model-report.md) separates data validity from runtime
 retrieval and model accuracy; start a fresh adapter, not an old checkpoint resume.
 
@@ -83,7 +83,7 @@ operation remain unverified.
 
 MI355X support is prepared as single-GPU BF16 LoRA on ROCm, with backend and resume
 contract tests. The uploaded completed run recorded RX 7900 XT, not MI355X;
-actual MI355X/v6 training and performance remain unverified. The Colab T4/NVIDIA
+actual MI355X/v7 training and performance remain unverified. The Colab T4/NVIDIA
 FP16/NF4 recipe is retained.
 
 See [LICENSE](LICENSE), [third-party notices](THIRD_PARTY_NOTICES.md), and dataset

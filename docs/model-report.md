@@ -229,3 +229,28 @@ mobile keyboards and broad real equipment workflows remain unverified.
 The previous version-specific narrative documents were consolidated here and in
 `training.md` / `plugin/README.md`; their exact historical text remains in Git
 history. Evidence JSON and model bytes were not rewritten by documentation cleanup.
+
+
+## MCP48 training update, 2026-10-14
+
+The upstream server at `c4d8f5a` exposes 48 tools, adding 16 without removing any.
+Ten new queries cover offline catalog/visibility planning, guiding reports and
+incidents, log/event history, session summaries and system health. Six modifying
+tools cover safe shutdown, plate solve, target centering, rotator, flat device
+and dome actions. `add_target` also adds the exposure-plan `meridian_flip` flag.
+The current v7 data and Colab/ROCm profiles match those schemas. Original model
+comparison scores above remain historical evidence; none evaluates a v7 adapter.
+
+The gateway now exposes the audited additions, keeps exact operator approval for
+all six modifiers, validates new cross-field arguments and refuses roof-collision
+bypass. Catalog discovery accepts up to 256 KiB; ordinary results retain the
+64 KiB cap. Both bounds and no-approval refusal are tested with simulated transport.
+Nothing was sent to real equipment and nothing was installed on the Pi.
+
+The offline router audit validates all 4,770 corpus calls against the actual C#
+gateway with zero argument errors. It retrieves the expected tool on 294/480
+single-turn authored training requests (61.25%): 160/160 for the new tools and
+134/320 for the historical tools. This is candidate availability on training
+phrases, not unseen model accuracy or successful equipment execution. Older
+natural-language retrieval remains a significant limitation and the Pi model
+still needs fresh training and matched evaluation before promotion.

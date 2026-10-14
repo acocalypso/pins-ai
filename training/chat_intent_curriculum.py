@@ -7,7 +7,7 @@ The ten-language rows share an intent group; these are training data only.
 from __future__ import annotations
 
 from chat_dataset_common import assistant, conversation, tool_call, user
-from v2_contracts import definitions
+from v2_contracts import legacy_definitions as definitions
 
 
 LOCALES = ('en', 'de', 'fr', 'es', 'it', 'pt', 'nl', 'pl', 'ja', 'zh')

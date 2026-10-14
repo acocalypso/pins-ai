@@ -8,7 +8,7 @@ from pathlib import Path
 
 from common import ROOT, fingerprint, sha256, write_jsonl
 from curriculum_v3 import language_source, EXTRA_LABELS
-from v2_contracts import PACKAGE, VERIFIED, POLICY, definitions, validate_call
+from v2_contracts import PACKAGE, LEGACY_VERIFIED as VERIFIED, POLICY, legacy_definitions as definitions, validate_call
 from v2_adapter import START_REPLIES, STOP_REPLIES
 
 DESTINATION = ROOT / 'training/dataset/sources/comprehensive'

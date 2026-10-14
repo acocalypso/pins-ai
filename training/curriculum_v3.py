@@ -136,7 +136,7 @@ def curriculum_rows(split):
     import json
     from common import sha256
     manifest = json.loads((comprehensive / 'manifest.json').read_text(encoding='utf-8'))
-    from v2_contracts import VERIFIED
+    from v2_contracts import LEGACY_VERIFIED as VERIFIED
     if (manifest['contractSha256'] != sha256(VERIFIED) or manifest['policySha256'] != fingerprint(POLICY)
             or manifest['trainSha256'] != sha256(comprehensive / 'train.jsonl')):
         raise ValueError('Comprehensive training data is stale; regenerate for the current contract and policy')

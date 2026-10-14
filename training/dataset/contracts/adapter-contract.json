@@ -1,0 +1,22 @@
+{
+  "sourceRevision": "c4d8f5a11ece4d4a40473c82a4b8464fafd6f095",
+  "verification": "source inspection; no live endpoint or equipment",
+  "ditherEveryMaximum": 32,
+  "reservedSequenceSuffix": ".template",
+  "switchStepTolerance": 1e-06,
+  "switchIndex": "index in WritableSwitches; read-only switches have no writable index",
+  "sequenceStart": "returns when running, ended immediately, or still preparing; does not wait for imaging completion",
+  "sequenceStop": "requests cancellation including a preparing start; confirm actual status",
+  "captureSave": "save=true queues image saving; result FilePath may be null; file durability is not confirmed",
+  "status": "all eleven device slots; disconnected name null; readings may be null",
+  "hostWiring": "NinaObservatory registered and /mcp mapped in Program.cs; deployed compatibility unverified",
+  "sourceHashes": {
+    "NINA.Mcp.Adapter/Sequence/NinaSequenceService.Plan.cs": "971ff3ce1b1087e7635e27f2d0c6eb2ad6ad207aab38fd4f052c4a2ccd1c189a",
+    "NINA.Mcp.Adapter/Sequence/NinaSequenceService.Editing.cs": "eeabfb11ce55a8f77677341fb257a78c66f1c25f5588c2fc5ddfe8cb1d6b81ca",
+    "NINA.Mcp.Adapter/NinaObservatory.Equipment.cs": "2ab65f41ca3149dea1045f6207e91539b2c86e4549812dd31b83a568172ad0b7",
+    "NINA.Mcp.Adapter/NinaObservatory.Status.cs": "4fb89cd373bc9941fd7819764298ff0527f2ea4ace9ec653e7d21c725f163d95",
+    "NINA.Mcp.Adapter/Sequence/NinaSequenceService.cs": "ac838355d7985ad2794d4a6a30da79b9afb9560038cbea87508b48fa894747e1",
+    "NINA.Mcp.Adapter/McpAdapterServiceCollectionExtensions.cs": "dcfb3ee5f49a8985cbedb95f95bdf1a37f9fcd5496be0e22ad11c895648d1d88",
+    "NINA/Program.cs": "d97ea32602377eecc221c7c7700e6e3569daa49de69671a2a96893ebf435b5d8"
+  }
+}

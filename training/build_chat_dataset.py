@@ -6,7 +6,7 @@ from pathlib import Path
 from common import ROOT, fingerprint, sha256, write_jsonl
 from chat_dataset_common import CHAT_POLICY, LANGUAGES, chat_definitions
 from chat_curriculum import DATA, PROFILE, has_json_request, source_rows
-from v2_contracts import VERIFIED, ADAPTER, definitions
+from v2_contracts import VERIFIED, ADAPTER, AUDIT, definitions
 
 
 def source_hashes():
@@ -14,7 +14,7 @@ def source_hashes():
     paths = ['training/build_chat_dataset.py', 'training/chat_dataset_common.py',
              'training/chat_curriculum.py', 'training/chat_intent_curriculum.py',
              'training/chat_workflow_curriculum.py', 'training/curriculum_v3.py',
-             'training/chat_generalization_curriculum.py',
+             'training/chat_generalization_curriculum.py', 'training/upstream_tool_curriculum.py',
              'training/sequence_curriculum.py', 'training/v2_contracts.py',
              'training/v2_adapter.py', 'training/common.py',
              'training/dataset/scripts/build_dataset.py',
@@ -26,7 +26,7 @@ def source_hashes():
     paths = ['training/dataset/data/audited/train.jsonl',
              'training/dataset/sources/comprehensive/train.jsonl',
              'training/dataset/sources/comprehensive/manifest.json', 'training/dataset/baseline/sequence-plans.jsonl',
-             VERIFIED.relative_to(ROOT).as_posix(), ADAPTER.relative_to(ROOT).as_posix()]
+             VERIFIED.relative_to(ROOT).as_posix(), ADAPTER.relative_to(ROOT).as_posix(), AUDIT.relative_to(ROOT).as_posix()]
     return {**hashes, **{p: sha256(ROOT / p) for p in paths}}
 
 
@@ -35,7 +35,8 @@ def build_rows():
     from chat_workflow_curriculum import build_rows as workflows
     from chat_generalization_curriculum import build_rows as generalization
     legacy, exclusions = source_rows()
-    new = intents() + workflows() + generalization()
+    from upstream_tool_curriculum import build_rows as upstream_rows
+    new = intents() + workflows() + generalization() + upstream_rows()
     rows = legacy + new
     if len({r['id'] for r in rows}) != len(rows):
         raise ValueError('Duplicate conversation identifiers')

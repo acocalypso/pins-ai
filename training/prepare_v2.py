@@ -4,7 +4,7 @@ from collections import Counter
 import json
 from pathlib import Path
 from common import ROOT, fingerprint, read_jsonl, sha256, write_json, write_jsonl
-from v2_contracts import PACKAGE, VERIFIED, ADAPTER, POLICY, assistant_example
+from v2_contracts import AUDIT, PACKAGE, VERIFIED, ADAPTER, POLICY, assistant_example, definitions, legacy_definitions
 
 
 def main():
@@ -17,7 +17,7 @@ def main():
     from transformers import AutoTokenizer
     tokenizer = AutoTokenizer.from_pretrained(args.base, local_files_only=True, trust_remote_code=False)
     report = {'templateSha256': fingerprint(tokenizer.chat_template), 'policySha256': fingerprint(POLICY),
-              'contractSha256': sha256(VERIFIED), 'auditSha256': sha256(PACKAGE / 'data/contract-audit.json'),
+              'contractSha256': sha256(VERIFIED), 'auditSha256': sha256(AUDIT),
               'adapterContractSha256': sha256(ADAPTER),
               'maxTokens': args.max_tokens, 'skipped': 0, 'splits': {}}
     if args.curriculum:
@@ -43,7 +43,7 @@ def main():
         lengths = sorted(len(r['input_ids']) for r in converted)
         completions = sorted(sum(v != -100 for v in r['labels']) for r in converted)
         calls = Counter(call['function']['name'] for row in rows for m in row['messages'] for call in m.get('tool_calls', []))
-        if len(calls) != 32 or len({r['locale'] for r in converted}) != 10:
+        if set(calls) != set(definitions() if args.curriculum else legacy_definitions()) or len({r['locale'] for r in converted}) != 10:
             raise ValueError('Lost required tool/language coverage')
         path = args.output / f'{split}.jsonl'
         write_jsonl(path, converted)

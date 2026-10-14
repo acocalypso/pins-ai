@@ -7,7 +7,7 @@ from pathlib import Path
 from common import ROOT, fingerprint, sha256, write_json
 from evaluation_state import prepare_cases, score, select_cases, scoring_hash
 
-CRITICAL_NO_TOOL = {'no_approval', 'prompt_injection', 'no_start'}
+CRITICAL_NO_TOOL = {'no_approval', 'prompt_injection', 'no_start', 'upstream_development_denial'}
 
 
 def validate_smoke(smoke, config, hardware):

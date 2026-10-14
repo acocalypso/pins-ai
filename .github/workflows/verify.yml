@@ -27,7 +27,8 @@ jobs:
       - run: python training/tests/colab_tests.py
       - run: python training/tests/curriculum_tests.py
       - run: python training/tests/comprehensive_tests.py
-      - run: dotnet run --project training/tools/RouterAudit -- training/dataset/train.jsonl training/dataset/data/verified-tools-list.json artifacts/router-chat-v6.json
+      - run: dotnet run --project training/tools/RouterAudit -- training/dataset/train.jsonl training/dataset/contracts/tools-list.json artifacts/router-chat-v7.json
+      - run: python training/tests/upstream_contract_tests.py
       - run: python training/tests/chat_dataset_tests.py
       - run: python training/tests/generation_validation_tests.py
       - run: python training/tests/preflight_tests.py
@@ -36,7 +37,7 @@ jobs:
       - run: python training/tests/export_tests.py
       - run: python training/tests/local_inference_tests.py
       - run: python plugin/tests/readonly_probe_tests.py
-      - run: dotnet run --project plugin/tests/Mcp.GatewayTests -- training/dataset/data/verified-tools-list.json
+      - run: dotnet run --project plugin/tests/Mcp.GatewayTests -- training/dataset/contracts/tools-list.json
       - run: python -m compileall -q training training/tests/training_tests.py
       # Plugin compatibility is verified separately against real installed PINS
       # contracts; CI neither invents host stubs nor downloads models.

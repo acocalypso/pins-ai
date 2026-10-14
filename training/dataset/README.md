@@ -2,14 +2,15 @@
 
 This is the single dataset location for PINS AI. Use **`train.jsonl`** with
 `python training/prepare_v2.py --curriculum`; do not concatenate every JSONL file
-in this directory. The current v6 corpus has 5,319 conversations / 7,588 unique
-prepared assistant turns, covering all 32 MCP tools and ten languages.
+in this directory. The current v7 corpus has 5,579 conversations / 7,860 unique
+prepared assistant turns, covering all 48 MCP tools and ten languages.
 
 ```text
 training/dataset/
   train.jsonl          Active, runtime-aligned multilingual training corpus
   manifest.json        Selection, counts, source hashes and provenance
   coverage.json        Tool/language/argument coverage
+  contracts/           Current compiled MCP48 schemas and source/adapter audit
   data/                Preserved original/audited MCP source data and contracts
     validation.jsonl   Development validation; never optimized as training rows
     test.jsonl         Held-out evaluation only
@@ -59,3 +60,21 @@ readable after byte-hash verification. Code is never imported from Drive.
 
 See [the complete training process](../../docs/training.md) and
 [the current model/comparison report](../../docs/model-report.md).
+
+The active schemas are extracted from upstream unstable `c4d8f5a`. Historical
+32-tool snapshots stay under `data/` for reproducibility. The active source
+projection excludes old claims that dome, flat, rotator, solving and catalog
+operations are unavailable. Raw legacy examples remain preserved.
+
+The new source `training/upstream_tool_curriculum.py` adds 272 train-only
+conversations, including native requests in ten languages, all new action enums,
+argument contrasts, explicit withdrawals, job polling and catalog-to-plan/center/
+append workflows. Its separate development-only function provides 44 independently
+authored English/German validation cases. Preparation combines these with the
+original 583 validation conversations (627 total), never with training rows.
+Original test/gold files are unchanged and only cover the historical tool set.
+
+Training calls are proposals. Plate solving without mount synchronization still
+captures an image and requires operator approval. Roof-collision bypass is hidden
+and refused. `meridian_flip` belongs only to exposure plans, not template overrides.
+Catalog coordinates must come from an observed result, not model memory.

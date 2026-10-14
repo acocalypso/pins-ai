@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'training'))
 from common import fingerprint, read_jsonl, sha256
 from build_comprehensive_dataset import build_rows, coverage, DESTINATION, LANGUAGES, source_sha
-from v2_contracts import PACKAGE, VERIFIED, POLICY, definitions, validate_call
+from v2_contracts import PACKAGE, LEGACY_VERIFIED as VERIFIED, POLICY, legacy_definitions as definitions, validate_call
 
 
 class ComprehensiveTests(unittest.TestCase):

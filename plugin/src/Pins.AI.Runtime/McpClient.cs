@@ -78,8 +78,11 @@ public sealed class McpClient : IAsyncDisposable {
         using var memory = new MemoryStream();
         var buffer = new byte[4096];
         int count;
+        // Schema discovery grows with upstream capabilities; ordinary equipment
+        // responses retain the smaller bound. Both paths remain bounded.
+        var maxBytes = method == "tools/list" ? 262144 : 65536;
         while ((count = await stream.ReadAsync(buffer, ct)) != 0) {
-            if (memory.Length + count > 65536) throw new AiUnavailableException("MCP result exceeds 64 KiB.");
+            if (memory.Length + count > maxBytes) throw new AiUnavailableException("MCP response exceeds its bounded size limit.");
             memory.Write(buffer, 0, count);
         }
         var json = JsonNode.Parse(memory.ToArray(), documentOptions: new() { MaxDepth = 32 }) as JsonObject;

@@ -1,0 +1,396 @@
+{
+  "date": "2026-10-14",
+  "profile": "v7-upstream-mcp48-chat-proposals",
+  "upstreamRevision": "c4d8f5a11ece4d4a40473c82a4b8464fafd6f095",
+  "tools": 48,
+  "newTools": [
+    "center_target",
+    "control_dome",
+    "control_flat_device",
+    "find_targets",
+    "get_events",
+    "get_guide_incident",
+    "get_guider_report",
+    "get_guiding_coach_report",
+    "get_session_summary",
+    "get_system_health",
+    "list_guide_incidents",
+    "move_rotator",
+    "plan_targets",
+    "plate_solve",
+    "read_log",
+    "secure_observatory"
+  ],
+  "changedSchemas": [
+    "add_target"
+  ],
+  "catalogSha256": "b458cbeed7cead087608624d1e09209e2c790a249d26c39da39bdec2b5a8a172",
+  "trainSha256": "31be489d3fe5b197d5d1cb9ed6ac5e2dab6c1768fb23c26585396e373617ecb1",
+  "trainConversations": 5579,
+  "newTrainConversations": 272,
+  "removedObsoleteActiveRefusals": 12,
+  "prepared": {
+    "train": {
+      "conversations": 5579,
+      "assistantTurns": 7860,
+      "duplicateAssistantTurnsRemoved": 1147,
+      "sourceSha256": "bbbd4c54b1268000e74e70abb34f48940f62808aad9e94a190230d702381a988",
+      "sha256": "52351117d1b27efdd23825c33f2d6a322faf555c00a41c8ec68a4c5f95762004",
+      "languages": {
+        "zh": 717,
+        "pl": 714,
+        "pt": 710,
+        "fr": 719,
+        "es": 727,
+        "de": 1020,
+        "it": 709,
+        "nl": 732,
+        "ja": 719,
+        "en": 1093
+      },
+      "sourceRowsSha256": "2b15da0c39e5905550f48c12063873fc69fa0f770acc81f9535c9573ac649ed6",
+      "tools": {
+        "disconnect_device": 321,
+        "get_job": 745,
+        "set_switch": 153,
+        "list_jobs": 94,
+        "reset_sequence": 70,
+        "start_guiding": 100,
+        "get_status": 248,
+        "park_mount": 110,
+        "get_sequence": 79,
+        "capture_image": 168,
+        "add_target": 131,
+        "cancel_job": 65,
+        "unpark_mount": 110,
+        "clear_targets": 71,
+        "stop_sequence": 70,
+        "list_saved_sequences": 83,
+        "stop_guiding": 101,
+        "change_filter": 135,
+        "load_sequence": 92,
+        "set_tracking": 61,
+        "get_recent_images": 114,
+        "stop_all": 80,
+        "save_sequence": 101,
+        "slew_mount": 169,
+        "start_sequence": 71,
+        "connect_device": 351,
+        "home_mount": 111,
+        "run_autofocus": 111,
+        "list_target_templates": 83,
+        "warm_camera": 100,
+        "cool_camera": 135,
+        "move_focuser": 133,
+        "get_guider_report": 10,
+        "get_guiding_coach_report": 10,
+        "list_guide_incidents": 11,
+        "get_guide_incident": 11,
+        "read_log": 15,
+        "find_targets": 16,
+        "plan_targets": 12,
+        "get_session_summary": 13,
+        "get_system_health": 10,
+        "get_events": 15,
+        "secure_observatory": 12,
+        "plate_solve": 12,
+        "center_target": 12,
+        "move_rotator": 12,
+        "control_flat_device": 15,
+        "control_dome": 18
+      },
+      "tokens": {
+        "min": 298,
+        "median": 709,
+        "p95": 1043,
+        "max": 1401
+      },
+      "completionTokens": {
+        "median": 21,
+        "p95": 37,
+        "max": 139
+      }
+    },
+    "validation": {
+      "conversations": 627,
+      "assistantTurns": 1280,
+      "duplicateAssistantTurnsRemoved": 0,
+      "sourceSha256": "20f9172f73a25825089a310a97f449f2df5191392229d9d95d987b68a4f275b1",
+      "sha256": "dcb462a0a1a21695203eaf4f5157908a5a4f4eded027d20d00ffead6d511b739",
+      "languages": {
+        "ja": 123,
+        "pt": 123,
+        "es": 123,
+        "en": 147,
+        "zh": 123,
+        "de": 145,
+        "fr": 123,
+        "nl": 123,
+        "it": 125,
+        "pl": 125
+      },
+      "sourceRowsSha256": "9b01a48acda54a86059403f9b0cc927c2aef93d2a1f8e0cb6356b8a513c3dc88",
+      "tools": {
+        "warm_camera": 20,
+        "get_job": 150,
+        "capture_image": 20,
+        "move_focuser": 20,
+        "park_mount": 20,
+        "clear_targets": 10,
+        "start_sequence": 10,
+        "start_guiding": 20,
+        "set_switch": 20,
+        "stop_sequence": 10,
+        "run_autofocus": 20,
+        "save_sequence": 10,
+        "cancel_job": 10,
+        "change_filter": 20,
+        "set_tracking": 10,
+        "connect_device": 20,
+        "slew_mount": 20,
+        "home_mount": 20,
+        "get_recent_images": 20,
+        "unpark_mount": 20,
+        "list_saved_sequences": 11,
+        "stop_all": 10,
+        "load_sequence": 10,
+        "disconnect_device": 20,
+        "reset_sequence": 10,
+        "get_status": 50,
+        "stop_guiding": 10,
+        "get_sequence": 10,
+        "cool_camera": 20,
+        "list_target_templates": 10,
+        "list_jobs": 12,
+        "add_target": 10,
+        "get_guider_report": 2,
+        "get_guiding_coach_report": 2,
+        "list_guide_incidents": 2,
+        "get_guide_incident": 2,
+        "read_log": 2,
+        "find_targets": 2,
+        "plan_targets": 2,
+        "get_session_summary": 2,
+        "get_system_health": 2,
+        "get_events": 2,
+        "secure_observatory": 2,
+        "plate_solve": 2,
+        "center_target": 2,
+        "move_rotator": 2,
+        "control_flat_device": 2,
+        "control_dome": 2
+      },
+      "tokens": {
+        "min": 304,
+        "median": 728,
+        "p95": 1083,
+        "max": 1325
+      },
+      "completionTokens": {
+        "median": 21,
+        "p95": 36,
+        "max": 63
+      }
+    }
+  },
+  "skipped": 0,
+  "generatedValidationCases": 146,
+  "generatedValidationTools": 48,
+  "frozenBytesPreserved": true,
+  "trainingLocales": [
+    "en",
+    "de",
+    "fr",
+    "es",
+    "it",
+    "pt",
+    "nl",
+    "pl",
+    "ja",
+    "zh"
+  ],
+  "newDevelopmentCases": 44,
+  "newDevelopmentLocales": [
+    "en",
+    "de"
+  ],
+  "routerAudit": {
+    "summary": {
+      "cases": 480,
+      "expectedToolRetrieved": 294,
+      "missed": 186,
+      "recall": 0.6125
+    },
+    "newTools": {
+      "center_target": {
+        "cases": 10,
+        "expectedToolRetrieved": 10,
+        "missed": 0,
+        "recall": 1
+      },
+      "control_dome": {
+        "cases": 10,
+        "expectedToolRetrieved": 10,
+        "missed": 0,
+        "recall": 1
+      },
+      "control_flat_device": {
+        "cases": 10,
+        "expectedToolRetrieved": 10,
+        "missed": 0,
+        "recall": 1
+      },
+      "find_targets": {
+        "cases": 10,
+        "expectedToolRetrieved": 10,
+        "missed": 0,
+        "recall": 1
+      },
+      "get_events": {
+        "cases": 10,
+        "expectedToolRetrieved": 10,
+        "missed": 0,
+        "recall": 1
+      },
+      "get_guide_incident": {
+        "cases": 10,
+        "expectedToolRetrieved": 10,
+        "missed": 0,
+        "recall": 1
+      },
+      "get_guider_report": {
+        "cases": 10,
+        "expectedToolRetrieved": 10,
+        "missed": 0,
+        "recall": 1
+      },
+      "get_guiding_coach_report": {
+        "cases": 10,
+        "expectedToolRetrieved": 10,
+        "missed": 0,
+        "recall": 1
+      },
+      "get_session_summary": {
+        "cases": 10,
+        "expectedToolRetrieved": 10,
+        "missed": 0,
+        "recall": 1
+      },
+      "get_system_health": {
+        "cases": 10,
+        "expectedToolRetrieved": 10,
+        "missed": 0,
+        "recall": 1
+      },
+      "list_guide_incidents": {
+        "cases": 10,
+        "expectedToolRetrieved": 10,
+        "missed": 0,
+        "recall": 1
+      },
+      "move_rotator": {
+        "cases": 10,
+        "expectedToolRetrieved": 10,
+        "missed": 0,
+        "recall": 1
+      },
+      "plan_targets": {
+        "cases": 10,
+        "expectedToolRetrieved": 10,
+        "missed": 0,
+        "recall": 1
+      },
+      "plate_solve": {
+        "cases": 10,
+        "expectedToolRetrieved": 10,
+        "missed": 0,
+        "recall": 1
+      },
+      "read_log": {
+        "cases": 10,
+        "expectedToolRetrieved": 10,
+        "missed": 0,
+        "recall": 1
+      },
+      "secure_observatory": {
+        "cases": 10,
+        "expectedToolRetrieved": 10,
+        "missed": 0,
+        "recall": 1
+      }
+    },
+    "callValidation": {
+      "callsChecked": 4770,
+      "errors": 0,
+      "maxSerializedProposalCharacters": 300,
+      "tokenBudgetMeasured": false,
+      "failures": []
+    }
+  },
+  "offlineTestSuites": [
+    {
+      "suite": "training_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "v2_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "curriculum_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "comprehensive_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "colab_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "training_resume_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "evaluation_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "export_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "preflight_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "local_inference_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "upstream_contract_tests",
+      "exitCode": 0
+    }
+  ],
+  "additionalPassedSuites": [
+    "chat_dataset_tests",
+    "generation_validation_tests",
+    "readonly_probe_tests",
+    "original_dataset_integrity"
+  ],
+  "gatewayChecksMcp48": 216,
+  "runtimeChecks": 28,
+  "colabNotebook": "syntax/contracts tested; not executed on Colab",
+  "hardwareExecution": false,
+  "modelTrainingStarted": false,
+  "piDeployed": false,
+  "linguisticReview": "pending",
+  "remaining": [
+    "fresh matching GPU smoke and full v7 training",
+    "unseen adapter/base/GGUF comparison before promotion",
+    "live read-only Pi compatibility with current MCP",
+    "historical tool routing misses remain",
+    "native-speaker review"
+  ]
+}

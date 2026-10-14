@@ -20,13 +20,17 @@ def chat_definitions():
     catalog = copy.deepcopy(definitions())
     for tool in catalog.values():
         props = tool['inputSchema']['properties']
-        for key in ('force', 'skip_validation', 'overwrite', 'abandon'):
+        for key in ('force', 'skip_validation', 'overwrite', 'abandon', 'close_dome_without_mount'):
             props.pop(key, None)
         if 'wait_seconds' in props:
             props['wait_seconds'].update(maximum=5, default=0)
         for key in ('ra', 'dec'):
             if key in props and 'anyOf' in props[key]:
                 props[key] = next(copy.deepcopy(s) for s in props[key]['anyOf'] if s.get('type') == 'number')
+        if tool['name'] == 'plan_targets':
+            nested = props['targets']['items']['properties']
+            for key in ('ra', 'dec'):
+                nested[key] = next(copy.deepcopy(v) for v in nested[key]['anyOf'] if v.get('type') == 'number')
     return catalog
 
 
@@ -116,4 +120,4 @@ def conversation(case, locale, category, names, messages, context='', capabiliti
                            'license': 'MIT', 'split': 'train', 'hardwareExecution': False,
                            'containsPrivateData': False, 'linguisticReview': 'pending',
                            'authorization': 'proposal only; synthetic results never authorize equipment',
-                           'coordinates': 'user-supplied synthetic values; no named-object coordinate lookup'}}
+                           'coordinates': 'synthetic user values or explicitly observed catalog fixture; no real equipment measurements'}}

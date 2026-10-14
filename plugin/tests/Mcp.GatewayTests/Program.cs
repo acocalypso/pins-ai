@@ -71,10 +71,42 @@ Reject(() => gate.Preview("set_switch", new() { ["index"] = 3, ["value"] = 0.35 
 Reject(() => gate.Preview("set_switch", new() { ["index"] = 3, ["value"] = 0.3 }, rig with { SwitchSteps = null }), "unknown switch step is refused");
 gate.Preview("set_switch", new() { ["index"] = 3, ["value"] = 0.3 }, rig);
 Check(true, "valid writable switch step is accepted for preview only");
+if (catalog["tools"]!.AsArray().Any(t => t?["name"]?.GetValue<string>() == "plan_targets")) {
+    Reject(() => gate.Validate("find_targets", new() { ["limit"] = 5 }), "catalog search requires selector");
+    Reject(() => gate.Validate("find_targets", new() { ["min_size_arcmin"] = 90, ["max_size_arcmin"] = 10 }), "catalog size order checked");
+    Reject(() => gate.Validate("get_events", new() { ["wait_seconds"] = 1 }), "event waiting needs cursor");
+    Reject(() => gate.Validate("control_dome", new() { ["action"] = "slew_to_azimuth" }), "dome slew needs azimuth");
+    Reject(() => gate.Validate("control_dome", new() { ["action"] = "park", ["azimuth"] = 1 }), "dome park rejects extraneous azimuth");
+    Reject(() => gate.Validate("control_flat_device", new() { ["action"] = "set_brightness" }), "flat brightness requires value");
+    Reject(() => gate.Validate("control_flat_device", new() { ["action"] = "light_off", ["brightness"] = 1 }), "flat light rejects brightness");
+    Reject(() => gate.Validate("secure_observatory", new() { ["close_dome_without_mount"] = true }), "roof collision bypass refused");
+    var badDate = JsonNode.Parse("{\"targets\":[{\"name\":\"Fixture\",\"ra\":1,\"dec\":2}],\"date\":\"2026-02-30\"}")!.AsObject();
+    Reject(() => gate.Validate("plan_targets", badDate), "planning date must exist");
+    foreach (var (tool, query) in new[] { ("find_targets", "Find M31 in the offline catalog"), ("plan_targets", "Plan target visibility"), ("plate_solve", "Capture and plate solve"), ("secure_observatory", "Secure the observatory"), ("control_dome", "Open the dome shutter") })
+        Check(ChatToolRouter.Select(query, routingCatalog).Contains(tool), "new tool retrieval: " + tool);
+}
 using var fixture = new ProtocolFixture(catalog);
 await using var client = new McpClient(new Uri("http://127.0.0.1:5000/mcp"), new string('x', 32), fixture);
 var discovered = await client.DiscoverAsync();
-Check(discovered["tools"]!.AsArray().Count == 32 && fixture.Initialized, "actual transport initialization, notification and discovery");
+Check(discovered["tools"]!.AsArray().Count == catalog["tools"]!.AsArray().Count && fixture.Initialized, "actual transport initialization, notification and discovery");
+fixture.Status = new() { ["padding"] = new string('x', 70000) };
+try {
+    await gate.InvokeAsync(client, "get_status", new(), rig);
+    throw new Exception("Accepted oversized equipment response");
+}
+catch (AiUnavailableException) { Check(true, "equipment responses remain bounded to 64 KiB"); }
+fixture.Status = null;
+var oversizedCatalog = (JsonObject)catalog.DeepClone();
+oversizedCatalog["padding"] = new string('x', 270000);
+using (var oversizedFixture = new ProtocolFixture(oversizedCatalog)) {
+    await using var oversizedClient = new McpClient(new Uri("http://127.0.0.1:5000/mcp"), new string('x', 32), oversizedFixture);
+    try { await oversizedClient.DiscoverAsync(); throw new Exception("Accepted oversized tool catalog"); }
+    catch (AiUnavailableException) { Check(true, "catalog discovery remains bounded to 256 KiB"); }
+}
+if (catalog["tools"]!.AsArray().Any(t => t?["name"]?.GetValue<string>() == "plate_solve")) {
+    await Refuse(() => gate.InvokeAsync(client, "plate_solve", new() { ["sync"] = false }, rig), "plate solve without sync still requires approval");
+    await Refuse(() => gate.InvokeAsync(client, "secure_observatory", new(), rig), "secure observatory requires approval");
+}
 await Refuse(() => gate.InvokeAsync(client, "slew_mount", move, rig), "unapproved action never sent");
 Check(fixture.Mutations == 0, "no mutation from model approval claims");
 var preview = gate.Preview("slew_mount", move, rig);

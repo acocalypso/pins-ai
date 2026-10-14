@@ -16,8 +16,8 @@ def main():
         # PINS AI MCP training on Google Colab
 
         Use a hosted **GPU** Colab kernel in VS Code. The notebook delegates to the
-        existing FP16/NF4 QLoRA scripts and audited MCP contracts at `6fef6c4`.
-        The comprehensive train-only curriculum covers all 32 current MCP tools.
+        existing FP16/NF4 QLoRA scripts and audited MCP contracts at `c4d8f5a`.
+        The comprehensive train-only curriculum covers all 48 current MCP tools.
         Train-only device contrasts, safety classes and competing tool lists extend the originals;
         validation remains separate. Gold suites are never training inputs.
         No MCP connection, equipment operation or Pi deployment occurs.
@@ -58,9 +58,9 @@ def main():
         DRIVE_FOLDER = Path('/content/drive/MyDrive/pins-ai')
         RESUME_SOURCE = DRIVE_FOLDER / 'runs/qwen3-pins-v3-colab-20261011-165756'
         # Alternatively: DRIVE_FOLDER / 'qwen3-pins-v3-colab-20261011-165756-results.zip'
-        RUN_NAME = 'qwen3-pins-v6-colab-'  + datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
-        TRAIN_CONFIG = 'training/configs/config-v6.json'
-        SFT_DATA = 'artifacts/v6/sft'
+        RUN_NAME = 'qwen3-pins-v7-colab-'  + datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
+        TRAIN_CONFIG = 'training/configs/config-v7.json'
+        SFT_DATA = 'artifacts/v7/sft'
         PRIOR_ADAPTER = DRIVE_FOLDER / 'runs/qwen3-pins-v2-colab-20261011-131536/full/adapter'
         REPOSITORY = 'https://github.com/acocalypso/pins-ai.git'
         BRANCH = 'main'
@@ -102,8 +102,8 @@ def main():
         sys.path.insert(0, str(PROJECT / 'training'))
         from colab_workspace import use_drive_data
         drive_data = use_drive_data(PROJECT, DRIVE_FOLDER)
-        audit = json.loads((PROJECT / 'training/dataset/data/contract-audit.json').read_text())
-        if audit['sourceRevision'] != '6fef6c4bd73a8e1f24a36235dba6cbb9eff3d3d2':
+        audit = json.loads((PROJECT / 'training/dataset/contracts/audit.json').read_text())
+        if audit['sourceRevision'] != 'c4d8f5a11ece4d4a40473c82a4b8464fafd6f095':
             raise ValueError('Rebuild this notebook/bundle for the newer audited MCP revision')
         RUN_ROOT = DRIVE_FOLDER / 'runs' / RUN_NAME
         RUN_ROOT.mkdir(parents=True, exist_ok=False)
@@ -191,7 +191,7 @@ def main():
         verifies its hash. No unpinned model or automatic dependency upgrade.
         Only train/validation are exported. Test, eval_gold and hard_gold stay
         outside the training examples. All original package hashes are checked.
-        The default curriculum is **v6 multilingual chat proposals**: plain multilingual
+        The default curriculum is **v7 multilingual MCP48 chat proposals**: plain multilingual
         requests, clarification and dependent workflows; proposals do not grant
         hardware approval. Original datasets remain archived unchanged. This is a
         changed recipe: select `TRAINING_MODE = 'fresh'`, not an old checkpoint resume.
@@ -279,7 +279,7 @@ def main():
         eval_unsafe_proposals, eval_generation_truncated and eval_selection_score.
         Changed data/configuration requires fresh training from the pinned base.
         To continue an old run exactly, use its original configuration and source
-        revision; do not substitute this v6 profile for the old recipe.
+        revision; do not substitute this v7 profile for the old recipe.
         Checkpoints, metrics, dependency versions and the final best adapter are
         written to Drive. Interrupting a cell stops its child process. Abrupt VM
         deletion may leave metadata marked started; it never implies completion.
@@ -313,7 +313,7 @@ def main():
                                        ('validation', 'eval_loss', 'Validation')]:
                 points = [m for m in metrics if m['event'] == event]
                 ax.plot([m['step'] for m in points], [m[key] for m in points], marker='o', label=label)
-            ax.set(xlabel='Optimizer step', ylabel='Loss', title='PINS Qwen3 v6 training')
+            ax.set(xlabel='Optimizer step', ylabel='Loss', title='PINS Qwen3 v7 training')
             ax.legend(); ax.grid(alpha=0.2); fig.tight_layout()
             fig.savefig(RUN_ROOT / 'loss-curves.png', dpi=150)
             plt.show()
@@ -333,7 +333,7 @@ def main():
     cell('markdown', '''
         ## Development comparison (optional, after completion)
         Identical prompts/settings for base and adapters; tools never execute. Default
-        comparison uses all583 validation conversations for base, the prior v2
+        comparison uses the original 583 validation conversations plus independently authored MCP48 development cases for base, the prior v2
         adapter (if present on Drive), and the new adapter. Validation is development
         evidence, not an unseen quality claim. The final gold suites have already
         been inspected; do not use them to guide iterative changes. Enable
@@ -346,7 +346,7 @@ def main():
         if RUN_EVALUATION:
             completed = json.loads((FULL / 'training-run.json').read_text())
             assert completed['status'] == 'completed' and not completed['smokeOnly']
-            comparisons = [('v6', FULL / 'adapter'), ('base', None)]
+            comparisons = [('v7', FULL / 'adapter'), ('base', None)]
             if PRIOR_ADAPTER.is_dir(): comparisons.insert(1, ('prior-v2', PRIOR_ADAPTER))
             else: print('Prior v2 adapter not found on Drive; its comparison is pending.')
             for name, adapter in comparisons:
