@@ -319,6 +319,17 @@ Read `artifacts/restored-resume/resume-restoration.json` and use its `checkpoint
 path. It preserves the best adapter separately. Set `CHECKPOINT` to that path, and
 `RUN` to a new output directory, then run a one-step continuation smoke:
 
+In Colab, explicitly select the original run in `RESUME_SOURCE`; the new
+`RUN_NAME` is only the destination. For the run started on October 14, use
+`DRIVE_FOLDER / 'runs/qwen3-pins-v7-colab-20261014-191543'`. Set
+`TRAINING_MODE = 'resume'` and deliberately enable `RUN_TRAINING`. Re-run setup
+with a new destination name after changing the source; do not reuse an earlier
+session's restored checkpoint variable. The notebook writes the selected run's
+exact saved recipe to `RUN_ROOT/resume-config.json`, instead of forcing today's
+fresh-run preset onto it. Prepared data, base, optimizer and schedule checks
+remain enforced. A different-data error means select the correct source run or
+recover its original source revision/data; never remove that check.
+
 ```bash
 python training/train.py --base .local/training/base --dataset-mode mcp \
   --data "$DATA" --config "$CONFIG" --resume-from-checkpoint "$CHECKPOINT" \

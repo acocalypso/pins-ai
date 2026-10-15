@@ -56,8 +56,9 @@ def main():
         RUN_EVALUATION = False  # Enable after training; no tuning against gold scores.
         RUN_FINAL_GOLD = False  # Final release measurement only, never an iterative tuning loop.
         DRIVE_FOLDER = Path('/content/drive/MyDrive/pins-ai')
-        RESUME_SOURCE = DRIVE_FOLDER / 'runs/qwen3-pins-v3-colab-20261011-165756'
-        # Alternatively: DRIVE_FOLDER / 'qwen3-pins-v3-colab-20261011-165756-results.zip'
+        # Original run to continue, NOT this session's new RUN_NAME/resume-source.
+        RESUME_SOURCE = DRIVE_FOLDER / 'runs/qwen3-pins-v7-colab-20261014-191543'
+        # Alternatively: the results ZIP exported from that same original run.
         RUN_NAME = 'qwen3-pins-v7-colab-'  + datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         TRAIN_CONFIG = 'training/configs/config-v7.json'
         SFT_DATA = 'artifacts/v7/sft'
@@ -216,12 +217,15 @@ def main():
         The source run/ZIP is read only. A new copy lives in this run's
         `resume-source` folder on Drive. Incomplete newer checkpoints are reported;
         the numeric latest complete checkpoint is used, not necessarily the best.
-        Completed runs, missing state and changed data/config/base are rejected.
+        Completed runs, missing state and changed data/base are rejected.
+        The selected run's exact saved configuration replaces the fresh-run preset;
+        the current preset is never forced onto an interrupted training schedule.
         The original schedule and saved early-stopping state continue unchanged.
     ''')
     cell('code', '''
         RESUME_CHECKPOINT = None
         if TRAINING_MODE == 'resume':
+            print('Selected original resume source:', RESUME_SOURCE)
             run_pipeline(['training/training_resume.py', '--source', RESUME_SOURCE,
                           '--output', RUN_ROOT / 'resume-source'], 'restore-checkpoint.log')
             restoration = json.loads((RUN_ROOT / 'resume-source/resume-restoration.json').read_text())
@@ -232,8 +236,13 @@ def main():
             print('Skipped incomplete:', restoration['skippedIncompleteCheckpoints'])
             original = json.loads((RESUME_CHECKPOINT.parent.parent / 'training-run.json').read_text())
             configured = json.loads((PROJECT / TRAIN_CONFIG).read_text())
-            if original['config'] != configured:
-                raise ValueError('Resume config differs from original. Use its exact original configuration.')
+            from training_resume import saved_resume_config
+            prepared = json.loads((PROJECT / SFT_DATA / 'manifest.json').read_text())
+            TRAIN_CONFIG = str(saved_resume_config(RESUME_CHECKPOINT, prepared, RUN_ROOT / 'resume-config.json'))
+            differences = sorted(k for k in original['config'].keys() | configured.keys()
+                                 if original['config'].get(k) != configured.get(k))
+            print('Using exact saved resume config:', TRAIN_CONFIG)
+            print('Differences from fresh preset:', differences)
         else:
             print('Fresh mode: no checkpoint restoration.')
     ''')

@@ -13,6 +13,29 @@ REQUIRED = ('adapter_model.safetensors', 'adapter_config.json', 'trainer_state.j
             'optimizer.pt', 'scheduler.pt', 'scaler.pt', 'rng_state.pth')
 
 
+def saved_resume_config(checkpoint, dataset, output):
+    """Use the selected run's exact recipe only when its prepared data matches.
+
+    Fresh-run presets are not continuation contracts. Do not silently import a
+    different run's schedule, or overwrite its original checkpoint/configuration.
+    """
+    checkpoint, output = Path(checkpoint), Path(output)
+    run = json.loads((checkpoint.parent.parent / 'training-run.json').read_text(encoding='utf-8'))
+    if run.get('smokeOnly') or run.get('datasetMode') != 'mcp' or run.get('status') == 'completed':
+        raise ValueError('Select an incomplete full MCP run as RESUME_SOURCE')
+    if run['dataset'] != dataset:
+        raise ValueError('Selected RESUME_SOURCE has different prepared data/profile. '
+                         'Check the original Drive run folder; use its original source revision and data, '
+                         'not a different training run or a newly changed dataset.')
+    if output.resolve().is_relative_to(checkpoint.parent.parent.resolve()):
+        raise ValueError('Write the resume configuration outside the restored source full run')
+    config = run['config']
+    if output.exists() and json.loads(output.read_text(encoding='utf-8')) != config:
+        raise ValueError('Resume configuration already belongs to another source run; use a new output folder')
+    write_json(output, config)
+    return output
+
+
 def required_files(run):
     return REQUIRED if run['precision'] == 'fp16' else tuple(n for n in REQUIRED if n != 'scaler.pt')
 

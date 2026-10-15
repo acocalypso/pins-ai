@@ -8,7 +8,7 @@ from types import SimpleNamespace
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'training'))
-from training_resume import validate_resume, select_checkpoint, REQUIRED
+from training_resume import validate_resume, select_checkpoint, saved_resume_config, REQUIRED
 from metrics import TrainingMetrics
 from common import write_jsonl, sha256
 
@@ -37,6 +37,25 @@ class ResumeTests(unittest.TestCase):
         self.assertEqual(info['targetSteps'] - info['startStep'], 146)
         self.assertEqual(len(info['checkpointFilesSha256']), len(REQUIRED))
         self.assertFalse(info['bitIdenticalToColab'])
+
+    def test_notebook_uses_selected_run_config_without_changing_original(self):
+        original = (self.root / 'full/training-run.json').read_bytes()
+        output = self.root / 'new-session/resume-config.json'
+        self.assertEqual(saved_resume_config(self.checkpoint, self.data, output), output)
+        self.assertEqual(json.loads(output.read_text()), self.config)
+        self.assertEqual((self.root / 'full/training-run.json').read_bytes(), original)
+        self.assertEqual(saved_resume_config(self.checkpoint, self.data, output), output)
+
+    def test_wrong_run_data_and_existing_foreign_config_are_rejected(self):
+        output = self.root / 'resume-config.json'
+        with self.assertRaisesRegex(ValueError, 'RESUME_SOURCE'):
+            saved_resume_config(self.checkpoint, {'sourceProfile':'different-run'}, output)
+        self.assertFalse(output.exists())
+        output.write_text('{"batchSize":99}', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'another source'):
+            saved_resume_config(self.checkpoint, self.data, output)
+        with self.assertRaisesRegex(ValueError, 'outside'):
+            saved_resume_config(self.checkpoint, self.data, self.root / 'full/config.json')
 
     def test_bf16_lora_checkpoint_does_not_require_fp16_scaler(self):
         self.config['precision']='bf16'; self.run['precision']='bf16'; self.run['method']='lora'
