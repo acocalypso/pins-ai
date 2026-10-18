@@ -67,13 +67,33 @@ class DriveDataTests(unittest.TestCase):
         self.assertEqual(before, {p.name: p.read_bytes() for p in self.data.iterdir()})
 
     def test_directory_and_missing_data(self):
-        with self.assertRaises(FileNotFoundError):
-            use_drive_data(self.project, self.drive)
+        before = {p.name: p.read_bytes() for p in self.data.iterdir()}
+        result = use_drive_data(self.project, self.drive)
+        self.assertEqual(result['kind'], 'git')
+        self.assertEqual(result['verifiedFiles'], 2)
+        self.assertEqual(before, {p.name: p.read_bytes() for p in self.data.iterdir()})
+        self.assertEqual(list(self.drive.iterdir()), [])
         folder = self.drive / 'data'
         folder.mkdir()
         for path in self.data.iterdir():
             (folder / path.name).write_bytes(path.read_bytes())
         self.assertEqual(use_drive_data(self.project, self.drive)['kind'], 'directory')
+
+    def test_missing_drive_folder_uses_git_without_creating_drive_data(self):
+        missing = self.drive / 'does-not-exist'
+        self.assertEqual(use_drive_data(self.project, missing)['kind'], 'git')
+        self.assertFalse(missing.exists())
+
+    def test_corrupt_git_data_is_rejected_even_without_drive_copy(self):
+        (self.data / 'train.jsonl').write_bytes(b'corrupted')
+        with self.assertRaisesRegex(ValueError, 'Git dataset failed manifest'):
+            use_drive_data(self.project, self.drive)
+
+    def test_untracked_manifest_input_is_rejected(self):
+        manifest = self.data / 'manifest.json'
+        manifest.write_text(json.dumps({'sha256': {'../untracked': 'a'*64}}), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'untracked or unsafe'):
+            use_drive_data(self.project, self.drive)
 
 
 class NotebookTests(unittest.TestCase):

@@ -119,7 +119,7 @@ Read its issues and require exit code zero before continuing.
 
 For Colab, open [notebooks/pins-ai-colab.ipynb](../training/notebooks/pins-ai-colab.ipynb), choose
 a hosted T4 GPU kernel, and authorize Drive. It clones/pulls Git, verifies the
-existing Drive data, reuses the kernel's Python and installed CUDA PyTorch, prepares data,
+the dataset from Git (and optional legacy Drive copies), reuses the kernel's Python and installed CUDA PyTorch, prepares data,
 and runs smoke/reload checks before full training. Defaults are `TRAINING_MODE =
 'fresh'`, `RUN_TRAINING = False`, and final gold evaluation disabled. Deliberately
 enable training after reviewing the configuration. Outputs/checkpoints are under
@@ -127,6 +127,9 @@ enable training after reviewing the configuration. Outputs/checkpoints are under
 using the old `PINS_MCP_AI_Training_v2/data` layout remain supported, with identical
 byte-hash checks. Code is never loaded from Drive. Regenerate the notebook with
 `python training/create_colab_notebook.py` after changing its generator.
+No dataset upload to Drive is required. If no legacy dataset directory/ZIP exists,
+the notebook verifies the Git dataset against its manifest and uses it directly.
+Present legacy Drive copies still fail validation if they differ from Git.
 
 The Colab setup does **not** create a Python 3.11 environment or reinstall PyTorch,
 CUDA, Triton or NVIDIA libraries. It resolves the repository's training package

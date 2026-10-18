@@ -29,7 +29,8 @@ def main():
         `PRIOR_ADAPTER` remains comparison-only.
 
         Code is cloned/pulled from `acocalypso/pins-ai` on GitHub. Existing data
-        in your Google Drive folder `pins-ai` is checked against that Git revision.
+        comes from that Git revision; a legacy dataset copy in your Google Drive
+        folder `pins-ai` is optional and checked if present.
         No source ZIP re-upload is needed for code changes. In VS Code choose
         **Select Kernel → Colab → Auto Connect**, select a GPU runtime, then run
         the setup cells. Sign-in and Drive authorization occur in your session.
@@ -72,12 +73,14 @@ def main():
         print('Run:', RUN_NAME, '| training enabled:', RUN_TRAINING)
     ''')
     cell('markdown', '''
-        ## Pull code, mount Drive and verify existing data
+        ## Pull code, mount Drive and verify dataset
         The cloud VM has its own filesystem. Mounting Drive grants this notebook
         access to your Drive; the workflow reads data and writes run outputs
         only in `DRIVE_FOLDER`. Training uses a VM-local copy of the base weights;
         a verified copy is cached in `DRIVE_FOLDER/base-models` for later sessions.
         Drive outputs survive VM deletion. Do not include Pi passwords or tokens.
+        No dataset ZIP or dataset folder on Drive is required: the dataset is in Git.
+        Existing legacy Drive data must still match the checked-out revision.
     ''')
     cell('code', '''
         from google.colab import drive
@@ -102,8 +105,9 @@ def main():
         print('Code revision:', git_revision)
         drive.mount('/content/drive')
         sys.path.insert(0, str(PROJECT / 'training'))
-        from colab_workspace import use_drive_data
-        drive_data = use_drive_data(PROJECT, DRIVE_FOLDER)
+        import importlib, colab_workspace
+        # A rerun may have pulled a fix after this module was first imported.
+        drive_data = importlib.reload(colab_workspace).use_drive_data(PROJECT, DRIVE_FOLDER)
         audit = json.loads((PROJECT / 'training/dataset/contracts/audit.json').read_text())
         if audit['sourceRevision'] != 'c4d8f5a11ece4d4a40473c82a4b8464fafd6f095':
             raise ValueError('Rebuild this notebook/bundle for the newer audited MCP revision')
@@ -116,7 +120,7 @@ def main():
             'startedAt': datetime.now(timezone.utc).isoformat(), 'hardwareOperations': False
         }, indent=2))
         os.chdir(PROJECT)
-        print('Verified Git code and Drive data; persistent outputs:', RUN_ROOT)
+        print('Verified dataset source:', drive_data['kind'], '| persistent outputs:', RUN_ROOT)
     ''')
     cell('markdown', '''
         ## Reuse the Colab GPU runtime

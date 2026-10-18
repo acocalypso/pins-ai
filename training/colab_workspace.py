@@ -1,4 +1,4 @@
-"""Load Drive dataset bytes only after checking them against the Git checkout."""
+"""Verify Git dataset bytes and optional legacy Drive copies without loading code."""
 import hashlib
 import json
 from pathlib import Path
@@ -13,10 +13,17 @@ def use_drive_data(project, drive_folder):
         ['git', 'ls-files', '--', prefix], cwd=project, text=True).splitlines()
     if not tracked or prefix + 'contract-audit.json' not in tracked:
         raise RuntimeError('Git checkout lacks the audited dataset contracts.')
-    # Drive provides immutable original inputs. Audited schemas and derived data
-    # come from the current Git code, so MCP updates require no stale ZIP upload.
+    # Git contains the complete dataset. Drive copies are optional compatibility
+    # inputs; their absence must not require uploading a redundant dataset ZIP.
     manifest = json.loads((project / prefix / 'manifest.json').read_text(encoding='utf-8'))
-    tracked = [prefix + 'manifest.json', *[prefix + n for n in manifest['sha256']]]
+    manifest_files = manifest['sha256']
+    for relative, expected in manifest_files.items():
+        name = prefix + relative
+        if name not in tracked or '..' in Path(relative).parts or Path(relative).is_absolute():
+            raise ValueError('Dataset manifest references an untracked or unsafe path: ' + relative)
+        if hashlib.sha256((project / name).read_bytes()).hexdigest() != expected:
+            raise ValueError('Git dataset failed manifest verification: ' + name)
+    tracked = [prefix + 'manifest.json', *[prefix + n for n in manifest_files]]
     legacy_prefixes = ('training/datasets/mcp-v2/data/', 'PINS_MCP_AI_Training_v2/data/')
     folders = [drive_folder / p for p in (prefix, *legacy_prefixes, 'data/')]
     folder = next((p for p in folders if (p / 'manifest.json').is_file()), None)
@@ -39,7 +46,10 @@ def use_drive_data(project, drive_folder):
         origin = {'kind': 'zip', 'path': str(bundle),
                   'sha256': hashlib.sha256(bundle.read_bytes()).hexdigest()}
     else:
-        raise FileNotFoundError(f'No dataset directory or existing training ZIP in {drive_folder}')
+        return {'kind': 'git', 'path': str(project / prefix),
+                'verifiedFiles': len(tracked),
+                'manifestSha256': hashlib.sha256((project / prefix / 'manifest.json').read_bytes()).hexdigest(),
+                'contractsSource': 'current Git checkout'}
     # Check everything before writing anything. Never import code from Drive.
     for name, content in payloads.items():
         expected = hashlib.sha256((project / name).read_bytes()).hexdigest()
