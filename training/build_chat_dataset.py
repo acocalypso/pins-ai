@@ -14,11 +14,12 @@ def source_hashes():
     paths = ['training/build_chat_dataset.py', 'training/chat_dataset_common.py',
              'training/chat_curriculum.py', 'training/chat_intent_curriculum.py',
              'training/chat_workflow_curriculum.py', 'training/curriculum_v3.py',
-             'training/chat_generalization_curriculum.py', 'training/upstream_tool_curriculum.py',
+             'training/chat_generalization_curriculum.py', 'training/upstream_tool_curriculum.py', 'training/reliability_curriculum.py',
              'training/sequence_curriculum.py', 'training/v2_contracts.py',
              'training/v2_adapter.py', 'training/common.py',
              'training/dataset/scripts/build_dataset.py',
              'plugin/src/Pins.AI.Runtime/ToolGateway.cs',
+             'plugin/src/Pins.AI.Runtime/CoordinateEvidence.cs', 'plugin/src/Pins.AI.Runtime/McpChatService.cs',
              'plugin/src/Pins.AI.Runtime/ToolPromptSchema.cs',
              'plugin/src/Pins.AI.Runtime/Contracts.cs',
              'plugin/src/Pins.AI.Runtime/AiConfiguration.cs']
@@ -36,7 +37,8 @@ def build_rows():
     from chat_generalization_curriculum import build_rows as generalization
     legacy, exclusions = source_rows()
     from upstream_tool_curriculum import build_rows as upstream_rows
-    new = intents() + workflows() + generalization() + upstream_rows()
+    from reliability_curriculum import build_rows as reliability_rows
+    new = intents() + workflows() + generalization() + upstream_rows() + reliability_rows()
     rows = legacy + new
     if len({r['id'] for r in rows}) != len(rows):
         raise ValueError('Duplicate conversation identifiers')

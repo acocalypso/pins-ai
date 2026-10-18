@@ -1,0 +1,275 @@
+{
+  "date": "2026-10-18",
+  "profile": "v8-multilingual-reliability",
+  "trainConversations": 6039,
+  "authoredNew": 460,
+  "preparedSplits": {
+    "train": {
+      "conversations": 6039,
+      "assistantTurns": 8320,
+      "duplicateAssistantTurnsRemoved": 1187,
+      "sourceSha256": "bbbd4c54b1268000e74e70abb34f48940f62808aad9e94a190230d702381a988",
+      "sha256": "f94992714c6df51163c708d75eb51b845620674d498f6ba5c495d36b57de0889",
+      "languages": {
+        "zh": 763,
+        "pl": 760,
+        "pt": 756,
+        "fr": 765,
+        "es": 773,
+        "de": 1066,
+        "it": 755,
+        "nl": 778,
+        "ja": 765,
+        "en": 1139
+      },
+      "sourceRowsSha256": "4c0a9bb13e2341293ac804b92ee8346b66c3e75dcaa3c19eb1214e8274c661b8",
+      "tools": {
+        "disconnect_device": 321,
+        "get_job": 745,
+        "set_switch": 153,
+        "list_jobs": 94,
+        "reset_sequence": 70,
+        "start_guiding": 100,
+        "get_status": 248,
+        "park_mount": 110,
+        "get_sequence": 89,
+        "capture_image": 188,
+        "add_target": 131,
+        "cancel_job": 65,
+        "unpark_mount": 110,
+        "clear_targets": 71,
+        "stop_sequence": 70,
+        "list_saved_sequences": 83,
+        "stop_guiding": 101,
+        "change_filter": 135,
+        "load_sequence": 92,
+        "set_tracking": 61,
+        "get_recent_images": 124,
+        "stop_all": 80,
+        "save_sequence": 101,
+        "slew_mount": 169,
+        "start_sequence": 71,
+        "connect_device": 351,
+        "home_mount": 111,
+        "run_autofocus": 111,
+        "list_target_templates": 83,
+        "warm_camera": 140,
+        "cool_camera": 135,
+        "move_focuser": 133,
+        "get_guider_report": 30,
+        "get_guiding_coach_report": 40,
+        "list_guide_incidents": 11,
+        "get_guide_incident": 11,
+        "read_log": 65,
+        "find_targets": 46,
+        "plan_targets": 32,
+        "get_session_summary": 33,
+        "get_system_health": 10,
+        "get_events": 35,
+        "secure_observatory": 12,
+        "plate_solve": 12,
+        "center_target": 32,
+        "move_rotator": 12,
+        "control_flat_device": 55,
+        "control_dome": 58
+      },
+      "tokens": {
+        "min": 298,
+        "median": 709,
+        "p95": 1032,
+        "max": 1401
+      },
+      "completionTokens": {
+        "median": 21,
+        "p95": 37,
+        "max": 139
+      }
+    },
+    "validation": {
+      "conversations": 627,
+      "assistantTurns": 1280,
+      "duplicateAssistantTurnsRemoved": 0,
+      "sourceSha256": "20f9172f73a25825089a310a97f449f2df5191392229d9d95d987b68a4f275b1",
+      "sha256": "dcb462a0a1a21695203eaf4f5157908a5a4f4eded027d20d00ffead6d511b739",
+      "languages": {
+        "ja": 123,
+        "pt": 123,
+        "es": 123,
+        "en": 147,
+        "zh": 123,
+        "de": 145,
+        "fr": 123,
+        "nl": 123,
+        "it": 125,
+        "pl": 125
+      },
+      "sourceRowsSha256": "9b01a48acda54a86059403f9b0cc927c2aef93d2a1f8e0cb6356b8a513c3dc88",
+      "tools": {
+        "warm_camera": 20,
+        "get_job": 150,
+        "capture_image": 20,
+        "move_focuser": 20,
+        "park_mount": 20,
+        "clear_targets": 10,
+        "start_sequence": 10,
+        "start_guiding": 20,
+        "set_switch": 20,
+        "stop_sequence": 10,
+        "run_autofocus": 20,
+        "save_sequence": 10,
+        "cancel_job": 10,
+        "change_filter": 20,
+        "set_tracking": 10,
+        "connect_device": 20,
+        "slew_mount": 20,
+        "home_mount": 20,
+        "get_recent_images": 20,
+        "unpark_mount": 20,
+        "list_saved_sequences": 11,
+        "stop_all": 10,
+        "load_sequence": 10,
+        "disconnect_device": 20,
+        "reset_sequence": 10,
+        "get_status": 50,
+        "stop_guiding": 10,
+        "get_sequence": 10,
+        "cool_camera": 20,
+        "list_target_templates": 10,
+        "list_jobs": 12,
+        "add_target": 10,
+        "get_guider_report": 2,
+        "get_guiding_coach_report": 2,
+        "list_guide_incidents": 2,
+        "get_guide_incident": 2,
+        "read_log": 2,
+        "find_targets": 2,
+        "plan_targets": 2,
+        "get_session_summary": 2,
+        "get_system_health": 2,
+        "get_events": 2,
+        "secure_observatory": 2,
+        "plate_solve": 2,
+        "center_target": 2,
+        "move_rotator": 2,
+        "control_flat_device": 2,
+        "control_dome": 2
+      },
+      "tokens": {
+        "min": 304,
+        "median": 728,
+        "p95": 1083,
+        "max": 1325
+      },
+      "completionTokens": {
+        "median": 21,
+        "p95": 36,
+        "max": 63
+      }
+    }
+  },
+  "skipped": 0,
+  "trainingManifestSha256": "fd0a92ee0c2e1fd5b37e339c8d19e66d5fea1336259915fe14ebcd26799170d1",
+  "tests": [
+    {
+      "suite": "reliability_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "chat_dataset_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "generation_validation_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "curriculum_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "comprehensive_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "training_resume_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "colab_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "evaluation_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "v2_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "preflight_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "export_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "colab_environment_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "colab_model_cache_tests",
+      "exitCode": 0
+    }
+  ],
+  "gatewaySimulatedChecks": 223,
+  "runtimeChecks": 28,
+  "nativeCallsValidated": 5140,
+  "isolation": {
+    "linkedGroupLeaks": [],
+    "exactPromptLeaks": [],
+    "newNearDuplicates": [],
+    "nearThreshold": 0.9,
+    "linguisticReview": "pending; text similarity and translation-linked groups cannot prove semantic independence",
+    "inputHashes": {
+      "validation": "0d5116a63cfcea206e1105faa1e0288341d3eae85e59b0a18f1b1699fa87b280",
+      "test": "d0490afc3e9e9411173e351aefc62b82c869896940a583188164d1c6d9dd7fce",
+      "eval_gold": "e27da77d5596c910ba1969fae944e0b41bd327d20d3fe2599c244730d1148c81",
+      "hard_gold": "da6b7d19d9bdd6424e8c4ca21697e6e5b7e67b3d5ce66f479a99ad50fa2cc85c",
+      "development": "6aa7a236a8a880c904267902e5b341b099b0ffd6572b5037c05f5a619a39b06f",
+      "future_holdout": "a4f23cafee8fe592e13e597bbee2e5614956f6e688d89f941fe354b5e193f030"
+    }
+  },
+  "frozenDevelopmentInputsMatchHistoricalV7": true,
+  "frozenSelectedCases": 146,
+  "futureHoldoutCases": 40,
+  "futureHoldoutReview": "pending; incomplete release coverage",
+  "productionEligibleModels": [],
+  "fullModelTrainingStarted": false,
+  "gpuSmokeRun": false,
+  "quantizedEvaluationRun": false,
+  "weightsDownloaded": false,
+  "equipmentCommandsSent": false,
+  "piDeployment": false,
+  "remaining": [
+    "native/domain review and broader independent holdout",
+    "fresh matching GPU smoke and v8 training",
+    "matched base/prior/new and GGUF evaluation",
+    "historical router recall 294/480 remains",
+    "reviewed Pi resource/compatibility tests"
+  ],
+  "colabRuntimeReuse": {
+    "python": "hosted sys.executable",
+    "torchCuda": "protected existing stack",
+    "dependencyOverlay": "pinned missing or incompatible packages only",
+    "persistentBaseCache": "Drive/base-models, verified before restore",
+    "cpuMockTests": {
+      "environment": 10,
+      "modelCache": 12,
+      "notebook": 7
+    },
+    "actualColabSetupRun": false,
+    "setupTimingMeasured": false
+  }
+}

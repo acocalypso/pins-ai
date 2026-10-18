@@ -81,6 +81,8 @@ public sealed class ToolGateway {
         }
     }
 
+    public bool IsReadOnly(string name) => catalog.ContainsKey(name) && Reads.Contains(name);
+
     public ToolPreview Preview(string name, JsonObject arguments, RigContext context) {
         arguments = EffectiveArguments(name, arguments);
         Validate(name, arguments); ValidateContext(name, arguments, context);

@@ -28,8 +28,9 @@ GGUF and evaluate deployment parity. Only then consider Pi promotion. See
 
 | Environment | Python / PyTorch | Dependencies | Configuration | Evaluation backend |
 |---|---|---|---|---|
-| NVIDIA workstation / Colab T4 | Python 3.11, torch 2.7.1 CUDA 12.6 | `training/requirements.txt` | `training/configs/config-v7.json` (FP16/NF4 QLoRA) | `cuda-nf4` |
-| AMD Instinct MI355X, Linux x86-64 | AMD-supported ROCm/PyTorch with gfx950 kernels; example below | `training/requirements-common.txt` | `training/configs/mi355x-v7-lora-bf16.json` (BF16 LoRA) | `gpu-bf16` |
+| Colab T4 | Hosted kernel Python and working preinstalled CUDA PyTorch | `training/colab_environment.py` installs missing/incompatible training dependencies only | `training/configs/config-v8.json` (FP16/NF4 QLoRA) | `cuda-nf4` |
+| NVIDIA workstation | Versioned example: Python 3.11, torch 2.7.1 CUDA 12.6 | `training/requirements.txt` | `training/configs/config-v8.json` (FP16/NF4 QLoRA) | `cuda-nf4` |
+| AMD Instinct MI355X, Linux x86-64 | AMD-supported ROCm/PyTorch with gfx950 kernels; example below | `training/requirements-common.txt` | `training/configs/mi355x-v8-lora-bf16.json` (BF16 LoRA) | `gpu-bf16` |
 
 Use Git and Python; Git LFS is needed only for the bundled deployment GGUF files.
 The optional actual gateway-schema audit below additionally needs .NET SDK 10;
@@ -69,7 +70,7 @@ blindly concatenate. The contents are:
 - `training/dataset/sources/comprehensive/train.jsonl`: historical train-only coverage of the original 32
   MCP tools and ten languages, including arguments, boundaries, job
   outcomes, authorization and unsupported requests. See its [coverage guide](../training/dataset/sources/comprehensive/README.md).
-- **Current default:** `training/dataset/train.jsonl`: the v7 multilingual MCP48
+- **Current default:** `training/dataset/train.jsonl`: the v8 multilingual MCP48
   chat/proposal curriculum. Read its [guide](../training/dataset/README.md) and
   [comparison and accuracy recipe](model-report.md) before a new run.
 - `training/dataset/data/manifest.json`: immutable original data hashes;
@@ -118,7 +119,7 @@ Read its issues and require exit code zero before continuing.
 
 For Colab, open [notebooks/pins-ai-colab.ipynb](../training/notebooks/pins-ai-colab.ipynb), choose
 a hosted T4 GPU kernel, and authorize Drive. It clones/pulls Git, verifies the
-existing Drive data, installs the pinned Python/CUDA environment, prepares data,
+existing Drive data, reuses the kernel's Python and installed CUDA PyTorch, prepares data,
 and runs smoke/reload checks before full training. Defaults are `TRAINING_MODE =
 'fresh'`, `RUN_TRAINING = False`, and final gold evaluation disabled. Deliberately
 enable training after reviewing the configuration. Outputs/checkpoints are under
@@ -126,6 +127,34 @@ enable training after reviewing the configuration. Outputs/checkpoints are under
 using the old `PINS_MCP_AI_Training_v2/data` layout remain supported, with identical
 byte-hash checks. Code is never loaded from Drive. Regenerate the notebook with
 `python training/create_colab_notebook.py` after changing its generator.
+
+The Colab setup does **not** create a Python 3.11 environment or reinstall PyTorch,
+CUDA, Triton or NVIDIA libraries. It resolves the repository's training package
+pins against the existing stack and installs only required changes. A resolver
+plan that would replace the GPU stack is rejected. Setup records the interpreter,
+before/after package inventory and install plan in `colab-environment.json` under
+the new Drive run directory. Imports and small NF4 GPU kernels run in a fresh
+subprocess, avoiding stale packages already imported by the notebook kernel.
+Use the latest compatible hosted runtime; no particular future Colab allocation
+is assumed to work without preflight and the matching model smoke test.
+
+For a fresh run, keep `TRAINING_MODE = 'fresh'`, select T4, run setup/data cells,
+then explicitly enable `RUN_TRAINING` and run smoke/reload followed by full
+training. An interrupted run still requires its original configuration, data
+and dependency versions. Reusing a newer runtime does not make a different
+dependency stack an exact continuation; the resume checks remain enforced.
+
+Base weights are reused from `.local/training/base` when valid, otherwise restored
+from `/content/drive/MyDrive/pins-ai/base-models/<pinned-key>/`. A first run or
+invalid/missing cache still downloads the pinned base once, then caches it on
+Drive. Each reuse checks the pinned weights SHA256 and file provenance; training
+uses a VM-local copy. This trades Drive space and verification/copy time for
+avoiding another network download. `base-cache.json` records the source. Cached
+weights are separate from run checkpoints and never added to Git.
+
+These changes have CPU/mock test coverage; execution and setup timings on a real
+current Colab T4 allocation remain **not verified**. The notebook's preflight and
+short GPU smoke are the next checks before enabling a full v8 run.
 
 ## MI355X / ROCm setup
 
@@ -197,7 +226,7 @@ For actual gateway-schema parity, on a development machine with .NET SDK 10:
 ```bash
 dotnet run --project training/tools/RouterAudit -- \
   training/dataset/train.jsonl \
-  training/dataset/contracts/tools-list.json artifacts/router-chat-v7.json
+  training/dataset/contracts/tools-list.json artifacts/router-chat-v8.json
 python training/tests/chat_dataset_tests.py
 ```
 
@@ -209,7 +238,7 @@ check; it must not be reported as a measured gateway audit. CI runs the audit.
 Choose the environment profile. Linux NVIDIA:
 
 ```bash
-CONFIG=training/configs/config-v7.json
+CONFIG=training/configs/config-v8.json
 BACKEND=cuda-nf4
 RUN=artifacts/training-runs/qwen3-$(date -u +%Y%m%d-%H%M%S)
 DATA=artifacts/training-data/current
@@ -218,7 +247,7 @@ DATA=artifacts/training-data/current
 Linux ROCm uses the same commands below with:
 
 ```bash
-CONFIG=training/configs/mi355x-v7-lora-bf16.json
+CONFIG=training/configs/mi355x-v8-lora-bf16.json
 BACKEND=gpu-bf16
 RUN=artifacts/training-runs/qwen3-mi355x-$(date -u +%Y%m%d-%H%M%S)
 DATA=artifacts/training-data/current
@@ -254,7 +283,7 @@ instead of bash variables. Set them as below, and put commands on one line or us
 PowerShell's backtick for line continuation (not bash's backslash):
 
 ```powershell
-$Config='training/configs/config-v7.json'
+$Config='training/configs/config-v8.json'
 $Backend='cuda-nf4'
 $Run='artifacts/training-runs/qwen3-'+(Get-Date -Format 'yyyyMMdd-HHmmss')
 $Data='artifacts/training-data/current'
@@ -490,8 +519,9 @@ active projection, and preserves all frozen source/evaluation bytes. It has
 Development validation combines 583 original scenarios with 44 independent new
 English/German cases (627 conversations). New-tool native requests cover all ten
 training languages; their development supplement covers English/German only.
-No trained v7 model, new GPU smoke, Colab execution or Pi deployment is claimed.
-Use `config-v7.json` for T4/NVIDIA or `mi355x-v7-lora-bf16.json` for supported ROCm,
+At the 2026-10-14 update no trained v7 model or new deployment was claimed.
+The completed v7 run and current v8 code-only status are documented below.
+Use `config-v8.json` for T4/NVIDIA or `mi355x-v8-lora-bf16.json` for supported ROCm,
 a fresh pinned base, newly prepared data and a new matching smoke run. Do not
 resume an old adapter as an exact continuation under the new contracts.
 
@@ -547,3 +577,147 @@ it does not retry just the failures. Original reports are preserved and outputs
 are atomic. Legacy reports lacking identity fields require a fresh evaluation.
 `--backend cpu-fp32` is an explicit off-device fallback, not CUDA/NF4 or GGUF parity.
 Never mix these backends into one comparison.
+
+
+## V8 reliability experiment and historical v7 migration (2026-10-18)
+
+The completed v7 Colab run stopped by early stopping at 700/1,476, not by a
+crash. `full/adapter` is the safety-ranked checkpoint 300; its bytes match that
+save. The in-memory step-700 loss is 0.153557, while the selected checkpoint's
+loss is 0.254906. Overall and resumed-segment losses are different scopes. See
+[the model report](model-report.md) and machine-readable v7 analysis.
+
+V8 is a **fresh-base experiment**, never a continuation of historical v7. Use
+`config-v8.json` for NVIDIA FP16/NF4 or `mi355x-v8-lora-bf16.json` for supported
+ROCm BF16. Learning rate, patience, seed and batch settings remain unchanged;
+this is a versioned data/selection change, not a cosmetic patience increase.
+The Colab generator/notebook default to v8 fresh mode with training disabled.
+To continue an interrupted old v7 run, use its original Git revision, config,
+prepared data and smoke; current code explicitly rejects different scoring/data
+contracts. A completed early-stopped run is read-only, not an exact resume source.
+
+The 627 development conversations and 146 selected inputs/prompts are frozen
+from v7. Historical case fingerprints preserve old evaluation provenance labels;
+the SFT validation loader still labels its copies validation. No validation row
+is optimized as training. V8 adds 460 independently authored train-only contrasts,
+for 6,039 conversations / 8,320 unique prepared turns. No current model improvement
+is implied. Native-speaker and semantic review are pending.
+
+`v8-safety-first-research-1` keeps the selected full adapter safety-ranked:
+clean candidates outrank violations; unwanted proposals/truncation dominate,
+then invalid outputs, then macro exact accuracy. Historical v7 scores remain
+available as `historical_v7_selection_score`; their scale/meaning is unchanged.
+The exported adapter is labeled research, never automatically production eligible.
+Production review additionally requires zero reviewed critical unwanted proposals,
+no unauthorized simulated execution, no significant schema regression, reviewed
+independent holdout success and quantized/runtime parity. Unknown evidence fails.
+
+Early stopping now resets when either safety rank OR macro accuracy improves by
+more than the configured threshold. Its state is exported/restored in checkpoint
+JSON. It uses the same fixed dev suite; future holdout never affects selection.
+`research-candidates/checkpoints/` retains separate best-safety and best-accuracy
+adapter/config/state copies, outside ordinary checkpoint rotation. A full Pareto
+report is kept in `research-candidates/selection.json`; only two unique weight
+copies are retained. Copies have no optimizer state and cannot be resumed as full
+checkpoints. Exact interrupted-v8 resumes preserve the reports and research copies.
+
+Checkpoint reports contain per-language/tool/category counts, exact rates and
+Wilson intervals, separate invalid no-tool/required-tool outputs, argument errors,
+critical-category metrics and generation/scoring wall time where measured. These
+are proposal metrics; they do not measure physical unauthorized operations.
+Optional/default omission stays strictly separate from explicit arguments; no
+side-effect/default equivalence is silently normalized.
+
+Analyze existing reports (stdlib only, source files stay read-only):
+
+```bash
+OLD=artifacts/training-runs/qwen3-pins-v7-colab-20261018-123322
+python training/analyze_generation_validation.py \
+  "$OLD/full/generation-validation"/step-*.json \
+  --output artifacts/v7-analysis-new.json --csv artifacts/v7-analysis-new.csv
+python training/audit_split_isolation.py --output artifacts/v8-isolation-new.json
+```
+
+The leakage audit checks scenario groups across languages, exact prompts and
+numeric-normalized near-text matches for new contrasts. It is a heuristic, not
+proof against semantic/translation leakage. `holdout-v8.jsonl` is a separately
+authored frozen starter with 30 critical no-tool and 10 positive query cases
+across ten languages. It is deliberately **not a complete release benchmark**:
+native/domain review and broader independent tool coverage remain required.
+Never regenerate it to repair failures or import it into a training generator.
+
+After the existing CUDA/ROCm setup above, run these **manually on an authorized
+GPU host**. None was run as part of this code task. Prefer the existing Colab T4
+16 GB allocation for NF4; a 4 GB Pascal card may not fit the full context. AMD
+requires the documented supported ROCm/BF16 stack, not bitsandbytes. A matching
+new smoke is mandatory, even when older recipes trained successfully.
+
+```bash
+CONFIG=training/configs/config-v8.json
+BACKEND=cuda-nf4
+# On ROCm instead:
+# CONFIG=training/configs/mi355x-v8-lora-bf16.json
+# BACKEND=gpu-bf16
+DATA=artifacts/v8/sft
+RUN=artifacts/training-runs/qwen3-v8-$(date -u +%Y%m%d-%H%M%S)
+python training/prepare_v2.py --curriculum --max-tokens 1536 --output "$DATA"
+python training/train.py --base .local/training/base --dataset-mode mcp \
+  --config "$CONFIG" --data "$DATA" --max-steps 4 --logging-steps 1 --output "$RUN/smoke"
+python training/evaluate_v2.py --base .local/training/base --backend "$BACKEND" \
+  --adapter "$RUN/smoke/adapter" --suite validation_smoke --prompt-mode chat \
+  --per-language 2 --max-new-tokens 192 --output "$RUN/smoke-reload.json"
+python training/train.py --base .local/training/base --dataset-mode mcp \
+  --config "$CONFIG" --data "$DATA" --smoke-run "$RUN/smoke" --output "$RUN/full"
+python training/evaluate_v2.py --base .local/training/base --backend "$BACKEND" \
+  --adapter "$RUN/full/adapter" --suite validation_smoke --prompt-mode chat \
+  --max-new-tokens 192 --output "$RUN/development.json"
+# Only after freezing the model/recipe; never tune training on these predictions:
+python training/evaluate_v2.py --base .local/training/base --backend "$BACKEND" \
+  --adapter "$RUN/full/adapter" --suite future_holdout --prompt-mode chat \
+  --max-new-tokens 192 --output "$RUN/future-holdout.json"
+```
+
+Repeat the same frozen suites/options for base and prior adapters, and for the
+retained diagnostic accuracy checkpoint. Historical v7 full/adapter remains
+step 300, not the latest step or a production-approved model.
+
+For **matched separate runtime LoRA** parity, use the pinned llama.cpp checkout
+and converter environment described above. This differs from merged Q4 export:
+
+```bash
+LLAMA=.local/llama.cpp
+.local/converter-venv/bin/python "$LLAMA/convert_lora_to_gguf.py" \
+  --base .local/training/base --outtype f16 --outfile "$RUN/runtime-lora-f16.gguf" "$RUN/full/adapter"
+cmake --build "$LLAMA/build" --target llama-server -j 2
+SERVER="$LLAMA/build/bin/llama-server"
+git lfs pull --include='plugin/models/bundled/*.gguf'
+BASE=plugin/models/bundled/qwen3-pinned-base-Q4_K_M.gguf
+python training/evaluate_gguf.py --model "$BASE" --lora "$RUN/runtime-lora-f16.gguf" \
+  --server "$SERVER" --llama-source "$LLAMA" --suite validation_smoke --prompt-mode chat \
+  --max-new-tokens 192 --output "$RUN/gguf-development.json"
+python training/evaluate_gguf.py --model "$BASE" --lora "$RUN/runtime-lora-f16.gguf" \
+  --server "$SERVER" --llama-source "$LLAMA" --suite future_holdout --prompt-mode chat \
+  --max-new-tokens 192 --output "$RUN/gguf-future-holdout.json"
+```
+
+Build `llama-server` on Linux at the pinned commit before those commands. The
+GGUF evaluator uses two threads, context 1,536, output 192 and no equipment calls.
+Repeat with the exact same Q4 base and prior/base controls; do not mix merged-Q4
+results with runtime-LoRA measurements.
+
+Future Pi checks require separate deployment review/authorization; do not install
+anything automatically. For an existing reviewed Pi profile, the following
+read-only diagnostic can query only equipment status (set `PINS_SSH_PASSWORD`
+locally and verify the host key first):
+
+```bash
+python plugin/scripts/pi-mcp-readonly-probe.py --host 192.168.178.109 --user pi \
+  --render-python .local/training-venv/bin/python \
+  --checkpoint "$OLD/full/adapter" --output artifacts/v8-pi-readonly-new.json
+```
+
+That probe uses the Pi's already configured model; it is **not** evidence of new
+weights or production chat binding. Router audit is separate. Pi promotion still
+needs explicit model/config review, plugin ownership, exact approval regressions,
+RAM/swap/temperature limits (75 C cutoff), latency and active-imaging contention
+checks. None of these future GPU, GGUF or Pi commands passed merely by being listed.

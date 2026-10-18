@@ -52,7 +52,9 @@ class TrainingMetrics(TrainerCallback):
             if key in logs:
                 record[key] = logs[key]
         for key in ('eval_tool_choice', 'eval_tool_exact', 'eval_tool_macro_exact', 'eval_schema_valid',
-                    'eval_unsafe_proposals', 'eval_generation_truncated', 'eval_generation_cases', 'eval_selection_score'):
+                    'eval_unsafe_proposals', 'eval_generation_truncated', 'eval_generation_cases', 'eval_selection_score', 'eval_historical_v7_selection_score',
+                    'eval_unwanted_proposals', 'eval_invalid_no_tool_outputs', 'eval_required_tool_schema_violations',
+                    'eval_argument_errors', 'eval_development_gate_passed', 'eval_production_eligible', 'eval_generation_seconds'):
             if key in logs:
                 if not math.isfinite(logs[key]):
                     raise ValueError('Non-finite generated validation metric: ' + key)

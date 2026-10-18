@@ -44,7 +44,7 @@ All training examples and contract snapshots are versioned under `training/datas
 `test`, `eval_gold` and `hard_gold` are evaluation-only. Existing dataset byte
 hashes and the 326-example informational baseline are preserved. Checkpoints and
 local training base weights stay outside Git; deployment GGUF files use Git LFS.
-New training uses [v7 multilingual MCP48 chat data](training/dataset/README.md).
+New training uses [v8 multilingual reliability data](training/dataset/README.md).
 The [model report](docs/model-report.md) separates data validity from runtime
 retrieval and model accuracy; start a fresh adapter, not an old checkpoint resume.
 
@@ -76,14 +76,14 @@ MCP chat and Debian packaging work on the tested Pi 5 with 4 GB RAM. The package
 default uses two CPU threads and a 75°C cutoff. The bundled checkpoint-700 adapter
 is **diagnostic**, not a production-quality model: live sequence planning still
 failed validation. The completed step-1900 candidate did not beat the prior adapters
-in the matched runtime comparison and was not promoted. V6 data and accuracy-based
-checkpoint selection are prepared for fresh training; adding examples does not
-update existing weights. Active-imaging contention and sustained hot
+in the matched runtime comparison and was not promoted. V8 safety/argument contrasts and research-candidate diagnostics are prepared for fresh training; adding examples does not
+update existing weights. The completed v7 run selected checkpoint 300 and still
+produced unwanted development proposals; it was not deployed. Active-imaging contention and sustained hot
 operation remain unverified.
 
 MI355X support is prepared as single-GPU BF16 LoRA on ROCm, with backend and resume
 contract tests. The uploaded completed run recorded RX 7900 XT, not MI355X;
-actual MI355X/v7 training and performance remain unverified. The Colab T4/NVIDIA
+actual MI355X/v8 training and performance remain unverified. The Colab T4/NVIDIA
 FP16/NF4 recipe is retained.
 
 See [LICENSE](LICENSE), [third-party notices](THIRD_PARTY_NOTICES.md), and dataset

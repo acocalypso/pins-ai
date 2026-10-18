@@ -9,7 +9,7 @@ from curriculum_v3 import curriculum_rows as legacy_rows
 from chat_dataset_common import CHAT_POLICY, LANGUAGES, chat_definitions
 from v2_contracts import POLICY, definitions
 
-PROFILE = 'v7-upstream-mcp48-chat-proposals'
+PROFILE = 'v8-multilingual-reliability'
 OUTPUT_RESERVE = 192
 DATA = ROOT / 'training/dataset'
 DENIAL = dict(zip(LANGUAGES, (
@@ -121,11 +121,11 @@ def source_rows():
 
 def curriculum_rows(split):
     if split == 'validation':
-        rows = [project(r) for r in legacy_rows(split)]
-        for row in rows:
-            row['provenance']['split'] = split
-        from upstream_tool_curriculum import validation_rows
-        return rows + validation_rows()
+        path = DATA / 'validation-chat-v7.jsonl'
+        manifest = json.loads(path.with_suffix('.manifest.json').read_text(encoding='utf-8'))
+        if sha256(path) != manifest['sha256']:
+            raise ValueError('Frozen development inputs changed')
+        return read_jsonl(path)
     if split != 'train':
         raise ValueError('Only train/validation are preparation inputs; gold remains held out')
     manifest = json.loads((DATA / 'manifest.json').read_text(encoding='utf-8'))

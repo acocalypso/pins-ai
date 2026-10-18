@@ -14,10 +14,13 @@ python training/tests/training_tests.py
 python training/tests/v2_tests.py
 python training/tests/curriculum_tests.py
 python training/tests/comprehensive_tests.py
+python training/tests/reliability_tests.py
 python training/tests/upstream_contract_tests.py
 python training/tests/chat_dataset_tests.py
 python training/tests/generation_validation_tests.py
 python training/tests/colab_tests.py
+python training/tests/colab_environment_tests.py
+python training/tests/colab_model_cache_tests.py
 python training/tests/training_resume_tests.py
 python training/tests/evaluation_tests.py
 python training/tests/export_tests.py

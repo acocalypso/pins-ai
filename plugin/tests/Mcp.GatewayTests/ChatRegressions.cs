@@ -42,6 +42,11 @@ static class ChatRegressions {
         await refuse(() => chat.HandleAsync("model-supplied-session", "tool", new() { ["name"] = "connect_device", ["arguments"] = new JsonObject { ["device"] = "camera" } }, default), "untrusted session cannot create previews");
         var query = await chat.HandleAsync(session, "tool", new() { ["name"] = "get_status", ["arguments"] = new JsonObject() }, default);
         check(query["kind"]!.GetValue<string>() == "result" && fixture.Mutations == 0, "read-only chat query reaches MCP without mutation");
+        if (catalog["tools"]!.AsArray().Any(t => t?["name"]?.GetValue<string>() == "get_system_health")) {
+            var health = await chat.HandleAsync(session, "tool", new() { ["name"] = "get_system_health", ["arguments"] = new JsonObject() }, default);
+            check(health["kind"]!.GetValue<string>() == "result" && fixture.Mutations == 0,
+                "new MCP query uses gateway read-only classification without requesting action approval");
+        }
         async Task<ToolPreview> Preview() {
             var result = await chat.HandleAsync(session, "tool", new() { ["name"] = "connect_device", ["arguments"] = new JsonObject { ["device"] = "camera" } }, default);
             return result["preview"]!.Deserialize<ToolPreview>(AiConfiguration.Json)!;

@@ -25,11 +25,15 @@ jobs:
       - run: python training/dataset/scripts/validate_dataset.py
       - run: python training/tests/v2_tests.py
       - run: python training/tests/colab_tests.py
+      - run: python training/tests/colab_environment_tests.py
+      - run: python training/tests/colab_model_cache_tests.py
       - run: python training/tests/curriculum_tests.py
       - run: python training/tests/comprehensive_tests.py
-      - run: dotnet run --project training/tools/RouterAudit -- training/dataset/train.jsonl training/dataset/contracts/tools-list.json artifacts/router-chat-v7.json
+      - run: dotnet run --project training/tools/RouterAudit -- training/dataset/train.jsonl training/dataset/contracts/tools-list.json artifacts/router-chat-v8.json
       - run: python training/tests/upstream_contract_tests.py
       - run: python training/tests/chat_dataset_tests.py
+      - run: python training/tests/reliability_tests.py
+      - run: python training/audit_split_isolation.py --output artifacts/v8-ci-isolation.json
       - run: python training/tests/generation_validation_tests.py
       - run: python training/tests/preflight_tests.py
       - run: python training/tests/training_resume_tests.py

@@ -131,6 +131,9 @@ def stage_source(bundle, output):
         selected = [n for n in names if n.startswith(prefix) and not n.endswith('/') and not n.endswith('training_args.bin')]
         best_files = [best_prefix + n for n in ('adapter_model.safetensors', 'adapter_config.json')]
         selected += best_files + ['full/training-run.json']
+        if json.loads(read('full/training-run.json')).get('config', {}).get('generationValidation', {}).get('selectionVersion'):
+            selected += [n for n in names if n.startswith(('full/generation-validation/', 'full/research-candidates/'))
+                         and n.endswith(('.json', '.safetensors'))]
         if 'source-git.json' in names: selected.append('source-git.json')
         hashes = {}
         for name in dict.fromkeys(selected):

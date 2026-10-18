@@ -59,9 +59,9 @@ def main():
         # Original run to continue, NOT this session's new RUN_NAME/resume-source.
         RESUME_SOURCE = DRIVE_FOLDER / 'runs/qwen3-pins-v7-colab-20261014-191543'
         # Alternatively: the results ZIP exported from that same original run.
-        RUN_NAME = 'qwen3-pins-v7-colab-'  + datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
-        TRAIN_CONFIG = 'training/configs/config-v7.json'
-        SFT_DATA = 'artifacts/v7/sft'
+        RUN_NAME = 'qwen3-pins-v8-colab-'  + datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
+        TRAIN_CONFIG = 'training/configs/config-v8.json'
+        SFT_DATA = 'artifacts/v8/sft'
         PRIOR_ADAPTER = DRIVE_FOLDER / 'runs/qwen3-pins-v2-colab-20261011-131536/full/adapter'
         REPOSITORY = 'https://github.com/acocalypso/pins-ai.git'
         BRANCH = 'main'
@@ -75,7 +75,8 @@ def main():
         ## Pull code, mount Drive and verify existing data
         The cloud VM has its own filesystem. Mounting Drive grants this notebook
         access to your Drive; the workflow reads data and writes run outputs
-        only in `DRIVE_FOLDER`. Base weights and prepared data stay on the VM.
+        only in `DRIVE_FOLDER`. Training uses a VM-local copy of the base weights;
+        a verified copy is cached in `DRIVE_FOLDER/base-models` for later sessions.
         Drive outputs survive VM deletion. Do not include Pi passwords or tokens.
     ''')
     cell('code', '''
@@ -118,11 +119,15 @@ def main():
         print('Verified Git code and Drive data; persistent outputs:', RUN_ROOT)
     ''')
     cell('markdown', '''
-        ## Isolated, pinned training environment
-        Keep Colab's notebook kernel intact. Create a separate Python 3.11
-        environment with the same CUDA 12.6 PyTorch and training package versions
-        that worked locally. Downloads occur only when these cells are executed.
-        Driver/kernel compatibility is checked before any model training.
+        ## Reuse the Colab GPU runtime
+        Use Colab's existing Python and CUDA PyTorch, including the default T4.
+        Install only missing or incompatible training dependencies at the repository
+        pins. Setup never downloads Python or replaces the existing PyTorch/CUDA
+        stack. Unsupported runtimes fail with a clear error; choose a compatible
+        hosted runtime. The exact package inventory and resolver plan are saved to Drive.
+        A fresh process checks imports and CUDA/NF4 kernels before model downloads.
+        This runtime stack still requires its own matching GPU smoke; an old run
+        can resume only when the strict saved dependency checks also pass.
     ''')
     cell('code', '''
         def setup_command(arguments):
@@ -134,22 +139,10 @@ def main():
                 raise RuntimeError(f'Setup failed (exit {result.returncode}); full output is above.')
             return result.stdout.strip()
 
-        print('Notebook interpreter:', sys.executable, sys.version)
-        setup_command([sys.executable, '-m', 'pip', 'install', '--quiet', 'uv'])
-        UV = [sys.executable, '-m', 'uv']
-        setup_command([*UV, '--version'])
-        # Download Python explicitly, then use its standard venv/ensurepip.
-        # This avoids uv venv's additional --seed package resolution step.
-        setup_command([*UV, 'python', 'install', '3.11'])
-        managed_python = setup_command([*UV, 'python', 'find', '--managed-python', '3.11'])
-        if not Path(managed_python).is_file():
-            raise RuntimeError('uv did not return a valid Python executable path.')
-        setup_command([managed_python, '-m', 'venv', str(PROJECT / '.local/training-venv')])
-        PYTHON = PROJECT / '.local/training-venv/bin/python'
-        setup_command([PYTHON, '-c', 'import sys; assert sys.version_info[:2] == (3, 11); print(sys.version)'])
-        setup_command([PYTHON, '-m', 'pip', 'install', '--quiet', 'torch==2.7.1',
-                       '--index-url', 'https://download.pytorch.org/whl/cu126'])
-        setup_command([PYTHON, '-m', 'pip', 'install', '--quiet', '-r', 'training/requirements.txt'])
+        PYTHON = Path(sys.executable)
+        print('Using Colab interpreter:', PYTHON, sys.version)
+        setup_command([PYTHON, 'training/colab_environment.py',
+                       '--report', RUN_ROOT / 'colab-environment.json'])
         setup_command([PYTHON, 'training/preflight.py'])
     ''')
     cell('code', '''
@@ -186,19 +179,31 @@ def main():
             print(f'Finished in {time.monotonic() - started:.1f}s; log: {log_path}')
     ''')
     cell('markdown', '''
-        ## Download the pinned base and validate/export data
-        Executing the next cell downloads the Apache-2.0 Qwen3 0.6B checkpoint
-        using the repository's existing explicit license/download flags and
-        verifies its hash. No unpinned model or automatic dependency upgrade.
+        ## Reuse the pinned base and validate/export data
+        First reuse a hash-verified local base or restore it from Drive's
+        `base-models` cache. Only a cache miss downloads the Apache-2.0 Qwen3
+        0.6B checkpoint with the existing explicit license/download flags.
+        The verified checkpoint is then cached on Drive. No unpinned model or
+        automatic dependency upgrade. Training reads VM-local weights, not Drive.
         Only train/validation are exported. Test, eval_gold and hard_gold stay
         outside the training examples. All original package hashes are checked.
-        The default curriculum is **v7 multilingual MCP48 chat proposals**: plain multilingual
+        The default curriculum is **v8 multilingual MCP48 reliability contrasts**: plain multilingual
         requests, clarification and dependent workflows; proposals do not grant
         hardware approval. Original datasets remain archived unchanged. This is a
         changed recipe: select `TRAINING_MODE = 'fresh'`, not an old checkpoint resume.
     ''')
     cell('code', '''
-        run_pipeline(['training/fetch_base.py', '--download', '--accept-license'], 'fetch-base.log')
+        from colab_model_cache import reuse_base_model, persist_base_model
+        BASE = PROJECT / '.local/training/base'
+        BASE_CACHE = DRIVE_FOLDER / 'base-models'
+        cached_base = reuse_base_model(BASE, BASE_CACHE, PROJECT / TRAIN_CONFIG)
+        if cached_base is None:
+            run_pipeline(['training/fetch_base.py', '--download', '--accept-license',
+                          '--output', BASE], 'fetch-base.log')
+            cached_base = {'source': 'download', 'path': str(BASE)}
+        cached_base['persistentCache'] = persist_base_model(BASE, BASE_CACHE, PROJECT / TRAIN_CONFIG)
+        (RUN_ROOT / 'base-cache.json').write_text(json.dumps(cached_base, indent=2))
+        print('Base weights:', cached_base['source'], '| VM path:', BASE)
         run_pipeline(['training/dataset/scripts/validate_dataset.py'], 'package-validation.log')
         run_pipeline(['training/tests/chat_dataset_tests.py'], 'chat-data-validation.log')
         run_pipeline(['training/prepare_v2.py', '--curriculum', '--max-tokens', '1536',
@@ -278,7 +283,9 @@ def main():
         seed3407, learning rate5e-5. Validation/checkpoints every100 optimizer
         steps. Select checkpoints by generated tool-balanced exact accuracy,
         penalizing unwanted proposals and truncated outputs, rather than eval_loss.
-        Stop after four checks without selection-score improvement of at least0.005.
+        V8 stops after four checks without either safety-score or macro-accuracy improvement of at least0.005.
+        The full adapter remains safety-ranked; separate best-accuracy weights are diagnostic only.
+        No development score grants production eligibility.
         Generated validation uses a deterministic development-only sample; no gold
         cases are used for checkpoint selection. This is not a hardware safety proof.
         This changes data and training settings together; results are an engineering
@@ -288,7 +295,7 @@ def main():
         eval_unsafe_proposals, eval_generation_truncated and eval_selection_score.
         Changed data/configuration requires fresh training from the pinned base.
         To continue an old run exactly, use its original configuration and source
-        revision; do not substitute this v7 profile for the old recipe.
+        revision; do not substitute this v8 profile for the old recipe.
         Checkpoints, metrics, dependency versions and the final best adapter are
         written to Drive. Interrupting a cell stops its child process. Abrupt VM
         deletion may leave metadata marked started; it never implies completion.
@@ -322,7 +329,7 @@ def main():
                                        ('validation', 'eval_loss', 'Validation')]:
                 points = [m for m in metrics if m['event'] == event]
                 ax.plot([m['step'] for m in points], [m[key] for m in points], marker='o', label=label)
-            ax.set(xlabel='Optimizer step', ylabel='Loss', title='PINS Qwen3 v7 training')
+            ax.set(xlabel='Optimizer step', ylabel='Loss', title='PINS Qwen3 v8 training')
             ax.legend(); ax.grid(alpha=0.2); fig.tight_layout()
             fig.savefig(RUN_ROOT / 'loss-curves.png', dpi=150)
             plt.show()
@@ -355,7 +362,7 @@ def main():
         if RUN_EVALUATION:
             completed = json.loads((FULL / 'training-run.json').read_text())
             assert completed['status'] == 'completed' and not completed['smokeOnly']
-            comparisons = [('v7', FULL / 'adapter'), ('base', None)]
+            comparisons = [('v8', FULL / 'adapter'), ('base', None)]
             if PRIOR_ADAPTER.is_dir(): comparisons.insert(1, ('prior-v2', PRIOR_ADAPTER))
             else: print('Prior v2 adapter not found on Drive; its comparison is pending.')
             for name, adapter in comparisons:

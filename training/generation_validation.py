@@ -2,6 +2,7 @@
 from collections import defaultdict
 import copy
 import json
+import time
 from pathlib import Path
 
 from common import ROOT, fingerprint, sha256, write_json
@@ -55,12 +56,17 @@ def prepare_validation(tokenizer, config, max_length):
         raise ValueError('Generated validation must use the bounded plugin output budget')
     if any(len(tokenizer.encode(c['prompt'], add_special_tokens=False)) + maximum > max_length for c in cases):
         raise ValueError('Generated validation exceeds deployment context')
+    if config.get('selectionVersion') not in (None, 'v8-safety-first-research-1'):
+        raise ValueError('Unknown selection version')
     contract = {'suite': 'development-validation', 'promptMode': 'chat', 'selection': config,
                 'inputs': inputs, 'scoringImplementationSha256': scoring_hash(),
                 'implementationSha256': sha256(ROOT / 'training/generation_validation.py'),
                 'caseInputsSha256': fingerprint([{k: c[k] for k in ('id', 'caseSha256', 'promptSha256')} for c in cases]),
                 'caseIds': [c['id'] for c in cases], 'caseCount': len(cases),
                 'backend': 'training HF precision; NOT quantized deployment parity', 'hardwareExecution': False}
+    if config.get('selectionVersion'):
+        contract['selectionImplementationSha256'] = sha256(ROOT / 'training/reliability_selection.py')
+        contract['analysisImplementationSha256'] = sha256(ROOT / 'training/analyze_generation_validation.py')
     return cases, contract
 
 
@@ -102,13 +108,14 @@ def generate_validation(model, tokenizer, cases, max_new_tokens):
         with torch.random.fork_rng(devices=list(range(torch.cuda.device_count()))), torch.inference_mode():
             for index, case in enumerate(cases):
                 batch = tokenizer(case['prompt'], return_tensors='pt', add_special_tokens=False).to(device)
+                started = time.perf_counter()
                 output = model.generate(**batch, max_new_tokens=max_new_tokens, do_sample=False,
                                         num_beams=1, pad_token_id=tokenizer.eos_token_id,
                                         eos_token_id=eos, use_cache=True)
                 tokens = output[0, batch['input_ids'].shape[1]:]
                 text = tokenizer.decode(tokens, skip_special_tokens=False)
                 results.append({**{k: case[k] for k in ('id', 'locale', 'category', 'expected', 'caseSha256', 'promptSha256')},
-                                **score(case, text), 'text': text,
+                                **score(case, text), 'text': text, 'seconds': time.perf_counter()-started,
                                 'outputTruncated': len(tokens) >= max_new_tokens and tokens[-1].item() != eos})
                 if (index + 1) % 10 == 0 or index + 1 == len(cases):
                     print(f'[generated-validation] {index + 1}/{len(cases)}', flush=True)
@@ -133,11 +140,17 @@ def make_trainer_class():
             model = self.accelerator.unwrap_model(self.model_wrapped)
             metrics, results = generate_validation(model, self.processing_class, self.generation_cases,
                                                    self.generation_contract['selection']['maxNewTokens'])
+            if self.generation_contract['selection'].get('selectionVersion'):
+                from reliability_selection import metrics as reliability_metrics
+                metrics = reliability_metrics(results, metrics)
             output.metrics.update({metric_key_prefix + '_' + k: v for k, v in metrics.items()})
-            write_json(self.generation_output / f'step-{self.state.global_step:06d}.json',
-                       {'contract': self.generation_contract, 'step': self.state.global_step,
+            report = {'contract': self.generation_contract, 'step': self.state.global_step,
                         'modelState': 'in-memory training weights at this optimizer step',
-                        'metrics': metrics, 'results': results, 'completed': True, 'hardwareExecution': False})
+                        'metrics': metrics, 'results': results, 'completed': True, 'hardwareExecution': False}
+            if self.generation_contract['selection'].get('selectionVersion'):
+                from reliability_selection import slices
+                report['reliabilitySlices'] = slices(results)
+            write_json(self.generation_output / f'step-{self.state.global_step:06d}.json', report)
             # These metrics reach logging, EarlyStopping and best-model selection
             # in the SAME evaluation event, rather than a late callback mutation.
             return output

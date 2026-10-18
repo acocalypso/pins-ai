@@ -1,17 +1,17 @@
 {
-  "conversations": 5579,
-  "assistantTurns": 9007,
+  "conversations": 6039,
+  "assistantTurns": 9507,
   "languages": {
-    "zh": 500,
-    "pl": 498,
-    "pt": 496,
-    "fr": 500,
-    "es": 501,
-    "de": 768,
-    "it": 496,
-    "nl": 501,
-    "ja": 499,
-    "en": 820
+    "zh": 546,
+    "pl": 544,
+    "pt": 542,
+    "fr": 546,
+    "es": 547,
+    "de": 814,
+    "it": 542,
+    "nl": 547,
+    "ja": 545,
+    "en": 866
   },
   "categories": {
     "job_followup": 140,
@@ -84,7 +84,17 @@
     "multilingual_parameters": 390,
     "multilingual_withdrawal": 310,
     "multilingual_job_history": 10,
-    "upstream_arguments": 40
+    "upstream_arguments": 40,
+    "reliability_arguments": 330,
+    "reliability_missing": 10,
+    "reliability_partial": 10,
+    "reliability_units": 10,
+    "reliability_range": 20,
+    "reliability_exposure": 10,
+    "reliability_withdraw": 10,
+    "reliability_override": 10,
+    "reliability_quoted": 10,
+    "reliability_injection": 40
   },
   "tools": {
     "get_status": {
@@ -106,7 +116,7 @@
       "uncoveredArguments": []
     },
     "get_recent_images": {
-      "conversations": 114,
+      "conversations": 124,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -128,7 +138,7 @@
       "uncoveredArguments": []
     },
     "get_sequence": {
-      "conversations": 79,
+      "conversations": 89,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -228,7 +238,7 @@
       "uncoveredArguments": []
     },
     "get_guider_report": {
-      "conversations": 10,
+      "conversations": 30,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -249,7 +259,7 @@
       "uncoveredArguments": []
     },
     "get_guiding_coach_report": {
-      "conversations": 10,
+      "conversations": 40,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -311,7 +321,7 @@
       "uncoveredArguments": []
     },
     "read_log": {
-      "conversations": 15,
+      "conversations": 65,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -335,7 +345,7 @@
       "uncoveredArguments": []
     },
     "plan_targets": {
-      "conversations": 12,
+      "conversations": 32,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -359,7 +369,7 @@
       "uncoveredArguments": []
     },
     "find_targets": {
-      "conversations": 16,
+      "conversations": 46,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -386,7 +396,7 @@
       "uncoveredArguments": []
     },
     "get_session_summary": {
-      "conversations": 13,
+      "conversations": 33,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -428,7 +438,7 @@
       "uncoveredArguments": []
     },
     "get_events": {
-      "conversations": 14,
+      "conversations": 34,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -719,7 +729,7 @@
       "uncoveredArguments": []
     },
     "capture_image": {
-      "conversations": 168,
+      "conversations": 188,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -779,7 +789,7 @@
       "uncoveredArguments": []
     },
     "warm_camera": {
-      "conversations": 100,
+      "conversations": 140,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -945,7 +955,7 @@
       "uncoveredArguments": []
     },
     "center_target": {
-      "conversations": 12,
+      "conversations": 32,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -989,7 +999,7 @@
       "uncoveredArguments": []
     },
     "control_flat_device": {
-      "conversations": 15,
+      "conversations": 55,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -1011,7 +1021,7 @@
       "uncoveredArguments": []
     },
     "control_dome": {
-      "conversations": 18,
+      "conversations": 58,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -1177,7 +1187,7 @@
     }
   },
   "jsonInUserConversations": 694,
-  "multiUserTurnConversations": 285,
+  "multiUserTurnConversations": 325,
   "multipleModifyingTools": 4,
   "maxExposedTools": 3,
   "nativeReview": "pending"

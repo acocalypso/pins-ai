@@ -15,7 +15,10 @@ def main():
     args = parser.parse_args()
     from transformers import AutoTokenizer
     tokenizer = AutoTokenizer.from_pretrained(args.checkpoint, local_files_only=True, trust_remote_code=False)
-    run = json.loads((args.checkpoint.parent.parent / 'training-run.json').read_text(encoding='utf-8'))
+    run_path = args.checkpoint.parent / 'training-run.json'
+    if not run_path.exists() and args.checkpoint.parent.name == 'checkpoints':
+        run_path = args.checkpoint.parent.parent / 'training-run.json'
+    run = json.loads(run_path.read_text(encoding='utf-8'))
     if fingerprint(tokenizer.chat_template) != run['templateSha256']:
         raise ValueError('Saved tokenizer differs from training')
     sys.stdin.reconfigure(encoding='utf-8'); sys.stdout.reconfigure(encoding='utf-8')

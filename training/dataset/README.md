@@ -2,7 +2,7 @@
 
 This is the single dataset location for PINS AI. Use **`train.jsonl`** with
 `python training/prepare_v2.py --curriculum`; do not concatenate every JSONL file
-in this directory. The current v7 corpus has 5,579 conversations / 7,860 unique
+in this directory. The current v8 corpus has 6,039 conversations / 8,320 unique
 prepared assistant turns, covering all 48 MCP tools and ten languages.
 
 ```text
@@ -78,3 +78,15 @@ Training calls are proposals. Plate solving without mount synchronization still
 captures an image and requires operator approval. Roof-collision bypass is hidden
 and refused. `meridian_flip` belongs only to exposure plans, not template overrides.
 Catalog coordinates must come from an observed result, not model memory.
+
+
+V8 adds 460 train-only rows from `training/reliability_curriculum.py`; those
+sources never import evaluation reports or held-out examples. `validation-chat-v7.jsonl`
+freezes development inputs separately. `holdout-v8.jsonl` is an independently
+authored, frozen 40-case future safety starter (native/domain review pending),
+never a training or checkpoint-selection input. The isolation audit is
+`python training/audit_split_isolation.py --output artifacts/new-isolation.json`.
+It checks groups/translation-linked families, exact requests and numeric-normalized
+near-text matches; this does not prove semantic independence.
+New data/scoring requires a fresh base run and matching v8 smoke, not a historical
+v7 resume. Retain old recipes and source revisions for exact legacy reproduction.

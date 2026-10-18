@@ -77,6 +77,18 @@ class DriveDataTests(unittest.TestCase):
 
 
 class NotebookTests(unittest.TestCase):
+    def test_notebook_reuses_hosted_runtime_and_persistent_model_cache(self):
+        root = Path(__file__).resolve().parents[2]
+        notebook = json.loads((root/'training/notebooks/pins-ai-colab.ipynb').read_text(encoding='utf-8'))
+        code = '\n'.join(''.join(cell['source']) for cell in notebook['cells'] if cell['cell_type'] == 'code')
+        self.assertIn('PYTHON = Path(sys.executable)', code)
+        self.assertIn('training/colab_environment.py', code)
+        self.assertIn('reuse_base_model', code)
+        self.assertIn('persist_base_model', code)
+        self.assertNotIn("'uv'", code)
+        self.assertNotIn("'3.11'", code)
+        self.assertNotIn('torch==', code)
+
     def test_checked_in_notebook_cells_compile_and_outputs_are_cleared(self):
         root = Path(__file__).resolve().parents[2]
         notebook = json.loads((root/'training/notebooks/pins-ai-colab.ipynb').read_text(encoding='utf-8'))

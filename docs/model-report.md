@@ -18,6 +18,8 @@ earlier Pi trial. None of these models is accepted as production-quality.
 | Prior checkpoint 700 | Incomplete 846-step run; diagnostic save | Bundled and last verified Pi profile; retain pending a passing replacement |
 | Prior checkpoint 400 | Incomplete v4 Colab run, recorded best save at 0.55 epochs | Diagnostic candidate; rejected for deployment |
 | New checkpoint 1900 | Completed v4 run, stopped at 2.6104 of three planned epochs | Evaluated candidate; not promoted |
+| V7 Colab selected 300 | Completed through early stopping at 700/1,476 | Development-only evidence; not promoted |
+| V8 reliability recipe | Data/selection/runtime checks prepared | Fresh experiment required; no GPU run or model gain measured |
 | V6 recipe | Data and pipeline prepared; no full training performed | Next fresh-base experiment, not an existing trained model |
 
 The folder containing the new run was named `mi355x`, but its metadata recorded
@@ -254,3 +256,76 @@ single-turn authored training requests (61.25%): 160/160 for the new tools and
 phrases, not unseen model accuracy or successful equipment execution. Older
 natural-language retrieval remains a significant limitation and the Pi model
 still needs fresh training and matched evaluation before promotion.
+
+
+## Completed v7 Colab run and v8 code changes, 2026-10-18
+
+The supplied `qwen3-pins-v7-colab-20261018-123322` run is **completed**, having
+stopped by four-check early stopping at 700/1,476 (epoch 1.423). Its exported
+adapter's SHA-256 exactly matches checkpoint 300, not checkpoint 700:
+`ade85d18b0cf2a89b2f0dfb18169053f7812c48d2e4ed5ed3c29aa79675a1ac1`.
+The selected loss is 0.254906; final step-700 loss is 0.153557. The resumed
+segment loss is 0.187374 and must not be called whole-run loss.
+
+The five case-level files 300/400/500/600/**700** are present in this workspace;
+the latter was not supplied to the earlier external brief. The offline analyzer
+checks their identical contracts, IDs and scorer, and reproduces:
+
+| Step | Tool/no-tool correct | Exact | Schema valid | Unwanted proposals / 50 no-tool | Historical selection score |
+|---|---:|---:|---:|---:|---:|
+| 300 | 129/146 | 110/146 | 144/146 | 9 | -1.06164 |
+| 400 | 127/146 | 108/146 | 144/146 | 18 | -1.12329 |
+| 500 | 126/146 | 107/146 | 142/146 | 18 | -1.12329 |
+| 600 | 134/146 | 117/146 | 143/146 | 10 | -1.06849 |
+| 700 | 134/146 | 116/146 | 144/146 | 11 | -1.07534 |
+
+No listed generation truncated. The eleven tool-sequence followups are required
+calls, not no-tool failures. At step 600, injection exact is 2/10; new upstream
+tool choice is 31/32 but exact arguments only 15/32. These are unwanted proposals,
+not measured physical operations. Case-level paired gains/regressions, confusion,
+argument errors, per-category/language/tool slices and Wilson intervals are in
+[the analysis evidence](../training/experiments/v7-reliability-20261018.json).
+This is training-precision fixed development evidence, not independent unseen,
+GGUF or Pi accuracy. None of these checkpoints is production eligible.
+
+V8 adds 460 independent train-only conversations with multilingual trust-boundary,
+missing/invalid input, numeric/enum/action and optional-field contrasts. Total:
+6,039 conversations / 8,320 unique prepared training turns, all 48 tools and ten
+languages. Preparation skips zero; max train sequence/completion lengths are
+1,401/139 tokens. All 5,140 native calls pass the actual C# gateway schema audit.
+The 627 development conversations are frozen; all 146 selected case fingerprints
+and rendered prompts remain exactly those used by the supplied v7 reports.
+Historical data/contracts/baseline bytes remain unchanged.
+
+New versioned reporting separates unwanted proposals, invalid no-tool outputs,
+required-tool schema errors, argument fidelity and per-slice sample sizes. V8
+keeps the full adapter safety-ranked, retains separate best-safety/accuracy
+research copies, and early-stops only when neither safety nor macro accuracy
+improves. Patience and learning rate are unchanged. Historical scores are not
+reinterpreted. The 300-versus-600 ranking tradeoff has synthetic regression tests;
+better accuracy does not make the unsafe checkpoint eligible.
+
+Runtime changes use the gateway's read-only classification in chat, removing a
+stale duplicate list that omitted new queries. A model-coordinate origin guard
+refuses motion/target previews without recognized explicit user coordinates or
+one structured server-recorded catalog match. It accepts decimal hours/degrees
+and several locale labels, but is intentionally conservative: unsupported formats,
+ambiguous matches and absent evidence need clarification. It is not cryptographic
+proof of user intent, a universal injection defense or a substitute for exact
+operator approval. Direct operator-entered tool arguments keep existing approval
+and schema checks. All 223 gateway regressions are simulated.
+
+The router still retrieves 294/480 authored requests (61.25%), with 186 misses
+in older tool phrases. This remains a separate runtime limitation. V8 has no
+measured model gain yet. Its frozen future starter holdout has only 40 cases,
+native/domain review pending; it does not cover every capability and cannot
+support a production claim alone. Near-text/group isolation checks are heuristic.
+
+Next: review multilingual semantics and extend independent release coverage,
+run a new matching GPU smoke and fresh v8 training, compare base/prior/selected
+and diagnostic candidates on frozen development and independently reviewed tests,
+then matched Q4 base plus F16 runtime LoRA evaluation. Only after those gates
+consider separately authorized Pi resource and read-only compatibility checks.
+No new training, weight download, quantization, Pi deployment or equipment action
+was run in this code task. [Runnable commands](training.md#v8-reliability-experiment-and-historical-v7-migration-2026-10-18)
+include CUDA-NF4, ROCm-BF16, analysis, holdout and matched runtime verification.

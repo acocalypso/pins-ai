@@ -1,5 +1,6 @@
-# NVIDIA CUDA QLoRA: install Python 3.11 + torch 2.7.1 cu126 separately.
+# NVIDIA CUDA QLoRA: install a compatible CUDA PyTorch separately.
+# Colab reuses its hosted Python/PyTorch via training/colab_environment.py.
 -r requirements-common.txt
 bitsandbytes==0.49.1
-# Supported recipe: Python 3.11, torch==2.7.1 from the cu126 wheel index.
+# Versioned workstation example: Python 3.11, torch==2.7.1 cu126.
 # The pinned llama.cpp converter uses a separate environment and its own requirements.

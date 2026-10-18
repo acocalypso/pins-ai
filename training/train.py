@@ -217,6 +217,11 @@ def main():
     selection_metric = 'eval_selection_score' if generation_cases else 'eval_loss'
     run['bestCheckpointMetric'] = selection_metric
     run['generationValidationContract'] = generation_contract
+    if config.get('generationValidation', {}).get('selectionVersion'):
+        run['candidateSelection'] = {'version': config['generationValidation']['selectionVersion'],
+            'fullAdapterRole': 'safety-ranked research candidate, not a production promotion',
+            'productionEligible': False,
+            'missingEvidence': ['reviewed independent holdout', 'quantized/runtime parity', 'authorized execution regressions']}
     if resume_info:
         run['resume'] = resume_info
         run['resumeSmokeSteps'] = args.resume_smoke_steps
@@ -253,9 +258,13 @@ def main():
                     raise ValueError('Computed training step budget differs from the saved run')
         callbacks.append(ResumeBudgetCheck())
     if config.get('earlyStoppingPatience') and not args.max_steps:
-        from transformers import EarlyStoppingCallback
-        callbacks.append(EarlyStoppingCallback(early_stopping_patience=config['earlyStoppingPatience'],
-                         early_stopping_threshold=config.get('earlyStoppingThreshold', 0.0)))
+        if config.get('generationValidation', {}).get('selectionVersion'):
+            from reliability_selection import make_progress_callback
+            callbacks.append(make_progress_callback(config['earlyStoppingPatience'], config.get('earlyStoppingThreshold', 0.0)))
+        else:
+            from transformers import EarlyStoppingCallback
+            callbacks.append(EarlyStoppingCallback(early_stopping_patience=config['earlyStoppingPatience'],
+                             early_stopping_threshold=config.get('earlyStoppingThreshold', 0.0)))
     if args.resume_smoke_steps:
         from transformers import TrainerCallback
         stop_step = resume_state['global_step'] + args.resume_smoke_steps
@@ -272,6 +281,11 @@ def main():
         trainer_class = make_trainer_class()
         extra = dict(generation_cases=generation_cases, generation_contract=generation_contract,
                      generation_output=args.output / 'generation-validation')
+    if resume_state and config.get('generationValidation', {}).get('selectionVersion'):
+        import shutil
+        for folder in ('generation-validation', 'research-candidates'):
+            source = args.resume_from_checkpoint.parent.parent / folder
+            if source.exists(): shutil.copytree(source, args.output / folder)
     trainer = trainer_class(model=model, args=training_args, train_dataset=Rows(train_rows),
                       eval_dataset=Rows(validation_rows), data_collator=collate, processing_class=tokenizer,
                       callbacks=callbacks, **extra)
@@ -294,6 +308,9 @@ def main():
                 train_runtime_scope='resumed_segment', finalGlobalStep=trainer.state.global_step,
                 resumedOptimizerSteps=trainer.state.global_step - resume_info['startStep'])
         write_json(args.output / 'training-run.json', run)
+        if config.get('generationValidation', {}).get('selectionVersion'):
+            from reliability_selection import retain_candidates
+            retain_candidates(args.output)
     except Exception as ex:
         run.update(status='failed', error=type(ex).__name__ + ': ' + str(ex))
         write_json(args.output / 'training-run.json', run)

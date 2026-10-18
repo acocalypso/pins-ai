@@ -1,0 +1,7 @@
+{
+  "sha256": "6aa7a236a8a880c904267902e5b341b099b0ffd6572b5037c05f5a619a39b06f",
+  "split": "validation",
+  "cases": 627,
+  "origin": "v7 projection frozen before v8 source edits",
+  "trainingInput": false
+}

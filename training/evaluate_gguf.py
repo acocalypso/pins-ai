@@ -27,7 +27,7 @@ def main():
     p.add_argument('--server', type=Path, required=True)
     p.add_argument('--llama-source', type=Path, default=ROOT / '.tools/llama.cpp')
     p.add_argument('--tokenizer', type=Path, default=ROOT / '.local/training/base')
-    p.add_argument('--suite', choices=('validation_smoke', 'eval_gold', 'hard_gold'), default='hard_gold')
+    p.add_argument('--suite', choices=('validation_smoke', 'eval_gold', 'hard_gold', 'future_holdout'), default='hard_gold')
     p.add_argument('--prompt-mode', choices=('legacy', 'chat'), default='legacy')
     p.add_argument('--per-language', type=int, default=0)
     p.add_argument('--job-continuations', action='store_true')
@@ -35,7 +35,7 @@ def main():
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--resume-from', type=Path, help='Resume a verified report into a NEW output file')
     args = p.parse_args()
-    if args.prompt_mode == 'chat' and args.suite != 'validation_smoke':
+    if args.prompt_mode == 'chat' and args.suite not in ('validation_smoke', 'future_holdout'):
         p.error('Chat projection is for development validation; gold remains unchanged')
     if platform.machine().lower() in ('arm64', 'aarch64'):
         p.error('Run offline training evaluation on a workstation; Pi inference must remain PINS-owned')

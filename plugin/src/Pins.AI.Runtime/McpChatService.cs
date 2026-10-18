@@ -27,7 +27,6 @@ public sealed class McpChatService(LlamaRuntime runtime, string mcpToken,
     private readonly ConcurrentDictionary<string, Session> sessions = new();
     private readonly SemaphoreSlim registrations = new(1, 1);
     private string? activeInference;
-    private static readonly HashSet<string> Reads = ["get_status", "get_recent_images", "get_sequence", "list_saved_sequences", "list_target_templates", "get_job", "list_jobs"];
 
     public AiStatus ChatStatus(bool available) => runtime.Status with {
         McpAvailable = available,
@@ -169,6 +168,8 @@ public sealed class McpChatService(LlamaRuntime runtime, string mcpToken,
                 var toolName = proposal["name"]!.GetValue<string>();
                 if (!selected.Contains(toolName)) throw new ArgumentException("Model proposed a tool outside its retrieved context. Rephrase the request with the operation and device.");
                 session.ClarificationTools = [];
+                session.Gateway.Validate(toolName, proposal["arguments"]!.AsObject());
+                CoordinateEvidence.Validate(toolName, proposal["arguments"]!.AsObject(), history);
                 Remember(session, turn);
                 var response = await ProposeAsync(session, id, toolName, proposal["arguments"]!.AsObject(), ct);
                 response["generation"] = generated;
@@ -178,7 +179,7 @@ public sealed class McpChatService(LlamaRuntime runtime, string mcpToken,
                 ExactFields(body, "name", "arguments");
                 var name = body["name"]!.GetValue<string>();
                 var arguments = body["arguments"]!.AsObject();
-                if (!Reads.Contains(name)) {
+                if (!session.Gateway.IsReadOnly(name)) {
                     ClearPlan(session); session.Previews.Clear(); session.Gateway.Clear(id);
                 }
                 var response = await ProposeAsync(session, id, name, arguments, ct);
@@ -254,7 +255,7 @@ public sealed class McpChatService(LlamaRuntime runtime, string mcpToken,
 
     private async Task<JsonObject> ProposeAsync(Session session, string id, string name, JsonObject args, CancellationToken ct) {
         session.Gateway.Validate(name, args);
-        if (Reads.Contains(name)) {
+        if (session.Gateway.IsReadOnly(name)) {
             var result = await session.Gateway.InvokeAsync(session.Client, name, args, hostIdentity(id), ct: ct);
             RememberResult(session, name, args, result);
             return Result(name, result);

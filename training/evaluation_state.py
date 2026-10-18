@@ -16,17 +16,30 @@ REPORT_VERSION = 3
 
 
 def select_cases(suite, per_language=0, job_continuations=False, prompt_mode='legacy'):
-    if prompt_mode not in ('legacy', 'chat') or (prompt_mode == 'chat' and suite != 'validation_smoke'):
+    if suite == 'future_holdout' and prompt_mode != 'chat':
+        raise ValueError('Future holdout requires explicit chat proposal semantics: --prompt-mode chat')
+    if prompt_mode not in ('legacy', 'chat') or (prompt_mode == 'chat' and suite not in ('validation_smoke', 'future_holdout')):
         raise ValueError('Chat projection is for development validation only; gold stays unchanged')
     if per_language < 0:
         raise ValueError('per-language must be nonnegative')
     path = PACKAGE / 'data/audited/validation.jsonl' if suite == 'validation_smoke' else PACKAGE / 'data' / f'{suite}.jsonl'
+    if suite == 'future_holdout':
+        path = PACKAGE / 'holdout-v8.jsonl'
+        manifest = json.loads(path.with_suffix('.manifest.json').read_text(encoding='utf-8'))
+        if sha256(path) != manifest['sha256']:
+            raise ValueError('Frozen future holdout changed')
     rows = read_jsonl(path)
-    if prompt_mode == 'chat':
-        from chat_curriculum import project
-        from upstream_tool_curriculum import validation_rows
-        rows = [project(r) for r in rows] + validation_rows()
-    if suite == 'validation_smoke':
+    if prompt_mode == 'chat' and suite != 'future_holdout':
+        # V7 evaluation projected legacy records before the SFT exporter labeled
+        # them validation. Preserve that historical metadata for identical case
+        # fingerprints. This function supplies evaluation inputs only.
+        historical_splits = {r['id']: r.get('provenance', {}).get('split', 'train') for r in rows}
+        from chat_curriculum import curriculum_rows
+        rows = curriculum_rows('validation')
+        for row in rows:
+            if row['id'] in historical_splits:
+                row['provenance']['split'] = historical_splits[row['id']]
+    if suite in ('validation_smoke', 'future_holdout'):
         rows = [{**r, 'messages': r['messages'][:2]} for r in rows]
     inputs = {path.relative_to(PACKAGE).as_posix(): sha256(path)}
     if prompt_mode == 'chat':

@@ -95,8 +95,7 @@ class ChatDatasetTests(unittest.TestCase):
         original = read_jsonl(PACKAGE / 'data/audited/validation.jsonl')
         self.assertGreater(len(self.validation), len(original))
         self.assertEqual([r['id'] for r in original], [r['id'] for r in self.validation[:len(original)]])
-        self.assertEqual(self.validation[:len(original)], [dict(project(r), provenance={**project(r)['provenance'], 'split': 'validation'})
-                                          for r in original])
+        self.assertEqual(self.validation, read_jsonl(DATA / 'validation-chat-v7.jsonl'))
         for row in self.rows + self.validation:
             if row['category'] in ('no_approval', 'comprehensive_approval', 'comprehensive_revoked', 'safety_explicit_denial'):
                 self.assertTrue(any(DENIAL[row['locale']] in m['content'] for m in row['messages'] if m['role'] == 'user'))
@@ -148,7 +147,7 @@ class ChatDatasetTests(unittest.TestCase):
                           assistant('Still running.')])
 
     def test_parity_with_actual_gateway_exposed_schemas(self):
-        path = ROOT / 'artifacts/router-chat-v7.json'
+        path = ROOT / 'artifacts/router-chat-v8.json'
         if not path.is_file():
             self.skipTest('Run the offline RouterAudit command to produce actual gateway schemas')
         report = json.loads(path.read_text(encoding='utf-8'))

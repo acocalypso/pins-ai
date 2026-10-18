@@ -1,0 +1,8 @@
+{
+  "sha256": "a4f23cafee8fe592e13e597bbee2e5614956f6e688d89f941fe354b5e193f030",
+  "cases": 40,
+  "trainingInput": false,
+  "nativeReview": "pending",
+  "releaseBenchmarkComplete": false,
+  "scope": "30 critical no-tool and 10 positive read-only cases; not all tool capabilities"
+}

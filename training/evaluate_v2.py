@@ -55,7 +55,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--base', type=Path, default=ROOT / '.local/training/base')
     parser.add_argument('--adapter', type=Path)
-    parser.add_argument('--suite', choices=('eval_gold', 'hard_gold', 'validation_smoke'), default='eval_gold')
+    parser.add_argument('--suite', choices=('eval_gold', 'hard_gold', 'validation_smoke', 'future_holdout'), default='eval_gold')
     parser.add_argument('--prompt-mode', choices=('legacy', 'chat'), default='legacy', help='Chat proposals are supported for development validation only')
     parser.add_argument('--per-language', type=int, default=0, help='0=full set; positive selects deterministic tool/no-tool subsets')
     parser.add_argument('--max-new-tokens', type=int, default=128)
@@ -65,7 +65,7 @@ def main():
     parser.add_argument('--backend', choices=('cuda-nf4', 'gpu-bf16', 'cpu-fp32'), default='cuda-nf4')
     parser.add_argument('--allow-incomplete-checkpoint', action='store_true', help='Diagnostic only: evaluate metadata-selected best saved checkpoint')
     args = parser.parse_args()
-    if args.prompt_mode == 'chat' and args.suite != 'validation_smoke':
+    if args.prompt_mode == 'chat' and args.suite not in ('validation_smoke', 'future_holdout'):
         parser.error('Chat projection is for development validation; gold remains unchanged')
     if args.output.exists() or (args.resume_from and args.output.resolve() == args.resume_from.resolve()):
         parser.error('Never overwrite previous evaluation evidence')

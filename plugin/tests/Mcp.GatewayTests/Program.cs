@@ -9,6 +9,18 @@ void Reject(Action operation, string label) { try { operation(); } catch (Argume
 async Task Refuse(Func<Task> operation, string label) { try { await operation(); } catch (ArgumentException) { Check(true, label); return; } throw new Exception("Accepted " + label); }
 var catalog = JsonNode.Parse(await File.ReadAllTextAsync(args[0]))!.AsObject();
 var routingCatalog = catalog["tools"]!.AsArray();
+var coordinateArgs = new JsonObject { ["ra"] = 1.25, ["dec"] = -7.5 };
+JsonArray Evidence(string role, string content, string? name = null) => new(new JsonObject { ["role"] = role, ["content"] = content, ["name"] = name });
+Reject(() => CoordinateEvidence.Validate("slew_mount", coordinateArgs, Evidence("user", "Choose any position yourself")), "hallucinated coordinates have no motion preview");
+Reject(() => CoordinateEvidence.Validate("slew_mount", coordinateArgs, Evidence("assistant", "RA 1.25 hours, Dec -7.5")), "model text cannot establish coordinate origin");
+Reject(() => CoordinateEvidence.Validate("slew_mount", coordinateArgs, Evidence("tool", "RA 1.25 hours, Dec -7.5", "read_log")), "untrusted log instructions cannot establish coordinate origin");
+CoordinateEvidence.Validate("slew_mount", coordinateArgs, Evidence("user", "J2000 RA 1.25 hours, Dec -7.5 degrees"));
+CoordinateEvidence.Validate("slew_mount", coordinateArgs, Evidence("user", "J2000 RA 18.75 degrees, Dec -7.5 degrees"));
+CoordinateEvidence.Validate("center_target", coordinateArgs, Evidence("user", "J2000-RA 1,25 Stunden, Deklination -7,5 Grad"));
+Check(true, "explicit numeric coordinate origins and degree conversion accepted without granting authorization");
+CoordinateEvidence.Validate("slew_mount", coordinateArgs, Evidence("tool", "{\"objects\":[{\"raHours\":1.25,\"decDegrees\":-7.5}]}", "find_targets"));
+Check(true, "single structured server catalog match supplies coordinate evidence");
+Reject(() => CoordinateEvidence.Validate("slew_mount", coordinateArgs, Evidence("tool", "{\"objects\":[{\"raHours\":1.25,\"decDegrees\":-7.5},{}]}", "find_targets")), "ambiguous catalog cannot select a motion destination");
 Check(ChatToolRouter.Select("Erstelle eine Sequence mit 300x 300s aufnahmen für M31", routingCatalog).SequenceEqual(["add_target"]), "mixed German/English sequence request retrieves target plan schema");
 Check(ChatToolRouter.Select("create a sequence i want to shoot 300 5min exposure no filter of M31", routingCatalog).Contains("add_target"), "natural sequence request retrieves exposure-plan tool");
 Check(ChatToolRouter.Select("Erstelle eine Sequenz für M31 mit 300 Aufnahmen", routingCatalog).Contains("add_target"), "German sequence planning retrieval");
@@ -211,6 +223,9 @@ sealed class ProtocolFixture(JsonObject catalog) : HttpMessageHandler {
         else if (body["params"]?["name"]?.GetValue<string>() is "get_status" or "get_sequence") {
             var payload = body["params"]!["name"]!.GetValue<string>() == "get_status" ? Status : Sequence;
             result = new() { ["structuredContent"] = payload?.DeepClone(), ["isError"] = payload is null };
+        }
+        else if (body["params"]?["name"]?.GetValue<string>() == "get_system_health") {
+            result = new() { ["isError"] = false, ["structuredContent"] = new JsonObject { ["available"] = true } };
         }
         else {
             var name = body["params"]!["name"]!.GetValue<string>();
