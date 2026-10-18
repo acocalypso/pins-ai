@@ -139,7 +139,8 @@ def summarize(report):
     report['completed'] = len(report['results']) == report['expectedCaseCount']
     report['status'] = 'completed' if report['completed'] else 'in_progress'
     # Keep legacy partial field meaning: selected subset of the suite, distinct from interruption.
-    report['subset'] = bool(report['identity']['selection']['perLanguage'])
+    report['subset'] = bool(report['identity']['selection']['perLanguage'] or
+                            report['identity']['selection'].get('reloadSmoke'))
     report['interrupted'] = not report['completed']
     return report
 

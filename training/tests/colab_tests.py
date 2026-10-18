@@ -97,6 +97,37 @@ class DriveDataTests(unittest.TestCase):
 
 
 class NotebookTests(unittest.TestCase):
+    def test_reload_smoke_is_bounded_deterministic_and_diverse(self):
+        from evaluate_v2 import select_reload_smoke
+        from evaluation_state import select_cases, new_report
+        from common import fingerprint
+        rows = select_cases('validation_smoke', prompt_mode='chat')[0]
+        selected = select_reload_smoke(rows)
+        self.assertEqual(selected, select_reload_smoke(list(reversed(rows))))
+        self.assertEqual(len(selected), 4)
+        self.assertEqual(len({r['locale'] for r in selected}), 4)
+        self.assertEqual(sum(bool(r['expected'].get('first_tool') or r['expected'].get('tool_sequence'))
+                             for r in selected), 2)
+        identity = {'selection': {'perLanguage': 0, 'reloadSmoke': True}}
+        report = new_report(identity, selected)
+        self.assertTrue(report['subset'])
+        self.assertEqual(report['identitySha256'], fingerprint(identity))
+        with self.assertRaises(ValueError): select_reload_smoke([])
+
+    def test_fast_smoke_flags_cannot_apply_to_full_training_resume_or_gold(self):
+        root = Path(__file__).resolve().parents[2]
+        for extra in ([], ['--max-steps', '1', '--resume-from-checkpoint', 'unused']):
+            result = subprocess.run([sys.executable, 'training/train.py', '--base', 'unused',
+                '--output', 'unused', '--dataset-mode', 'mcp', '--infrastructure-smoke', *extra],
+                cwd=root, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn('requires a fresh MCP', result.stderr)
+        for extra in ([], ['--suite', 'validation_smoke', '--prompt-mode', 'chat', '--max-new-tokens', '192']):
+            result = subprocess.run([sys.executable, 'training/evaluate_v2.py', '--adapter', 'unused',
+                '--output', 'unused', '--reload-smoke', *extra], cwd=root, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn('<=64 new tokens', result.stderr)
+
     def test_notebook_reuses_hosted_runtime_and_persistent_model_cache(self):
         root = Path(__file__).resolve().parents[2]
         notebook = json.loads((root/'training/notebooks/pins-ai-colab.ipynb').read_text(encoding='utf-8'))
@@ -105,6 +136,8 @@ class NotebookTests(unittest.TestCase):
         self.assertIn('training/colab_environment.py', code)
         self.assertIn('reuse_base_model', code)
         self.assertIn('persist_base_model', code)
+        self.assertIn("'--infrastructure-smoke'", code)
+        self.assertIn("['--reload-smoke', '--max-new-tokens', '64']", code)
         self.assertNotIn("'uv'", code)
         self.assertNotIn("'3.11'", code)
         self.assertNotIn('torch==', code)

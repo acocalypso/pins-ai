@@ -262,6 +262,10 @@ def main():
         clarification, no-tool and authorization cases, multiple languages and the
         longest training example. Losses must be finite and the adapter must save
         and reload. Failures stop the workflow. This is training, not a quality score.
+        Fresh mode skips the 146-case generated quality evaluation and reloads
+        the saved adapter for four multilingual tool/no-tool probes capped at
+        64 output tokens. Full training still uses the complete development suite.
+        Resume mode preserves the original checks and validation contract.
     ''')
     cell('code', '''
         SMOKE = RUN_ROOT / 'smoke'
@@ -271,11 +275,14 @@ def main():
                 run_pipeline(['training/train.py', '--base', '.local/training/base', '--dataset-mode', 'mcp',
                     '--config', TRAIN_CONFIG, '--data', SFT_DATA, '--resume-from-checkpoint', RESUME_CHECKPOINT,
                     '--resume-smoke-steps', '1', '--logging-steps', '1', '--output', SMOKE], 'smoke.log')
+                reload_args = ['--per-language', '2', '--max-new-tokens', '192']
             else:
                 run_pipeline(['training/train.py', '--base', '.local/training/base', '--dataset-mode', 'mcp',
-                    '--config', TRAIN_CONFIG, '--data', SFT_DATA, '--max-steps', '1', '--logging-steps', '1', '--output', SMOKE], 'smoke.log')
-            run_pipeline(['training/evaluate_v2.py', '--suite', 'validation_smoke', '--prompt-mode', 'chat', '--per-language', '2',
-                '--max-new-tokens', '192', '--adapter', SMOKE / 'adapter', '--output', RUN_ROOT / 'smoke-reload.json'], 'smoke-reload.log')
+                    '--config', TRAIN_CONFIG, '--data', SFT_DATA, '--max-steps', '1', '--infrastructure-smoke',
+                    '--logging-steps', '1', '--output', SMOKE], 'smoke.log')
+                reload_args = ['--reload-smoke', '--max-new-tokens', '64']
+            run_pipeline(['training/evaluate_v2.py', '--suite', 'validation_smoke', '--prompt-mode', 'chat',
+                *reload_args, '--adapter', SMOKE / 'adapter', '--output', RUN_ROOT / 'smoke-reload.json'], 'smoke-reload.log')
             smoke_report = json.loads((RUN_ROOT / 'smoke-reload.json').read_text())
             assert smoke_report.get('completed')
         else:

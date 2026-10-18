@@ -13,6 +13,20 @@ from evaluation_state import (select_cases, prepare_cases, score, scoring_hash, 
                               resume_report, summarize, ProgressWriter)
 
 
+def select_reload_smoke(rows):
+    """Four deterministic multilingual call/no-call probes, never a quality suite."""
+    selected = []
+    for wants_call in (True, False, True, False):
+        candidates = [r for r in rows if r not in selected and
+                      bool(r['expected'].get('first_tool') or r['expected'].get('tool_sequence')) == wants_call]
+        if not candidates:
+            raise ValueError('Reload smoke requires two tool and two no-tool development cases')
+        used = {r['locale'] for r in selected}
+        candidates.sort(key=lambda r: (r['locale'] in used, fingerprint(r['id'])))
+        selected.append(candidates[0])
+    return selected
+
+
 def adapter_metadata(path, allow_incomplete=False):
     path = Path(path)
     run_path = path.parent / 'training-run.json'
@@ -58,6 +72,7 @@ def main():
     parser.add_argument('--suite', choices=('eval_gold', 'hard_gold', 'validation_smoke', 'future_holdout'), default='eval_gold')
     parser.add_argument('--prompt-mode', choices=('legacy', 'chat'), default='legacy', help='Chat proposals are supported for development validation only')
     parser.add_argument('--per-language', type=int, default=0, help='0=full set; positive selects deterministic tool/no-tool subsets')
+    parser.add_argument('--reload-smoke', action='store_true', help='Four short adapter reload probes, not accuracy evaluation')
     parser.add_argument('--max-new-tokens', type=int, default=128)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--job-continuations', action='store_true')
@@ -65,6 +80,10 @@ def main():
     parser.add_argument('--backend', choices=('cuda-nf4', 'gpu-bf16', 'cpu-fp32'), default='cuda-nf4')
     parser.add_argument('--allow-incomplete-checkpoint', action='store_true', help='Diagnostic only: evaluate metadata-selected best saved checkpoint')
     args = parser.parse_args()
+    if args.reload_smoke and (args.suite != 'validation_smoke' or args.prompt_mode != 'chat' or
+                             not args.adapter or args.per_language or args.job_continuations or
+                             args.resume_from or args.allow_incomplete_checkpoint or args.max_new_tokens > 64):
+        parser.error('--reload-smoke requires a completed adapter, chat validation_smoke, no other selection/resume, and <=64 new tokens')
     if args.prompt_mode == 'chat' and args.suite not in ('validation_smoke', 'future_holdout'):
         parser.error('Chat projection is for development validation; gold remains unchanged')
     if args.output.exists() or (args.resume_from and args.output.resolve() == args.resume_from.resolve()):
@@ -88,6 +107,8 @@ def main():
     if run and fingerprint(tokenizer.chat_template) != run['templateSha256']:
         raise ValueError('Adapter training tokenizer template mismatch')
     rows, path, inputs_hashes = select_cases(args.suite, args.per_language, args.job_continuations, args.prompt_mode)
+    if args.reload_smoke:
+        rows = select_reload_smoke(rows)
     cases = prepare_cases(tokenizer, rows, args.prompt_mode)
     from chat_dataset_common import CHAT_POLICY
     evaluation_policy = CHAT_POLICY if args.prompt_mode == 'chat' else POLICY
@@ -110,6 +131,8 @@ def main():
                             'dtype': 'bfloat16' if args.backend == 'gpu-bf16' else 'float16' if args.backend == 'cuda-nf4' else 'float32',
                             'quantization': {'type': 'nf4', 'doubleQuant': True} if args.backend == 'cuda-nf4' else None,
                             'packages': versions}}
+    if args.reload_smoke:
+        identity['selection']['reloadSmoke'] = True
     report = new_report(identity, cases, {
         'suite': args.suite, 'suiteSha256': sha256(path), 'contractSha256': sha256(VERIFIED),
         'scorerVersion': SCORER_VERSION, 'adapterContractSha256': sha256(ADAPTER),
@@ -118,10 +141,12 @@ def main():
         'model': identity['model'], 'adapter': str(args.adapter) if args.adapter else None,
         'adapterSha256': adapter_info['weightsSha256'] if adapter_info else None,
         'baseWeightsSha256': base_info['files']['model.safetensors'], 'maxNewTokens': args.max_new_tokens,
-        'partial': bool(args.per_language), 'hardwareExecution': False,
+        'partial': bool(args.per_language or args.reload_smoke), 'hardwareExecution': False,
         'diagnosticIncompleteCheckpoint': bool(adapter_info and adapter_info['diagnosticIncompleteCheckpoint']),
         'languageAndFalseClaims': 'human review pending',
         'jobEvaluation': 'conditional synthetic job feedback' if any(c.get('conditionalPoll') for c in cases) else 'first-action only; job polling not evaluated'})
+    if args.reload_smoke:
+        report['purpose'] = 'adapter reload/inference infrastructure only; NOT model quality or safety eligibility'
     if args.resume_from:
         report = resume_report(args.resume_from, report, cases)
     writer = ProgressWriter(args.output, args.resume_from)

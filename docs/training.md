@@ -258,15 +258,23 @@ DATA=artifacts/training-data/current
 
 Run a short GPU smoke, then verify adapter reload on validation cases:
 
-Smoke validation/checkpoint saving runs once at its final optimizer step. It still
-checks the complete configured generated-validation sample. Full training retains
-its configured 100-step interval; smoke quality is not a release accuracy claim.
+The default fresh smoke is an infrastructure check: one optimizer step, including
+the longest training example, finite training/validation losses, save and adapter
+reload. `--infrastructure-smoke` skips the 146 generated development cases;
+`--reload-smoke` runs four deterministic multilingual tool/no-tool probes with a
+64-token output cap. It is not an accuracy or safety evaluation. Full training
+keeps the complete development suite at its configured 100-step interval.
+Omit these flags for the slower complete generated smoke. Resume probes retain
+their original checks; the fast training flag is rejected for resume/full runs.
+Real T4 speedup has not been measured; model loading, data verification and one
+backward pass still take time. Do not interrupt a nearly finished old smoke just
+to replace it; its completed evidence remains usable with the matching recipe.
 
 ```bash
 python training/train.py --base .local/training/base --dataset-mode mcp \
-  --data "$DATA" --config "$CONFIG" --max-steps 4 --logging-steps 1 --output "$RUN/smoke"
+  --data "$DATA" --config "$CONFIG" --max-steps 1 --infrastructure-smoke --logging-steps 1 --output "$RUN/smoke"
 python training/evaluate_v2.py --base .local/training/base --backend "$BACKEND" \
-  --adapter "$RUN/smoke/adapter" --suite validation_smoke --prompt-mode chat --per-language 2 --max-new-tokens 192 \
+  --adapter "$RUN/smoke/adapter" --suite validation_smoke --prompt-mode chat --reload-smoke --max-new-tokens 64 \
   --output "$RUN/smoke-reload.json"
 ```
 
@@ -290,8 +298,8 @@ $Config='training/configs/config-v8.json'
 $Backend='cuda-nf4'
 $Run='artifacts/training-runs/qwen3-'+(Get-Date -Format 'yyyyMMdd-HHmmss')
 $Data='artifacts/training-data/current'
-python training/train.py --base .local/training/base --dataset-mode mcp --data $Data --config $Config --max-steps 4 --logging-steps 1 --output "$Run/smoke"
-python training/evaluate_v2.py --base .local/training/base --backend $Backend --adapter "$Run/smoke/adapter" --suite validation_smoke --prompt-mode chat --per-language 2 --max-new-tokens 192 --output "$Run/smoke-reload.json"
+python training/train.py --base .local/training/base --dataset-mode mcp --data $Data --config $Config --max-steps 1 --infrastructure-smoke --logging-steps 1 --output "$Run/smoke"
+python training/evaluate_v2.py --base .local/training/base --backend $Backend --adapter "$Run/smoke/adapter" --suite validation_smoke --prompt-mode chat --reload-smoke --max-new-tokens 64 --output "$Run/smoke-reload.json"
 python training/train.py --base .local/training/base --dataset-mode mcp --data $Data --config $Config --smoke-run "$Run/smoke" --logging-steps 5 --output "$Run/full"
 ```
 
@@ -665,10 +673,10 @@ DATA=artifacts/v8/sft
 RUN=artifacts/training-runs/qwen3-v8-$(date -u +%Y%m%d-%H%M%S)
 python training/prepare_v2.py --curriculum --max-tokens 1536 --output "$DATA"
 python training/train.py --base .local/training/base --dataset-mode mcp \
-  --config "$CONFIG" --data "$DATA" --max-steps 4 --logging-steps 1 --output "$RUN/smoke"
+  --config "$CONFIG" --data "$DATA" --max-steps 1 --infrastructure-smoke --logging-steps 1 --output "$RUN/smoke"
 python training/evaluate_v2.py --base .local/training/base --backend "$BACKEND" \
   --adapter "$RUN/smoke/adapter" --suite validation_smoke --prompt-mode chat \
-  --per-language 2 --max-new-tokens 192 --output "$RUN/smoke-reload.json"
+  --reload-smoke --max-new-tokens 64 --output "$RUN/smoke-reload.json"
 python training/train.py --base .local/training/base --dataset-mode mcp \
   --config "$CONFIG" --data "$DATA" --smoke-run "$RUN/smoke" --output "$RUN/full"
 python training/evaluate_v2.py --base .local/training/base --backend "$BACKEND" \

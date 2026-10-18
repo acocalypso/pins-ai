@@ -18,11 +18,15 @@ def main():
     parser.add_argument('--config', type=Path, default=CONFIG)
     parser.add_argument('--method', choices=('lora', 'qlora'))
     parser.add_argument('--max-steps', type=int, help='Positive development smoke limit; never marked a completed specialization')
+    parser.add_argument('--infrastructure-smoke', action='store_true',
+                        help='Fresh smoke only: keep loss/backward/save checks, defer generated accuracy to full training')
     parser.add_argument('--smoke-run', type=Path, help='Completed matching MCP smoke run required before full MCP training')
     parser.add_argument('--logging-steps', type=int, default=5, help='Report training loss every N optimizer steps (default: 5)')
     parser.add_argument('--resume-from-checkpoint', type=Path, help='Continue identical original training with optimizer/scheduler/scaler/RNG state')
     parser.add_argument('--resume-smoke-steps', type=int, help='Stop a diagnostic resume after N additional steps, preserving the original LR schedule')
     args = parser.parse_args()
+    if args.infrastructure_smoke and (args.max_steps is None or args.resume_from_checkpoint or args.dataset_mode != 'mcp'):
+        parser.error('--infrastructure-smoke requires a fresh MCP --max-steps smoke; never full training or resume')
     if args.max_steps is not None and args.max_steps < 1:
         parser.error('--max-steps must be positive')
     if args.logging_steps < 1:
@@ -141,6 +145,12 @@ def main():
             raise ValueError('Exact continuation requires identical generated validation cases and scoring code')
         if args.smoke_run and args.max_steps is None and smoke.get('generationValidationContract') != generation_contract:
             raise ValueError('GPU smoke must validate identical generation cases and scoring code')
+    if args.infrastructure_smoke:
+        print(f'[smoke] Training/backward/loss/save probe; skipping {len(generation_cases or [])} development generations. '
+              'A separate adapter reload probe follows; no accuracy measurement.', flush=True)
+        # Preserve the full validation contract for recipe compatibility, but do
+        # not run checkpoint-quality evaluation during an infrastructure probe.
+        generation_cases = None
     loading = {'local_files_only': True, 'trust_remote_code': False, 'torch_dtype': dtype,
                'device_map': {'': 0}, 'attn_implementation': 'eager'}
     if method == 'qlora':
@@ -217,7 +227,11 @@ def main():
     selection_metric = 'eval_selection_score' if generation_cases else 'eval_loss'
     run['bestCheckpointMetric'] = selection_metric
     run['generationValidationContract'] = generation_contract
-    if config.get('generationValidation', {}).get('selectionVersion'):
+    if args.infrastructure_smoke:
+        run['smokeScope'] = {'purpose': 'training infrastructure only, not model quality',
+                             'developmentGenerationCasesExecuted': 0,
+                             'lossValidation': True, 'requiresSeparateAdapterReload': True}
+    if config.get('generationValidation', {}).get('selectionVersion') and not args.infrastructure_smoke:
         run['candidateSelection'] = {'version': config['generationValidation']['selectionVersion'],
             'fullAdapterRole': 'safety-ranked research candidate, not a production promotion',
             'productionEligible': False,
@@ -308,7 +322,7 @@ def main():
                 train_runtime_scope='resumed_segment', finalGlobalStep=trainer.state.global_step,
                 resumedOptimizerSteps=trainer.state.global_step - resume_info['startStep'])
         write_json(args.output / 'training-run.json', run)
-        if config.get('generationValidation', {}).get('selectionVersion'):
+        if config.get('generationValidation', {}).get('selectionVersion') and not args.infrastructure_smoke:
             from reliability_selection import retain_candidates
             retain_candidates(args.output)
     except Exception as ex:
