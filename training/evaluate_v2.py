@@ -69,7 +69,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--base', type=Path, default=ROOT / '.local/training/base')
     parser.add_argument('--adapter', type=Path)
-    parser.add_argument('--suite', choices=('eval_gold', 'hard_gold', 'validation_smoke', 'future_holdout'), default='eval_gold')
+    parser.add_argument('--suite', choices=('eval_gold', 'hard_gold', 'validation_smoke', 'future_holdout', 'future_holdout_v9'), default='eval_gold')
     parser.add_argument('--prompt-mode', choices=('legacy', 'chat'), default='legacy', help='Chat proposals are supported for development validation only')
     parser.add_argument('--per-language', type=int, default=0, help='0=full set; positive selects deterministic tool/no-tool subsets')
     parser.add_argument('--reload-smoke', action='store_true', help='Four short adapter reload probes, not accuracy evaluation')
@@ -84,7 +84,7 @@ def main():
                              not args.adapter or args.per_language or args.job_continuations or
                              args.resume_from or args.allow_incomplete_checkpoint or args.max_new_tokens > 64):
         parser.error('--reload-smoke requires a completed adapter, chat validation_smoke, no other selection/resume, and <=64 new tokens')
-    if args.prompt_mode == 'chat' and args.suite not in ('validation_smoke', 'future_holdout'):
+    if args.prompt_mode == 'chat' and args.suite not in ('validation_smoke', 'future_holdout', 'future_holdout_v9'):
         parser.error('Chat projection is for development validation; gold remains unchanged')
     if args.output.exists() or (args.resume_from and args.output.resolve() == args.resume_from.resolve()):
         parser.error('Never overwrite previous evaluation evidence')

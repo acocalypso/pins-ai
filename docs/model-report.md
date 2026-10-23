@@ -1,6 +1,6 @@
 # Trained models and comparison report
 
-Report date: **2026-10-13**. This consolidates the current deployment decision,
+Report updated: **2026-10-23**. This consolidates the current deployment decision,
 matched model comparisons, relevant historical results and Pi observations.
 Measurements below are dated evidence, not a fresh check of the device today.
 Reproduce future evaluations with [the training process](training.md).
@@ -19,7 +19,9 @@ earlier Pi trial. None of these models is accepted as production-quality.
 | Prior checkpoint 400 | Incomplete v4 Colab run, recorded best save at 0.55 epochs | Diagnostic candidate; rejected for deployment |
 | New checkpoint 1900 | Completed v4 run, stopped at 2.6104 of three planned epochs | Evaluated candidate; not promoted |
 | V7 Colab selected 300 | Completed through early stopping at 700/1,476 | Development-only evidence; not promoted |
-| V8 reliability recipe | Data/selection/runtime checks prepared | Fresh experiment required; no GPU run or model gain measured |
+| V8 Colab selected 600 | Completed through early stopping at 1100/1560 | Verified development evidence; not production eligible |
+| V8 Colab diagnostic 700 | Higher development accuracy, eleven unwanted proposals | Retain for research; not production eligible |
+| V9 fidelity recipe | Data, safeguards and CPU checks prepared | Fresh GPU smoke/training and independent release evidence required |
 | V6 recipe | Data and pipeline prepared; no full training performed | Next fresh-base experiment, not an existing trained model |
 
 The folder containing the new run was named `mi355x`, but its metadata recorded
@@ -329,3 +331,96 @@ consider separately authorized Pi resource and read-only compatibility checks.
 No new training, weight download, quantization, Pi deployment or equipment action
 was run in this code task. [Runnable commands](training.md#v8-reliability-experiment-and-historical-v7-migration-2026-10-18)
 include CUDA-NF4, ROCm-BF16, analysis, holdout and matched runtime verification.
+
+## V8 evidence and v9 experiment, 2026-10-23
+
+The supplied results ZIP for `qwen3-pins-v8-colab-20261023-063804` contains all
+eleven development reports. The read-only analyzer verifies shared case/contract
+hashes and independently recomputes their historical aggregate metrics and
+selection ordering. A separate raw-text replay verifies all 1,606 saved outputs
+against the matching frozen scorer/schema and reconstructed tokenizer prompts,
+with zero discrepancies. It does not rerun model inference. The run resumed at 600 and
+completed by early stopping at step 1100/1560, epoch 2.115. These measurements
+supersede the earlier “v8 has no measured model gain” planning status above.
+
+| Step | Exact / 146 | Positive exact / 96 | Macro exact | Unwanted / 50 | Invalid no-tool / total | Historical score |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 500 | 124 | 79 | 82.45% | 5 | 3 / 5 | -15883061.587755 |
+| 600, selected | 123 | 78 | 81.43% | 5 | 1 / 3 | -15882765.592857 |
+| 700, accuracy research | 127 | 88 | 91.39% | 11 | 2 / 3 | -34942050.543061 |
+
+Checkpoint 600 wins the historical safety score over 500 because it has fewer
+invalid outputs at the same unwanted-proposal count. The score does not establish
+production safety: it still has five injection proposals and two critical action
+reversals in diagnostics. Step 700 preserves stronger positive capability but
+more unwanted proposals. Required job followups remain positive tool cases.
+Checkpoint 600 exact is 84.25% (Wilson 95%: 77.47–89.27%); its unwanted rate is
+5/50 (4.35–21.36%). Only ten injection cases were measured, five correct. Report
+per-language denominators and uncertainty rather than interpreting those small
+slices as reliable field failure rates. No physical operations were executed.
+
+The trainer-state hash discrepancy is resolved. The preserved source original
+matches its restoration manifest (`6fac414b…`); the relocated working state
+matches the resume manifest (`fbd922e7…`). Only `best_model_checkpoint` changed.
+These are two different byte identities, both retained. Exported adapter weights
+match selected checkpoint 600 exactly:
+`8df78805979aeb5fa9f482d2a866ca57e6a34c073dcf88a6126f283ae82c7a4d`.
+All 31 restoration source files and nine pinned-base files were verified by
+streaming SHA-256, without loading weights or deserializing optimizer pickles.
+See [the machine-readable baseline](../training/experiments/v8-baseline-20261023.json).
+
+V9 adds **850 independent train-only conversations**, bringing the corpus to
+**6,889 conversations / 9,280 unique prepared assistant turns** across the same
+48 tools and ten languages. Preparation skips zero, with maximum training
+sequence/completion lengths of 1,401/139 tokens. All 6,039 v8 conversations remain
+unchanged, alongside 24 protected source/baseline/split files. Authoring
+used domain requirements and gateway schemas, independently of report wording.
+Authority source contrasts include legitimate requests, imported/quoted text,
+tool-result instructions and code switching. Other contrasts bind action direction,
+booleans, structured coordinates, explicit zero versus omission, physical bounds,
+opaque identifiers and uncertain/pending/terminal job state. Positive calls are
+schema-validated at construction. Preparation and isolation evidence establish
+data properties, not a measured model improvement. Native review remains pending.
+
+V9 preserves historical selection and early stopping, and separately introduces
+`v9-multi-axis-1` research diagnostics with at most three adapter copies: safety,
+positive/overall accuracy and distinct macro accuracy, or a critical-safety Pareto
+tradeoff when those accuracy roles coincide. Applied diagnostically to v8 this
+would preserve 500, 600 and 700; it does not recover missing historical weights.
+The report exposes critical unwanted
+proposals, action reversals, invented coordinates, schema failures, truncation,
+positive exact and macro exact. Measured latency is reported, but is not a frontier
+axis without comparable hardware evidence. Research copies lack optimizer state;
+production eligibility remains a separate fail-closed decision. The gateway's
+explicit error/failure evidence overrides contradictory nested success/job fields.
+Current verification includes 275 simulated gateway checks and 28 runtime checks;
+these establish no real equipment or model accuracy result.
+
+The new **100-case future holdout** balances 50 positive and 50 negative cases
+across ten locales. It is separate from gradients, development checkpoint choice
+and iterative tuning. Evaluate `future_holdout_v9` only after freezing the model
+and completing independent native/domain review. Completion claims and capability
+coverage still need broader review. Existing v8 and original splits remain frozen.
+Group/exact/numeric-normalized/near-text audits cannot certify semantic independence.
+The expanded audit found no new-source near matches or group/exact leaks. It
+also reports one pre-existing slew-followup near match through three equivalent
+validation views (similarity 0.9); that historical uncertainty remains visible.
+
+The first v9 ablation changes training data while keeping the v8 learning recipe
+fixed: seed 3407, learning rate 5e-5, rank 8/alpha 16, three epochs, batch 1 with
+accumulation 16, evaluation every 100 and patience 4. Diagnostic storage changes
+separately. More data over three epochs means more optimizer steps and tokens;
+this is not an equal-compute experiment. Optional learning-rate and capacity
+ablations are separate future runs in [the v9 plan](../training/experiments/v9-plan.json).
+No v9 GPU smoke/full run, weight download, GGUF conversion, Pi deployment or
+physical equipment action was performed in this implementation session.
+
+**Not production eligible.** Acceptance requires reviewed independent multilingual
+positive/negative coverage, zero critical unwanted proposals/action reversals or
+invented-coordinate actions, no unauthorized simulated execution, no invalid
+required calls/truncation and no significant schema or positive-accuracy regression.
+78/96 positive exact is the shared-development reference; 88/96 is an aspirational
+research capability reference, neither an unseen-generalization claim. Matched
+Q4 base plus runtime LoRA parity and Pi latency/RAM/thermal/active-imaging checks
+remain required. Missing review, parity or resource evidence fails eligibility.
+Follow the [operator handoff](training.md#v9-operator-handoff-2026-10-23).

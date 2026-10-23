@@ -21,6 +21,12 @@ python training/tests/generation_validation_tests.py
 python training/tests/colab_tests.py
 python training/tests/colab_environment_tests.py
 python training/tests/colab_model_cache_tests.py
+python training/tests/colab_run_layout_tests.py
+python training/tests/diagnostic_tests.py
+python training/tests/replay_development_tests.py
+python training/tests/fidelity_curriculum_tests.py
+python training/tests/v9_research_tests.py
+python training/tests/v9_holdout_tests.py
 python training/tests/training_resume_tests.py
 python training/tests/evaluation_tests.py
 python training/tests/export_tests.py

@@ -9,7 +9,7 @@ from curriculum_v3 import curriculum_rows as legacy_rows
 from chat_dataset_common import CHAT_POLICY, LANGUAGES, chat_definitions
 from v2_contracts import POLICY, definitions
 
-PROFILE = 'v8-multilingual-reliability'
+PROFILE = 'v9-multilingual-fidelity'
 OUTPUT_RESERVE = 192
 DATA = ROOT / 'training/dataset'
 DENIAL = dict(zip(LANGUAGES, (
@@ -84,7 +84,9 @@ def project(row):
     catalog = chat_definitions()
     row['tools'] = [{'name': t['name'], 'description': catalog[t['name']]['description'],
                      'parameters': catalog[t['name']]['inputSchema']} for t in row['tools'] if t['name'] in selected]
-    row['provenance'] = {**row['provenance'], 'activeProjection': PROFILE,
+    # V9 adds a separate authored source; this legacy projection is unchanged.
+    # Preserve its v8 row metadata as well as all messages/arguments.
+    row['provenance'] = {**row['provenance'], 'activeProjection': 'v8-multilingual-reliability',
                          'authorization': 'proposal only; no execution permission', 'split': row['provenance'].get('split', 'train')}
     return row
 

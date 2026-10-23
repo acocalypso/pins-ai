@@ -274,7 +274,8 @@ def main():
     if config.get('earlyStoppingPatience') and not args.max_steps:
         if config.get('generationValidation', {}).get('selectionVersion'):
             from reliability_selection import make_progress_callback
-            callbacks.append(make_progress_callback(config['earlyStoppingPatience'], config.get('earlyStoppingThreshold', 0.0)))
+            callbacks.append(make_progress_callback(config['earlyStoppingPatience'], config.get('earlyStoppingThreshold', 0.0),
+                                                   config.get('researchRetentionVersion', 'v8-safety-first-research-1')))
         else:
             from transformers import EarlyStoppingCallback
             callbacks.append(EarlyStoppingCallback(early_stopping_patience=config['earlyStoppingPatience'],
@@ -324,7 +325,7 @@ def main():
         write_json(args.output / 'training-run.json', run)
         if config.get('generationValidation', {}).get('selectionVersion') and not args.infrastructure_smoke:
             from reliability_selection import retain_candidates
-            retain_candidates(args.output)
+            retain_candidates(args.output, config.get('researchRetentionVersion', 'v8-safety-first-research-1'))
     except Exception as ex:
         run.update(status='failed', error=type(ex).__name__ + ': ' + str(ex))
         write_json(args.output / 'training-run.json', run)

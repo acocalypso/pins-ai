@@ -147,7 +147,7 @@ class ChatDatasetTests(unittest.TestCase):
                           assistant('Still running.')])
 
     def test_parity_with_actual_gateway_exposed_schemas(self):
-        path = ROOT / 'artifacts/router-chat-v8.json'
+        path = ROOT / 'artifacts/router-chat-v9.json'
         if not path.is_file():
             self.skipTest('Run the offline RouterAudit command to produce actual gateway schemas')
         report = json.loads(path.read_text(encoding='utf-8'))

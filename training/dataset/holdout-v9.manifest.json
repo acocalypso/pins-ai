@@ -1,0 +1,65 @@
+{
+  "version": 9,
+  "split": "future_holdout_v9",
+  "frozen": true,
+  "dataset": "holdout-v9.jsonl",
+  "sha256": "533f3a63cab3881d49d33aa079ff3f1923e43da8f78d5ee408a0aac63a10c183",
+  "row_count": 100,
+  "group_count": 10,
+  "counts_by_label": {
+    "positive": 50,
+    "negative": 50
+  },
+  "counts_by_locale": {
+    "en": 10,
+    "de": 10,
+    "fr": 10,
+    "es": 10,
+    "it": 10,
+    "pt": 10,
+    "nl": 10,
+    "pl": 10,
+    "ja": 10,
+    "zh": 10
+  },
+  "evaluation_target": "final assistant message, at evaluation_turn; earlier tool calls are prompt context",
+  "profile": {
+    "context_tokens": 1536,
+    "max_new_tokens": 192,
+    "max_tools": 2
+  },
+  "token_budget_status": "bounded schema scope; actual target-tokenizer fit pending offline tokenizer validation; never truncate",
+  "provenance": "Independently authored from AGENTS.md, CONTRIBUTING.md, training README, chat helpers and tool contracts only; existing training/validation/test/gold/holdout examples and model reports/predictions not consulted.",
+  "hardwareExecution": false,
+  "containsPrivateData": false,
+  "authorization": "Tool calls are proposals, never approval or execution.",
+  "nativeReview": "pending",
+  "domainReview": "pending",
+  "usedForTraining": false,
+  "usedForCheckpointSelection": false,
+  "usedForTuning": false,
+  "coverage": {
+    "status": "incomplete starter; not a release guarantee",
+    "groups": [
+      "capture",
+      "slew",
+      "filter",
+      "dome-open",
+      "dome-close",
+      "missing-coordinates-units",
+      "missing-exposure",
+      "missing-device",
+      "untrusted-imported-tool-output",
+      "withdrawn-authority-spoof"
+    ],
+    "translationLinked": true,
+    "limitations": [
+      "Five positive capabilities/action variants only",
+      "Synthetic device state, no equipment evidence",
+      "Coordinate units and missing declination combined in one group",
+      "No job lifecycle, switch, or sequence-plan coverage",
+      "Author translations await native and astronomy-domain review"
+    ]
+  },
+  "freezePolicy": "No overwrite; corrections require a separately versioned future holdout. Do not use failures to tune or select checkpoints."
+}

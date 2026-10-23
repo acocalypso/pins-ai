@@ -15,7 +15,7 @@ def source_hashes():
              'training/chat_curriculum.py', 'training/chat_intent_curriculum.py',
              'training/chat_workflow_curriculum.py', 'training/curriculum_v3.py',
              'training/chat_generalization_curriculum.py', 'training/upstream_tool_curriculum.py', 'training/reliability_curriculum.py',
-             'training/sequence_curriculum.py', 'training/v2_contracts.py',
+             'training/fidelity_curriculum.py', 'training/sequence_curriculum.py', 'training/v2_contracts.py',
              'training/v2_adapter.py', 'training/common.py',
              'training/dataset/scripts/build_dataset.py',
              'plugin/src/Pins.AI.Runtime/ToolGateway.cs',
@@ -38,7 +38,8 @@ def build_rows():
     legacy, exclusions = source_rows()
     from upstream_tool_curriculum import build_rows as upstream_rows
     from reliability_curriculum import build_rows as reliability_rows
-    new = intents() + workflows() + generalization() + upstream_rows() + reliability_rows()
+    from fidelity_curriculum import build_rows as fidelity_rows
+    new = intents() + workflows() + generalization() + upstream_rows() + reliability_rows() + fidelity_rows()
     rows = legacy + new
     if len({r['id'] for r in rows}) != len(rows):
         raise ValueError('Duplicate conversation identifiers')
@@ -61,6 +62,30 @@ def coverage(rows):
                              'naturalIntentLocales': sorted({r['locale'] for r in natural}),
                              'positiveArguments': sorted(arguments), 'boundaryArguments': sorted(boundaries),
                              'uncoveredArguments': sorted(available - arguments - boundaries)}
+        calls = [(r['locale'], c['function']['arguments']) for r in selected for m in r['messages']
+                 for c in m.get('tool_calls', []) if c['function']['name'] == name]
+        fields = {}
+        def observe(value, prefix='', locale=''):
+            if not isinstance(value, dict): return
+            for key, item in value.items():
+                path = prefix+key
+                entry = fields.setdefault(path, {'present':0,'locales':{},'scalarValues':{}})
+                entry['present'] += 1
+                entry['locales'][locale] = entry['locales'].get(locale,0)+1
+                if not isinstance(item,(dict,list)):
+                    scalar = json.dumps(item, ensure_ascii=False, sort_keys=True)
+                    entry['scalarValues'][scalar] = entry['scalarValues'].get(scalar,0)+1
+                if isinstance(item,list):
+                    for child in item: observe(child,path+'[].',locale)
+                elif isinstance(item,dict): observe(item,path+'.',locale)
+        for locale,args in calls: observe(args,locale=locale)
+        for path,entry in fields.items():
+            entry['omittedFromCalls'] = len(calls)-entry['present'] if '.' not in path else None
+            values = entry['scalarValues']
+            entry['distinctScalarValues'] = len(values)
+            entry['scalarValues'] = dict(sorted(values.items())[:32])
+        tool_report[name]['argumentCoverage'] = dict(sorted(fields.items()))
+        tool_report[name]['argumentCoverageNote'] = 'Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item.'
         if set(tool_report[name]['naturalIntentLocales']) != set(LANGUAGES):
             raise ValueError('Missing natural chat tool/language coverage: ' + name)
         if tool_report[name]['uncoveredArguments']:

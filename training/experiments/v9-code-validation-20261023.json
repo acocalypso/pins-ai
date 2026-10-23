@@ -1,0 +1,229 @@
+{
+  "version": "v9-code-validation-20261023-1",
+  "date": "2026-10-23",
+  "scope": "CPU, tokenizer-only, tiny CPU fixtures and simulated gateway tests; no GPU/model inference/equipment",
+  "pythonSuites": [
+    {
+      "suite": "diagnostic_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "fidelity_curriculum_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "v9_research_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "v9_holdout_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "colab_run_layout_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "colab_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "colab_environment_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "colab_model_cache_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "training_resume_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "reliability_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "chat_dataset_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "generation_validation_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "evaluation_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "curriculum_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "comprehensive_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "v2_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "training_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "upstream_contract_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "preflight_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "export_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "local_inference_tests",
+      "exitCode": 0
+    },
+    {
+      "suite": "replay_development_tests",
+      "exitCode": 0
+    }
+  ],
+  "pythonSuitesPassed": 22,
+  "gatewaySimulatedChecks": 275,
+  "runtimeChecks": 28,
+  "nativeCallsValidated": 5960,
+  "routerRetrieved": 294,
+  "routerCases": 480,
+  "routerLimitation": "186 older authored requests still miss the intended tool; no semantic retrieval improvement claimed",
+  "prepared": {
+    "train": {
+      "conversations": 6889,
+      "assistantTurns": 9280,
+      "tokens": {
+        "min": 298,
+        "median": 706,
+        "p95": 1022,
+        "max": 1401
+      },
+      "completionTokens": {
+        "median": 22,
+        "p95": 38,
+        "max": 139
+      },
+      "sha256": "7d31b1533fdad0a9b0331d54246b0fbcde87530b35ff64f680da9b3e535c2811"
+    },
+    "validation": {
+      "conversations": 627,
+      "assistantTurns": 1280,
+      "tokens": {
+        "min": 304,
+        "median": 728,
+        "p95": 1083,
+        "max": 1325
+      },
+      "completionTokens": {
+        "median": 21,
+        "p95": 36,
+        "max": 63
+      },
+      "sha256": "dcb462a0a1a21695203eaf4f5157908a5a4f4eded027d20d00ffead6d511b739"
+    }
+  },
+  "skipped": 0,
+  "inferenceMaxOutputTokens": 192,
+  "context": 1536,
+  "frozenIntegrity": {
+    "protectedFilesChecked": 24,
+    "changedProtectedFiles": [],
+    "v8TrainConversations": 6039,
+    "changedOrMissingV8Rows": []
+  },
+  "isolation": {
+    "linkedGroupLeaks": [],
+    "exactPromptLeaks": [],
+    "newNearDuplicates": [],
+    "nearThreshold": 0.9,
+    "newNumericNormalizedMatches": [],
+    "historicalNearDuplicatePairs": 3,
+    "historicalNearDuplicateExamples": [
+      {
+        "trainId": "followup-slew_mount-en-0",
+        "split": "validation",
+        "heldOutId": "followup-slew_mount-en-2",
+        "similarity": 0.9
+      },
+      {
+        "trainId": "followup-slew_mount-en-0",
+        "split": "development",
+        "heldOutId": "followup-slew_mount-en-2",
+        "similarity": 0.9
+      },
+      {
+        "trainId": "followup-slew_mount-en-0",
+        "split": "validation_audited",
+        "heldOutId": "followup-slew_mount-en-2",
+        "similarity": 0.9
+      }
+    ],
+    "linguisticReview": "pending; text similarity and translation-linked groups cannot prove semantic independence",
+    "inputHashes": {
+      "validation": "0d5116a63cfcea206e1105faa1e0288341d3eae85e59b0a18f1b1699fa87b280",
+      "test": "d0490afc3e9e9411173e351aefc62b82c869896940a583188164d1c6d9dd7fce",
+      "eval_gold": "e27da77d5596c910ba1969fae944e0b41bd327d20d3fe2599c244730d1148c81",
+      "hard_gold": "da6b7d19d9bdd6424e8c4ca21697e6e5b7e67b3d5ce66f479a99ad50fa2cc85c",
+      "development": "6aa7a236a8a880c904267902e5b341b099b0ffd6572b5037c05f5a619a39b06f",
+      "future_holdout": "a4f23cafee8fe592e13e597bbee2e5614956f6e688d89f941fe354b5e193f030",
+      "validation_audited": "20f9172f73a25825089a310a97f449f2df5191392229d9d95d987b68a4f275b1",
+      "test_audited": "a0d22ccc7fb75fa620567ca95ffdcefde6b3c411cd025517c0f2de099ee8e39b",
+      "baseline_gold": "665dd75adb69624e1e76c205c5366a2c150d27a944f33608389c7e90e0e64454",
+      "future_holdout_v9": "533f3a63cab3881d49d33aa079ff3f1923e43da8f78d5ee408a0aac63a10c183"
+    }
+  },
+  "holdoutTokenizer": {
+    "cases": 100,
+    "maxPromptTokens": 779,
+    "maxCompletionTokens": 50,
+    "context": 1536,
+    "outputReserve": 192,
+    "modelLoaded": false
+  },
+  "recipeMigration": {
+    "config-v9.json": {
+      "learningRecipeUnchanged": true,
+      "diagnosticRetention": "v9-multi-axis-1"
+    },
+    "mi355x-v9-lora-bf16.json": {
+      "learningRecipeUnchanged": true,
+      "diagnosticRetention": "v9-multi-axis-1"
+    }
+  },
+  "derivedOptimizerStepsBeforeEarlyStopping": 1740,
+  "historicalDevelopmentInputsAndPromptsIdentical": 146,
+  "rawPredictionReplay": {
+    "predictions": 1606,
+    "discrepancies": 0,
+    "modelInference": false
+  },
+  "colabResumeLayoutTests": 8,
+  "realColabResumeTested": false,
+  "nativeReview": "pending",
+  "semanticLeakageReview": "pending; similarity is heuristic",
+  "v9ModelImprovementMeasured": false,
+  "gpuSmokeExecuted": false,
+  "fullTrainingStarted": false,
+  "weightsDownloaded": false,
+  "equipmentMutated": false,
+  "piDeployment": false,
+  "productionEligible": false,
+  "nextSteps": [
+    "native/domain review and expanded independent release coverage",
+    "operator-run T4 preflight/smoke/reload and fresh v9 training",
+    "matched base/v8/v9 positive/negative evaluation",
+    "GGUF/Pi resource/latency and authorization parity"
+  ],
+  "preparedManifestSha256": "df214798684f8b21b000b51ee4a438ee5e3d39d7a0c0408bb34fa36bcfb455be"
+}

@@ -2,8 +2,11 @@
 
 This is the single dataset location for PINS AI. Use **`train.jsonl`** with
 `python training/prepare_v2.py --curriculum`; do not concatenate every JSONL file
-in this directory. The current v8 corpus has 6,039 conversations / 8,320 unique
-prepared assistant turns, covering all 48 MCP tools and ten languages.
+in this directory. The current v9 corpus has 6,889 conversations / 9,280 unique
+prepared assistant turns, covering all
+48 MCP tools and ten languages. The historical v8 corpus had 6,039 conversations
+and 8,320 unique prepared assistant turns. V9 preparation skips zero; maximum
+training sequence/completion lengths are 1,401/139 tokens.
 
 ```text
 training/dataset/
@@ -88,5 +91,21 @@ never a training or checkpoint-selection input. The isolation audit is
 `python training/audit_split_isolation.py --output artifacts/new-isolation.json`.
 It checks groups/translation-linked families, exact requests and numeric-normalized
 near-text matches; this does not prove semantic independence.
-New data/scoring requires a fresh base run and matching v8 smoke, not a historical
-v7 resume. Retain old recipes and source revisions for exact legacy reproduction.
+V9 adds 850 conversations from `training/fidelity_curriculum.py`, independently
+authored from domain requirements and current gateway schemas. These cover
+authority source contrasts, code switching, withdrawals, opposing actions,
+exact booleans, omitted fields versus explicit zero, structured target plans,
+opaque incident/job identifiers and uncertain/terminal job continuations. The
+generator never reads evaluation reports or held-out files. Construction validates
+every call; coverage records nested arguments, omissions, values and locale counts.
+All hardware observations are synthetic and native-language review is pending.
+
+The separately authored 100-case v9 future holdout has 50 positive and 50 negative
+cases across ten locales. `--suite future_holdout_v9` is for later frozen-model
+release evaluation only: never gradient updates, checkpoint selection or iterative
+tuning. Native/domain review and completion coverage remain incomplete. Its
+existence does not establish unseen accuracy or production eligibility.
+
+New data requires a fresh base run and matching v9 smoke. Retain old recipes and
+source revisions for exact legacy reproduction; never rewrite frozen partitions
+or the preserved 326-example baseline. Near-text isolation checks remain heuristic.

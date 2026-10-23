@@ -22,7 +22,7 @@ def tokens(text):
 
 def audit(train, splits, threshold=.9):
     groups={r['group'] for r in train}
-    linked=[];exact=[];near=[]
+    linked=[];exact=[];near=[];numeric=[];historical_near=0;historical_examples=[]
     index=defaultdict(list)
     for split,rows in splits.items():
         linked += [{'split':split,'group':g} for g in sorted(groups&{r.get('group') for r in rows if r.get('group')})]
@@ -35,10 +35,19 @@ def audit(train, splits, threshold=.9):
             for split,identifier,other,words in index[row['locale']]:
                 entry={'trainId':row['id'],'split':split,'heldOutId':identifier}
                 if normalized==unicodedata.normalize('NFKC',other).casefold(): exact.append(entry)
-                elif row['id'].startswith('reliability-') and len(current)>=6 and len(words)>=6:
+                elif len(current)>=6 and len(words)>=6:
                     similarity=len(current&words)/len(current|words)
-                    if similarity>=threshold: near.append({**entry,'similarity':similarity})
+                    is_new=row['id'].startswith(('reliability-','fidelity-'))
+                    if similarity>=threshold:
+                        if is_new: near.append({**entry,'similarity':similarity})
+                        else:
+                            historical_near+=1
+                            if len(historical_examples)<50: historical_examples.append({**entry,'similarity':similarity})
+                    if is_new and current==words:
+                        numeric.append(entry)
     return {'linkedGroupLeaks':linked,'exactPromptLeaks':exact,'newNearDuplicates':near,'nearThreshold':threshold,
+            'newNumericNormalizedMatches':numeric,'historicalNearDuplicatePairs':historical_near,
+            'historicalNearDuplicateExamples':historical_examples,
             'linguisticReview':'pending; text similarity and translation-linked groups cannot prove semantic independence'}
 
 
@@ -50,6 +59,9 @@ def main():
     root=Path(__file__).resolve().parents[1]/'training/dataset'
     paths={s:root/'data'/f'{s}.jsonl' for s in ('validation','test','eval_gold','hard_gold')}
     paths.update(development=root/'validation-chat-v7.jsonl',future_holdout=root/'holdout-v8.jsonl')
+    paths.update({s+'_audited':root/'data/audited'/f'{s}.jsonl' for s in ('validation','test')})
+    paths['baseline_gold']=root/'baseline/gold.jsonl'
+    if (root/'holdout-v9.jsonl').exists(): paths['future_holdout_v9']=root/'holdout-v9.jsonl'
     read=lambda p:[json.loads(line) for line in p.read_text(encoding='utf-8').splitlines()]
     result=audit(read(root/'train.jsonl'),{s:read(p) for s,p in paths.items()})
     result['inputHashes']={s:hashlib.sha256(p.read_bytes()).hexdigest() for s,p in paths.items()}

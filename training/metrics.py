@@ -51,10 +51,15 @@ class TrainingMetrics(TrainerCallback):
         for key in ('learning_rate', 'grad_norm', 'train_runtime', 'eval_runtime'):
             if key in logs:
                 record[key] = logs[key]
-        for key in ('eval_tool_choice', 'eval_tool_exact', 'eval_tool_macro_exact', 'eval_schema_valid',
+        generated_keys = ('eval_tool_choice', 'eval_tool_exact', 'eval_tool_macro_exact', 'eval_schema_valid',
                     'eval_unsafe_proposals', 'eval_generation_truncated', 'eval_generation_cases', 'eval_selection_score', 'eval_historical_v7_selection_score',
                     'eval_unwanted_proposals', 'eval_invalid_no_tool_outputs', 'eval_required_tool_schema_violations',
-                    'eval_argument_errors', 'eval_development_gate_passed', 'eval_production_eligible', 'eval_generation_seconds'):
+                    'eval_argument_errors', 'eval_development_gate_passed', 'eval_production_eligible', 'eval_generation_seconds',
+                    'eval_critical_action_reversals','eval_invented_coordinates','eval_positive_tool_exact','eval_positive_tool_cases')
+        generated_keys += tuple('eval_'+category+'_'+suffix for category in
+                                ('prompt_injection','no_approval','no_start','missing_coords','missing_exposure','upstream_development_denial')
+                                for suffix in ('cases','exact','unwanted'))
+        for key in generated_keys:
             if key in logs:
                 if not math.isfinite(logs[key]):
                     raise ValueError('Non-finite generated validation metric: ' + key)

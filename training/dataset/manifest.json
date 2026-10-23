@@ -1,8 +1,8 @@
 {
-  "version": "v8-multilingual-reliability",
+  "version": "v9-multilingual-fidelity",
   "split": "train",
   "legacySelected": 4019,
-  "newAuthored": 2020,
+  "newAuthored": 2870,
   "excludedLegacy": {
     "repeated_device_phrasing": 380,
     "obsolete_approval_stage": 20,
@@ -11,21 +11,22 @@
     "superseded_upstream_capability": 12
   },
   "sourceHashes": {
-    "training/build_chat_dataset.py": "c626a2e43466a4820681193ec8b16e82783a3f9532c7cd032188fc417c434eb9",
+    "training/build_chat_dataset.py": "910fbd0586b8dcbbd5faef4e5c225bb9ae977764056ae6f36e9ceb480dfd0403",
     "training/chat_dataset_common.py": "1259b90aab22e0f46e8ec03257c6ff1904a78ea1889ac177077bb5fd84e06841",
-    "training/chat_curriculum.py": "822c2127060ec54b3f366d2716c4afc6e18440911921ea78d652a051cfa53b3d",
+    "training/chat_curriculum.py": "255594714a56df73f9abc473ac7293042832f12d268d3313fbf3604cf5849715",
     "training/chat_intent_curriculum.py": "38224513132159993da08c90a8e24aaace4d88872bcf9bd0b3b8c918150d0e99",
     "training/chat_workflow_curriculum.py": "37de2019c62883bd64de5013035488d991ee42776a5240d31161534782b8c2d5",
     "training/curriculum_v3.py": "9f11ddab7fc29ac2ac5af0d060a914d9f3bba6ea94819e7fc62f060e272ca952",
     "training/chat_generalization_curriculum.py": "476e0f71695fb507e77fd736e509f188bf5ae66503c2636c7dcb775a886d1c06",
     "training/upstream_tool_curriculum.py": "bd2de011b2f3e030918c127647f2171317ca94112088d4c9b526bc6b702b586d",
     "training/reliability_curriculum.py": "785a9a849f3a09fb08c47b9b5c86f6851c0ea7f3093241b5ecf4a29a396424bb",
+    "training/fidelity_curriculum.py": "6a3cb4cbe3bf5fbf0d2c98c3bf48bb8cd4ebe5a9bbb23edab4ac72d044fddc84",
     "training/sequence_curriculum.py": "eb79a8ad036765fd416f20817f8c3b7399d7297622a1d891d4be1e821176abd0",
     "training/v2_contracts.py": "bdf5fd62e556a3dc79f2520c196846adf3bef5bd21c6a8b90ea4037e7bfc01ce",
     "training/v2_adapter.py": "2cc197f4d1858798b2f5b2ac800bfa93894a73c743107f0e8abd2de0b45d58f4",
     "training/common.py": "36a34fe32798f0e9e1664f29bbf15cdd21eef2e7daf1d78d370aa09dd8b48c6e",
     "training/dataset/scripts/build_dataset.py": "d21b53dd438184687589efee51564088c85af0fefe6ea3255a4e9d1309fe6b86",
-    "plugin/src/Pins.AI.Runtime/ToolGateway.cs": "f90317ee1fb7140b4a42e6906b52621ba3b124888cae6b6db8297b2a3b2e5687",
+    "plugin/src/Pins.AI.Runtime/ToolGateway.cs": "cd1723c37a46ca02a0b71e2f26709a9cec1a7a85fd2a985efca5c97902c38b28",
     "plugin/src/Pins.AI.Runtime/CoordinateEvidence.cs": "ccf6c7c06fc2a0aca47c8e940285dfd93d9c60991f2761d6e202315555b75b44",
     "plugin/src/Pins.AI.Runtime/McpChatService.cs": "0ec4e01aa5f9415cc9929d62ca62b3a51c98f8768aef27966a121d7e41101f35",
     "plugin/src/Pins.AI.Runtime/ToolPromptSchema.cs": "bce016cde4b881a5b23cb4321322edfcd54797a2f150c6ed150a67dc0dab3858",
@@ -40,11 +41,11 @@
     "training/dataset/contracts/audit.json": "75d6477a3016609acbbb1ddf15a0a9b80238dde710222cab6f59adc3e2193fd8"
   },
   "policySha256": "ec3cab4db64073c672fd2820dcae7b29e47c300da76a5b09b2502b7e88b3aad9",
-  "trainSha256": "dc2feb1e9fa467847b38b5bde077466e1e8399337afcbf80223215534e096cd4",
-  "coverageSha256": "c37166f07ceb7baaca189483c65d1e82896d55457e1f504db51651d1a0a876ec",
+  "trainSha256": "f7d364e13fa3ba93db566b0b96d57afababd601cd59ac15e50e33463ed476c93",
+  "coverageSha256": "44597af0d8955552bf9595682c8cb37b2e487b8e88c64486f792710327e22095",
   "hardwareExecution": false,
   "heldOutInputs": [],
   "linguisticReview": "pending",
-  "conversations": 6039,
-  "assistantTurns": 9507
+  "conversations": 6889,
+  "assistantTurns": 10597
 }

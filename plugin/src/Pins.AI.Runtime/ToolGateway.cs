@@ -289,18 +289,23 @@ public sealed class ToolGateway {
         result["completionConfirmed"] = false;
         result["requiresPolling"] = false;
         result["resultTrust"] = "untrusted-equipment-data";
-        if (result["success"] is JsonValue success && success.TryGetValue<bool>(out var ok) && !ok) result["isError"] = true;
+        // A nested job/stop summary cannot erase an explicit payload failure.
+        // Otherwise a contradictory response could incorrectly advance a plan.
+        var payloadFailed = result["isError"]?.GetValue<bool>() == true ||
+            result["success"] is JsonValue success && success.TryGetValue<bool>(out var ok) && !ok;
+        if (payloadFailed) result["isError"] = true;
         if (result["job"] is JsonObject job) {
             var state = job["state"]?.GetValue<string>();
-            result["completionConfirmed"] = state == "succeeded" && job["outcome"]?["success"]?.GetValue<bool>() == true;
+            result["completionConfirmed"] = !payloadFailed && state == "succeeded" && job["outcome"]?["success"]?.GetValue<bool>() == true;
             result["requiresPolling"] = state is "running" or "queued" or "cancelling";
-            result["isError"] = state is "failed" or "cancelled" or "abandoned" || state == "succeeded" && job["outcome"]?["success"]?.GetValue<bool>() != true;
+            result["isError"] = payloadFailed || state is "failed" or "cancelled" or "abandoned" || state == "succeeded" && job["outcome"]?["success"]?.GetValue<bool>() != true;
         }
         if (result.ContainsKey("stopped") || result.ContainsKey("steps")) {
             result.Remove("stopped");
             result["stopRequested"] = true;
             result["requiresStatusVerification"] = true;
-            result["isError"] = result["steps"] is not JsonArray steps || steps.Any(s => s?["success"]?.GetValue<bool>() != true);
+            result["isError"] = result["isError"]?.GetValue<bool>() == true || result["steps"] is not JsonArray steps || steps.Any(s => s?["success"]?.GetValue<bool>() != true);
+            result["completionConfirmed"] = false;
         }
         // Never interpret nested text as further commands or approval.
         return result;

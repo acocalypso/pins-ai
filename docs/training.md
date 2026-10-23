@@ -28,9 +28,9 @@ GGUF and evaluate deployment parity. Only then consider Pi promotion. See
 
 | Environment | Python / PyTorch | Dependencies | Configuration | Evaluation backend |
 |---|---|---|---|---|
-| Colab T4 | Hosted kernel Python and working preinstalled CUDA PyTorch | `training/colab_environment.py` installs missing/incompatible training dependencies only | `training/configs/config-v8.json` (FP16/NF4 QLoRA) | `cuda-nf4` |
-| NVIDIA workstation | Versioned example: Python 3.11, torch 2.7.1 CUDA 12.6 | `training/requirements.txt` | `training/configs/config-v8.json` (FP16/NF4 QLoRA) | `cuda-nf4` |
-| AMD Instinct MI355X, Linux x86-64 | AMD-supported ROCm/PyTorch with gfx950 kernels; example below | `training/requirements-common.txt` | `training/configs/mi355x-v8-lora-bf16.json` (BF16 LoRA) | `gpu-bf16` |
+| Colab T4 | Hosted kernel Python and working preinstalled CUDA PyTorch | `training/colab_environment.py` installs missing/incompatible training dependencies only | `training/configs/config-v9.json` (FP16/NF4 QLoRA) | `cuda-nf4` |
+| NVIDIA workstation | Versioned example: Python 3.11, torch 2.7.1 CUDA 12.6 | `training/requirements.txt` | `training/configs/config-v9.json` (FP16/NF4 QLoRA) | `cuda-nf4` |
+| AMD Instinct MI355X, Linux x86-64 | AMD-supported ROCm/PyTorch with gfx950 kernels; example below | `training/requirements-common.txt` | `training/configs/mi355x-v9-lora-bf16.json` (BF16 LoRA) | `gpu-bf16` |
 
 Use Git and Python; Git LFS is needed only for the bundled deployment GGUF files.
 The optional actual gateway-schema audit below additionally needs .NET SDK 10;
@@ -70,7 +70,7 @@ blindly concatenate. The contents are:
 - `training/dataset/sources/comprehensive/train.jsonl`: historical train-only coverage of the original 32
   MCP tools and ten languages, including arguments, boundaries, job
   outcomes, authorization and unsupported requests. See its [coverage guide](../training/dataset/sources/comprehensive/README.md).
-- **Current default:** `training/dataset/train.jsonl`: the v8 multilingual MCP48
+- **Current default:** `training/dataset/train.jsonl`: the v9 multilingual MCP48
   chat/proposal curriculum. Read its [guide](../training/dataset/README.md) and
   [comparison and accuracy recipe](model-report.md) before a new run.
 - `training/dataset/data/manifest.json`: immutable original data hashes;
@@ -157,7 +157,7 @@ weights are separate from run checkpoints and never added to Git.
 
 These changes have CPU/mock test coverage; execution and setup timings on a real
 current Colab T4 allocation remain **not verified**. The notebook's preflight and
-short GPU smoke are the next checks before enabling a full v8 run.
+short GPU smoke are the next checks before enabling a full v9 run.
 
 ## MI355X / ROCm setup
 
@@ -241,7 +241,7 @@ check; it must not be reported as a measured gateway audit. CI runs the audit.
 Choose the environment profile. Linux NVIDIA:
 
 ```bash
-CONFIG=training/configs/config-v8.json
+CONFIG=training/configs/config-v9.json
 BACKEND=cuda-nf4
 RUN=artifacts/training-runs/qwen3-$(date -u +%Y%m%d-%H%M%S)
 DATA=artifacts/training-data/current
@@ -250,7 +250,7 @@ DATA=artifacts/training-data/current
 Linux ROCm uses the same commands below with:
 
 ```bash
-CONFIG=training/configs/mi355x-v8-lora-bf16.json
+CONFIG=training/configs/mi355x-v9-lora-bf16.json
 BACKEND=gpu-bf16
 RUN=artifacts/training-runs/qwen3-mi355x-$(date -u +%Y%m%d-%H%M%S)
 DATA=artifacts/training-data/current
@@ -294,7 +294,7 @@ instead of bash variables. Set them as below, and put commands on one line or us
 PowerShell's backtick for line continuation (not bash's backslash):
 
 ```powershell
-$Config='training/configs/config-v8.json'
+$Config='training/configs/config-v9.json'
 $Backend='cuda-nf4'
 $Run='artifacts/training-runs/qwen3-'+(Get-Date -Format 'yyyyMMdd-HHmmss')
 $Data='artifacts/training-data/current'
@@ -359,14 +359,18 @@ Read `artifacts/restored-resume/resume-restoration.json` and use its `checkpoint
 path. It preserves the best adapter separately. Set `CHECKPOINT` to that path, and
 `RUN` to a new output directory, then run a one-step continuation smoke:
 
-In Colab, explicitly select the original run in `RESUME_SOURCE`; the new
-`RUN_NAME` is only the destination. For the run started on October 14, use
-`DRIVE_FOLDER / 'runs/qwen3-pins-v7-colab-20261014-191543'`. Set
-`TRAINING_MODE = 'resume'` and deliberately enable `RUN_TRAINING`. Re-run setup
-with a new destination name after changing the source; do not reuse an earlier
-session's restored checkpoint variable. The notebook writes the selected run's
-exact saved recipe to `RUN_ROOT/resume-config.json`, instead of forcing today's
-fresh-run preset onto it. Prepared data, base, optimizer and schedule checks
+In Colab, set `RESUME_SOURCE` to the **original Drive run folder** and select
+`TRAINING_MODE = 'resume'`. Resume preserves that same `RUN_ROOT` and creates a
+unique `ATTEMPT_ROOT = RUN_ROOT/attempts/resume-<UTC>` for logs, smoke and full
+outputs. The latest started attempt is discovered for a subsequent interruption;
+completed/early-stopped runs are rejected. Large restoration files stage under
+the VM's ignored `.local/training/resume`, while the small preserved best adapter
+and provenance persist on Drive. Do not stage full historical restoration trees
+on Drive. The notebook writes the exact saved recipe into the attempt folder.
+Re-run setup after changing sources; never reuse an earlier session's checkpoint
+variable. Deliberately enable `RUN_TRAINING` only after reviewing the selected
+source. This same-folder workflow has CPU tests but has not been run on Colab.
+Prepared data, base, optimizer and schedule checks
 remain enforced. A different-data error means select the correct source run or
 recover its original source revision/data; never remove that check.
 
@@ -531,8 +535,8 @@ Development validation combines 583 original scenarios with 44 independent new
 English/German cases (627 conversations). New-tool native requests cover all ten
 training languages; their development supplement covers English/German only.
 At the 2026-10-14 update no trained v7 model or new deployment was claimed.
-The completed v7 run and current v8 code-only status are documented below.
-Use `config-v8.json` for T4/NVIDIA or `mi355x-v8-lora-bf16.json` for supported ROCm,
+The completed v7/v8 runs and current v9 code-only status are documented below.
+Use `config-v9.json` for T4/NVIDIA or `mi355x-v9-lora-bf16.json` for supported ROCm,
 a fresh pinned base, newly prepared data and a new matching smoke run. Do not
 resume an old adapter as an exact continuation under the new contracts.
 
@@ -592,6 +596,10 @@ Never mix these backends into one comparison.
 
 ## V8 reliability experiment and historical v7 migration (2026-10-18)
 
+This section records the historical v8 recipe and commands. For the current v9
+fresh experiment use the operator handoff below. The completed v8 measurements
+are in [the model report](model-report.md#v8-evidence-and-v9-experiment-2026-10-23).
+
 The completed v7 Colab run stopped by early stopping at 700/1,476, not by a
 crash. `full/adapter` is the safety-ranked checkpoint 300; its bytes match that
 save. The in-memory step-700 loss is 0.153557, while the selected checkpoint's
@@ -602,7 +610,7 @@ V8 is a **fresh-base experiment**, never a continuation of historical v7. Use
 `config-v8.json` for NVIDIA FP16/NF4 or `mi355x-v8-lora-bf16.json` for supported
 ROCm BF16. Learning rate, patience, seed and batch settings remain unchanged;
 this is a versioned data/selection change, not a cosmetic patience increase.
-The Colab generator/notebook default to v8 fresh mode with training disabled.
+At that revision, the Colab generator/notebook defaulted to v8 fresh mode with training disabled.
 To continue an interrupted old v7 run, use its original Git revision, config,
 prepared data and smoke; current code explicitly rejects different scoring/data
 contracts. A completed early-stopped run is read-only, not an exact resume source.
@@ -732,3 +740,138 @@ weights or production chat binding. Router audit is separate. Pi promotion still
 needs explicit model/config review, plugin ownership, exact approval regressions,
 RAM/swap/temperature limits (75 C cutoff), latency and active-imaging contention
 checks. None of these future GPU, GGUF or Pi commands passed merely by being listed.
+
+## V9 operator handoff, 2026-10-23
+
+Use the [verified v8 baseline](../training/experiments/v8-baseline-20261023.json)
+and [versioned v9 plan](../training/experiments/v9-plan.json). V8 selected 600
+has 123/146 development exact and 78/96 positive exact with five unwanted
+proposals; diagnostic 700 has 127/146 and 88/96 with eleven unwanted proposals.
+Neither is production eligible. The source trainer-state mismatch was a recorded
+path relocation: original and working byte hashes now both verify against their
+own manifests. Exported weights match checkpoint 600. No model was loaded to
+verify these bytes, and no v9 training has been performed.
+
+V9 adds 850 independently authored train-only conversations (6,889 total;
+9,280 unique prepared assistant turns). The current three-epoch single-GPU
+recipe plans 1,740 optimizer steps before early stopping, compared with v8's
+1,560. This is a derived schedule, not an executed GPU result.
+Current CUDA/ROCm v9 profiles preserve v8 learning parameters, selection and early
+stopping; only the dataset and diagnostic research retention change. Three epochs
+over a larger corpus increases optimizer steps and training tokens. Do not call
+this equal compute or impose the historical 1560-step budget. An optional matched
+budget control needs a separate design; `--max-steps` marks a smoke run and must
+not be used to disguise a full experiment. Optional LR 3e-5 and rank 16/alpha 32
+experiments each change only their named factor after the data ablation.
+
+Before GPU work, rebuild and verify on CPU using the existing local pinned base
+and tokenizer; none of these commands downloads weights:
+
+```bash
+python training/build_chat_dataset.py
+python training/dataset/scripts/validate_dataset.py
+python training/tests/fidelity_curriculum_tests.py
+dotnet run --project plugin/tests/Mcp.GatewayTests -- training/dataset/contracts/tools-list.json
+python training/audit_split_isolation.py --output artifacts/v9-isolation-new.json
+python training/prepare_v2.py --curriculum --base .local/training/base \
+  --max-tokens 1536 --output artifacts/v9/sft
+```
+
+Review the fresh preparation manifest: no skipped or overflowing turns, correct
+Qwen chat template/eos/pad alignment, assistant-only supervision and **192 output
+tokens reserved inside the 1536 context**. Check schema/argument coverage and
+locale denominators, and review near-semantic/translation overlap independently.
+Frozen validation, test, gold, v8 holdout and the 326 baseline retain their bytes.
+No held-out wording is a training template. Archive audit/preparation outputs.
+
+The Colab notebook defaults to fresh v9 and retains its runtime/dependency cache
+and fast infrastructure smoke. Leave `RUN_TRAINING = False` until deliberately
+starting a reviewed GPU experiment. For an **interrupted original run**, set
+`TRAINING_MODE = 'resume'` and `RESUME_SOURCE` to that same original Drive folder.
+`RUN_ROOT` stays unchanged; each retry adds `attempts/resume-<UTC>` with separate
+logs, smoke/full outputs and saved recipe. The latest started attempt is used
+automatically, while setup-only attempts are ignored. Finished runs are refused.
+Large restoration trees stay VM-local; only the preserved best adapter and small
+restoration/provenance records persist. Exact resume requires the original source
+revision, data, configuration, base and dependencies. V9 data requires fresh base
+training, never an exact v8 resume. The new notebook workflow still needs an
+operator-run Colab test.
+
+On an explicitly selected GPU host with the matching setup above, execute the
+following sequence manually. CUDA NF4 and ROCm BF16 remain separate recipes:
+
+```bash
+CONFIG=training/configs/config-v9.json
+BACKEND=cuda-nf4
+# ROCm alternative: CONFIG=training/configs/mi355x-v9-lora-bf16.json; BACKEND=gpu-bf16
+DATA=artifacts/v9/sft
+RUN=artifacts/training-runs/qwen3-v9-$(date -u +%Y%m%d-%H%M%S)
+python training/train.py --base .local/training/base --dataset-mode mcp \
+  --config "$CONFIG" --data "$DATA" --max-steps 1 --infrastructure-smoke \
+  --logging-steps 1 --output "$RUN/smoke"
+python training/evaluate_v2.py --base .local/training/base --backend "$BACKEND" \
+  --adapter "$RUN/smoke/adapter" --suite validation_smoke --prompt-mode chat \
+  --reload-smoke --max-new-tokens 64 --output "$RUN/smoke-reload.json"
+# Only after matching smoke/reload pass; this starts full training:
+python training/train.py --base .local/training/base --dataset-mode mcp \
+  --config "$CONFIG" --data "$DATA" --smoke-run "$RUN/smoke" --output "$RUN/full"
+python training/evaluate_v2.py --base .local/training/base --backend "$BACKEND" \
+  --adapter "$RUN/full/adapter" --suite validation_smoke --prompt-mode chat \
+  --max-new-tokens 192 --output "$RUN/development.json"
+# Only after model/recipe freeze and independent native/domain review:
+python training/evaluate_v2.py --base .local/training/base --backend "$BACKEND" \
+  --adapter "$RUN/full/adapter" --suite future_holdout_v9 --prompt-mode chat \
+  --max-new-tokens 192 --output "$RUN/future-holdout-v9.json"
+```
+
+The four-probe/64-token reload is an infrastructure check, not an accuracy or
+safety gate. Full evaluation keeps 192 tokens. Compare base, archived v8 selected
+and diagnostic adapters, and new retained candidates on identical frozen inputs,
+backend and tool scopes. Never use `future_holdout_v9` for gradients, early
+stopping, checkpoint choice or iterative hand-tuning. Its 100 cases (50 positive,
+50 negative) still need native/domain review and broader completion coverage.
+
+`v9-multi-axis-1` bounds research weights to at most three unique safety,
+positive/overall-accuracy and distinct macro-accuracy candidates. When accuracy
+roles coincide, the spare slot preserves a critical-safety Pareto tradeoff.
+The frontier reports
+critical slices and schema/positive/macro outcomes; latency is not a comparison
+axis without matched hardware evidence. Production eligibility is separate and
+fails closed for unknown review/parity evidence. Research copies lack optimizer
+state and cannot substitute for exact-resume checkpoints.
+
+For later deployment-format evaluation, use the pinned llama.cpp converter and
+server setup already described, with the **same Q4 base and separate F16 runtime
+LoRA** for each candidate. These commands do not deploy to the Pi:
+
+```bash
+LLAMA=.local/llama.cpp
+.local/converter-venv/bin/python "$LLAMA/convert_lora_to_gguf.py" \
+  --base .local/training/base --outtype f16 --outfile "$RUN/runtime-lora-f16.gguf" "$RUN/full/adapter"
+SERVER="$LLAMA/build/bin/llama-server"
+BASE=plugin/models/bundled/qwen3-pinned-base-Q4_K_M.gguf
+python training/evaluate_gguf.py --model "$BASE" --lora "$RUN/runtime-lora-f16.gguf" \
+  --server "$SERVER" --llama-source "$LLAMA" --suite validation_smoke --prompt-mode chat \
+  --max-new-tokens 192 --output "$RUN/gguf-development.json"
+python training/evaluate_gguf.py --model "$BASE" --lora "$RUN/runtime-lora-f16.gguf" \
+  --server "$SERVER" --llama-source "$LLAMA" --suite future_holdout_v9 --prompt-mode chat \
+  --max-new-tokens 192 --output "$RUN/gguf-future-holdout-v9.json"
+```
+
+Archive the original results ZIP unchanged; source Git revision and patch; pinned
+base/tokenizer/schema/policy/config/data/prepared manifests and hashes; dependency
+freeze and hardware preflight; original and relocated trainer states plus
+restoration manifests; complete optimizer/scheduler/RNG/scaler checkpoints;
+training and smoke/reload logs; every development/holdout/analysis report; selected
+adapter, up to three research adapters and `research-candidates/selection.json`.
+Keep original Drive run/attempt provenance and latest-attempt pointer. A small
+adapter archive is useful for research but is insufficient for exact resume.
+
+Release requires zero reviewed critical unwanted proposals, action reversals,
+invented-coordinate actions, unauthorized simulated execution, required-call
+schema failures or truncated outputs, plus no significant positive/schema
+regression. The 78/96 shared-development positive reference and aspirational
+88/96 research reference do not prove generalization. Native-reviewed independent
+results, matched GGUF parity and separately authorized Pi latency/RAM/thermal
+(75 C cutoff)/active-imaging checks are still missing. **Not production eligible.**
+No GPU, GGUF or Pi command above was run by this documentation update.

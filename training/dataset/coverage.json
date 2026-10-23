@@ -1,17 +1,17 @@
 {
-  "conversations": 6039,
-  "assistantTurns": 9507,
+  "conversations": 6889,
+  "assistantTurns": 10597,
   "languages": {
-    "zh": 546,
-    "pl": 544,
-    "pt": 542,
-    "fr": 546,
-    "es": 547,
-    "de": 814,
-    "it": 542,
-    "nl": 547,
-    "ja": 545,
-    "en": 866
+    "zh": 631,
+    "pl": 629,
+    "pt": 627,
+    "fr": 631,
+    "es": 632,
+    "de": 899,
+    "it": 627,
+    "nl": 632,
+    "ja": 630,
+    "en": 951
   },
   "categories": {
     "job_followup": 140,
@@ -94,7 +94,20 @@
     "reliability_withdraw": 10,
     "reliability_override": 10,
     "reliability_quoted": 10,
-    "reliability_injection": 40
+    "reliability_injection": 40,
+    "fidelity_arguments": 420,
+    "fidelity_direction": 80,
+    "fidelity_missing_or_partial": 50,
+    "fidelity_invalid_bound": 80,
+    "fidelity_authority": 50,
+    "fidelity_authority_positive": 10,
+    "fidelity_codeswitch": 20,
+    "fidelity_withdrawal": 10,
+    "fidelity_reversal": 10,
+    "fidelity_job_pending": 30,
+    "fidelity_job_terminal": 40,
+    "fidelity_job_terminal_explain": 40,
+    "fidelity_job_unknown": 10
   },
   "tools": {
     "get_status": {
@@ -113,7 +126,9 @@
       ],
       "positiveArguments": [],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {},
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "get_recent_images": {
       "conversations": 124,
@@ -135,7 +150,34 @@
       "boundaryArguments": [
         "count"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "count": {
+          "present": 114,
+          "locales": {
+            "de": 14,
+            "en": 14,
+            "pl": 11,
+            "fr": 11,
+            "zh": 11,
+            "it": 10,
+            "pt": 10,
+            "es": 11,
+            "ja": 11,
+            "nl": 11
+          },
+          "scalarValues": {
+            "1": 32,
+            "11": 10,
+            "3": 34,
+            "7": 28,
+            "8": 10
+          },
+          "omittedFromCalls": 10,
+          "distinctScalarValues": 5
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "get_sequence": {
       "conversations": 89,
@@ -157,7 +199,35 @@
       "boundaryArguments": [
         "max_depth"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "max_depth": {
+          "present": 77,
+          "locales": {
+            "zh": 6,
+            "ja": 7,
+            "de": 11,
+            "fr": 7,
+            "en": 11,
+            "pt": 7,
+            "es": 7,
+            "nl": 7,
+            "it": 7,
+            "pl": 7
+          },
+          "scalarValues": {
+            "1": 12,
+            "2": 2,
+            "3": 22,
+            "4": 19,
+            "5": 10,
+            "6": 12
+          },
+          "omittedFromCalls": 12,
+          "distinctScalarValues": 6
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "list_saved_sequences": {
       "conversations": 83,
@@ -175,7 +245,9 @@
       ],
       "positiveArguments": [],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {},
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "list_target_templates": {
       "conversations": 83,
@@ -193,10 +265,12 @@
       ],
       "positiveArguments": [],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {},
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "get_job": {
-      "conversations": 735,
+      "conversations": 845,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -217,7 +291,84 @@
         "job_id",
         "wait_seconds"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "job_id": {
+          "present": 895,
+          "locales": {
+            "zh": 86,
+            "pt": 86,
+            "fr": 86,
+            "nl": 86,
+            "it": 86,
+            "ja": 86,
+            "pl": 86,
+            "de": 100,
+            "en": 107,
+            "es": 86
+          },
+          "scalarValues": {
+            "\"job-4c2e91\"": 19,
+            "\"job-7f3a2c\"": 170,
+            "\"job-C8d4-0-zQ\"": 10,
+            "\"job-C8d4-1-zQ\"": 10,
+            "\"job-C8d4-2-zQ\"": 10,
+            "\"job-R91b-terminal-abandoned\"": 30,
+            "\"job-R91b-terminal-cancelled\"": 30,
+            "\"job-R91b-terminal-failed\"": 30,
+            "\"job-R91b-terminal-succeeded\"": 30,
+            "\"job-camera-cypress\"": 12,
+            "\"job-camera-maple\"": 2,
+            "\"job-chat-42\"": 10,
+            "\"job-cool-elm-41\"": 2,
+            "\"job-exposure-8\"": 2,
+            "\"job-filter-cedar\"": 2,
+            "\"job-focus-17\"": 2,
+            "\"job-focus-cedar-92\"": 2,
+            "\"job-focus-fir\"": 4,
+            "\"job-frame-maple\"": 2,
+            "\"job-juniper-173\"": 10,
+            "\"job-juniper-192\"": 10,
+            "\"job-juniper-211\"": 10,
+            "\"job-juniper-history-281\"": 20,
+            "\"job-newtools-82\"": 6,
+            "\"job-training-011\"": 10,
+            "\"job-training-capture_image\"": 30,
+            "\"job-training-change_filter\"": 30,
+            "\"job-training-connect_device\"": 30,
+            "\"job-training-cool_camera\"": 30,
+            "\"job-training-disconnect_device\"": 30,
+            "\"job-training-home_mount\"": 30,
+            "\"job-training-move_focuser\"": 30
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 40
+        },
+        "wait_seconds": {
+          "present": 826,
+          "locales": {
+            "zh": 81,
+            "pt": 81,
+            "nl": 81,
+            "it": 81,
+            "ja": 81,
+            "pl": 81,
+            "de": 89,
+            "fr": 81,
+            "es": 81,
+            "en": 89
+          },
+          "scalarValues": {
+            "0": 346,
+            "2.5": 10,
+            "4": 10,
+            "5": 460
+          },
+          "omittedFromCalls": 69,
+          "distinctScalarValues": 4
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "list_jobs": {
       "conversations": 94,
@@ -235,10 +386,12 @@
       ],
       "positiveArguments": [],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {},
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "get_guider_report": {
-      "conversations": 30,
+      "conversations": 60,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -256,10 +409,59 @@
         "steps"
       ],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "alerts": {
+          "present": 30,
+          "locales": {
+            "en": 3,
+            "de": 3,
+            "fr": 3,
+            "es": 3,
+            "it": 3,
+            "pt": 3,
+            "nl": 3,
+            "pl": 3,
+            "ja": 3,
+            "zh": 3
+          },
+          "scalarValues": {
+            "4": 10,
+            "8": 10,
+            "9": 10
+          },
+          "omittedFromCalls": 30,
+          "distinctScalarValues": 3
+        },
+        "steps": {
+          "present": 50,
+          "locales": {
+            "en": 5,
+            "de": 5,
+            "fr": 5,
+            "es": 5,
+            "it": 5,
+            "pt": 5,
+            "nl": 5,
+            "pl": 5,
+            "ja": 5,
+            "zh": 5
+          },
+          "scalarValues": {
+            "0": 10,
+            "18": 10,
+            "200": 10,
+            "24": 10,
+            "43": 10
+          },
+          "omittedFromCalls": 10,
+          "distinctScalarValues": 5
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "get_guiding_coach_report": {
-      "conversations": 40,
+      "conversations": 80,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -277,7 +479,55 @@
         "include_samples"
       ],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "history": {
+          "present": 60,
+          "locales": {
+            "en": 6,
+            "de": 6,
+            "fr": 6,
+            "es": 6,
+            "it": 6,
+            "pt": 6,
+            "nl": 6,
+            "pl": 6,
+            "ja": 6,
+            "zh": 6
+          },
+          "scalarValues": {
+            "0": 10,
+            "10": 10,
+            "2": 10,
+            "4": 20,
+            "9": 10
+          },
+          "omittedFromCalls": 20,
+          "distinctScalarValues": 5
+        },
+        "include_samples": {
+          "present": 60,
+          "locales": {
+            "en": 6,
+            "de": 6,
+            "fr": 6,
+            "es": 6,
+            "it": 6,
+            "pt": 6,
+            "nl": 6,
+            "pl": 6,
+            "ja": 6,
+            "zh": 6
+          },
+          "scalarValues": {
+            "false": 20,
+            "true": 40
+          },
+          "omittedFromCalls": 20,
+          "distinctScalarValues": 2
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "list_guide_incidents": {
       "conversations": 11,
@@ -297,10 +547,34 @@
         "count"
       ],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "count": {
+          "present": 11,
+          "locales": {
+            "en": 2,
+            "de": 1,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "1": 1,
+            "6": 10
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 2
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "get_guide_incident": {
-      "conversations": 11,
+      "conversations": 31,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -318,10 +592,58 @@
         "id"
       ],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "frames": {
+          "present": 31,
+          "locales": {
+            "en": 4,
+            "de": 3,
+            "fr": 3,
+            "es": 3,
+            "it": 3,
+            "pt": 3,
+            "nl": 3,
+            "pl": 3,
+            "ja": 3,
+            "zh": 3
+          },
+          "scalarValues": {
+            "0": 10,
+            "20": 1,
+            "30": 10,
+            "600": 10
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 4
+        },
+        "id": {
+          "present": 31,
+          "locales": {
+            "en": 4,
+            "de": 3,
+            "fr": 3,
+            "es": 3,
+            "it": 3,
+            "pt": 3,
+            "nl": 3,
+            "pl": 3,
+            "ja": 3,
+            "zh": 3
+          },
+          "scalarValues": {
+            "\"guide-f2a7-004C\"": 20,
+            "\"guide-fixture-17\"": 10,
+            "\"guide-history-28\"": 1
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 3
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "read_log": {
-      "conversations": 65,
+      "conversations": 95,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -342,10 +664,123 @@
         "since_minutes"
       ],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "contains": {
+          "present": 10,
+          "locales": {
+            "en": 1,
+            "de": 1,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "\"camera\"": 10
+          },
+          "omittedFromCalls": 85,
+          "distinctScalarValues": 1
+        },
+        "lines": {
+          "present": 85,
+          "locales": {
+            "en": 13,
+            "de": 8,
+            "fr": 8,
+            "es": 8,
+            "it": 8,
+            "pt": 8,
+            "nl": 8,
+            "pl": 8,
+            "ja": 8,
+            "zh": 8
+          },
+          "scalarValues": {
+            "1": 11,
+            "18": 20,
+            "20": 4,
+            "31": 20,
+            "40": 10,
+            "43": 20
+          },
+          "omittedFromCalls": 10,
+          "distinctScalarValues": 6
+        },
+        "min_level": {
+          "present": 54,
+          "locales": {
+            "en": 9,
+            "de": 5,
+            "fr": 5,
+            "es": 5,
+            "it": 5,
+            "pt": 5,
+            "nl": 5,
+            "pl": 5,
+            "ja": 5,
+            "zh": 5
+          },
+          "scalarValues": {
+            "\"debug\"": 1,
+            "\"error\"": 41,
+            "\"info\"": 1,
+            "\"trace\"": 1,
+            "\"warning\"": 10
+          },
+          "omittedFromCalls": 41,
+          "distinctScalarValues": 5
+        },
+        "previous_run": {
+          "present": 70,
+          "locales": {
+            "en": 7,
+            "de": 7,
+            "fr": 7,
+            "es": 7,
+            "it": 7,
+            "pt": 7,
+            "nl": 7,
+            "pl": 7,
+            "ja": 7,
+            "zh": 7
+          },
+          "scalarValues": {
+            "false": 30,
+            "true": 40
+          },
+          "omittedFromCalls": 25,
+          "distinctScalarValues": 2
+        },
+        "since_minutes": {
+          "present": 10,
+          "locales": {
+            "en": 1,
+            "de": 1,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "15": 10
+          },
+          "omittedFromCalls": 85,
+          "distinctScalarValues": 1
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "plan_targets": {
-      "conversations": 32,
+      "conversations": 52,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -366,10 +801,196 @@
         "targets"
       ],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "darkness": {
+          "present": 31,
+          "locales": {
+            "en": 4,
+            "de": 3,
+            "fr": 3,
+            "es": 3,
+            "it": 3,
+            "pt": 3,
+            "nl": 3,
+            "pl": 3,
+            "ja": 3,
+            "zh": 3
+          },
+          "scalarValues": {
+            "\"astronomical\"": 11,
+            "\"nautical\"": 20
+          },
+          "omittedFromCalls": 21,
+          "distinctScalarValues": 2
+        },
+        "date": {
+          "present": 30,
+          "locales": {
+            "en": 3,
+            "de": 3,
+            "fr": 3,
+            "es": 3,
+            "it": 3,
+            "pt": 3,
+            "nl": 3,
+            "pl": 3,
+            "ja": 3,
+            "zh": 3
+          },
+          "scalarValues": {
+            "\"2026-11-07\"": 10,
+            "\"2027-02-14\"": 20
+          },
+          "omittedFromCalls": 22,
+          "distinctScalarValues": 2
+        },
+        "hourly": {
+          "present": 11,
+          "locales": {
+            "en": 2,
+            "de": 1,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "false": 1,
+            "true": 10
+          },
+          "omittedFromCalls": 41,
+          "distinctScalarValues": 2
+        },
+        "min_altitude": {
+          "present": 51,
+          "locales": {
+            "en": 6,
+            "de": 5,
+            "fr": 5,
+            "es": 5,
+            "it": 5,
+            "pt": 5,
+            "nl": 5,
+            "pl": 5,
+            "ja": 5,
+            "zh": 5
+          },
+          "scalarValues": {
+            "0": 10,
+            "18": 10,
+            "35": 10,
+            "40": 1,
+            "43": 10,
+            "89": 10
+          },
+          "omittedFromCalls": 1,
+          "distinctScalarValues": 6
+        },
+        "targets": {
+          "present": 52,
+          "locales": {
+            "en": 7,
+            "de": 5,
+            "fr": 5,
+            "es": 5,
+            "it": 5,
+            "pt": 5,
+            "nl": 5,
+            "pl": 5,
+            "ja": 5,
+            "zh": 5
+          },
+          "scalarValues": {},
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 0
+        },
+        "targets[].dec": {
+          "present": 72,
+          "locales": {
+            "en": 9,
+            "de": 7,
+            "fr": 7,
+            "es": 7,
+            "it": 7,
+            "pt": 7,
+            "nl": 7,
+            "pl": 7,
+            "ja": 7,
+            "zh": 7
+          },
+          "scalarValues": {
+            "-12": 10,
+            "-18.2": 20,
+            "-22.75": 10,
+            "18.5": 1,
+            "30": 1,
+            "39.1": 20,
+            "47.25": 10
+          },
+          "omittedFromCalls": null,
+          "distinctScalarValues": 7
+        },
+        "targets[].name": {
+          "present": 72,
+          "locales": {
+            "en": 9,
+            "de": 7,
+            "fr": 7,
+            "es": 7,
+            "it": 7,
+            "pt": 7,
+            "nl": 7,
+            "pl": 7,
+            "ja": 7,
+            "zh": 7
+          },
+          "scalarValues": {
+            "\"Cedar\"": 20,
+            "\"Fixture A\"": 10,
+            "\"Fixture B\"": 1,
+            "\"Fixture Galaxy\"": 1,
+            "\"Flint\"": 20,
+            "\"Synthetic East\"": 20
+          },
+          "omittedFromCalls": null,
+          "distinctScalarValues": 6
+        },
+        "targets[].ra": {
+          "present": 72,
+          "locales": {
+            "en": 9,
+            "de": 7,
+            "fr": 7,
+            "es": 7,
+            "it": 7,
+            "pt": 7,
+            "nl": 7,
+            "pl": 7,
+            "ja": 7,
+            "zh": 7
+          },
+          "scalarValues": {
+            "16.8": 20,
+            "19.35": 10,
+            "2.65": 10,
+            "22.5": 1,
+            "7.4": 20,
+            "8.2": 10,
+            "9.25": 1
+          },
+          "omittedFromCalls": null,
+          "distinctScalarValues": 7
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "find_targets": {
-      "conversations": 46,
+      "conversations": 66,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -393,10 +1014,130 @@
         "types"
       ],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "constellation": {
+          "present": 1,
+          "locales": {
+            "en": 1
+          },
+          "scalarValues": {
+            "\"And\"": 1
+          },
+          "omittedFromCalls": 65,
+          "distinctScalarValues": 1
+        },
+        "limit": {
+          "present": 41,
+          "locales": {
+            "en": 5,
+            "de": 4,
+            "fr": 4,
+            "es": 4,
+            "it": 4,
+            "pt": 4,
+            "nl": 4,
+            "pl": 4,
+            "ja": 4,
+            "zh": 4
+          },
+          "scalarValues": {
+            "1": 10,
+            "4": 10,
+            "50": 10,
+            "8": 1,
+            "9": 10
+          },
+          "omittedFromCalls": 25,
+          "distinctScalarValues": 5
+        },
+        "max_magnitude": {
+          "present": 1,
+          "locales": {
+            "en": 1
+          },
+          "scalarValues": {
+            "10": 1
+          },
+          "omittedFromCalls": 65,
+          "distinctScalarValues": 1
+        },
+        "max_size_arcmin": {
+          "present": 1,
+          "locales": {
+            "en": 1
+          },
+          "scalarValues": {
+            "180": 1
+          },
+          "omittedFromCalls": 65,
+          "distinctScalarValues": 1
+        },
+        "min_size_arcmin": {
+          "present": 1,
+          "locales": {
+            "en": 1
+          },
+          "scalarValues": {
+            "5": 1
+          },
+          "omittedFromCalls": 65,
+          "distinctScalarValues": 1
+        },
+        "name": {
+          "present": 65,
+          "locales": {
+            "en": 11,
+            "de": 6,
+            "fr": 6,
+            "es": 6,
+            "it": 6,
+            "pt": 6,
+            "nl": 6,
+            "pl": 6,
+            "ja": 6,
+            "zh": 6
+          },
+          "scalarValues": {
+            "\"Fixture Galaxy\"": 3,
+            "\"IC 4665\"": 20,
+            "\"M31\"": 10,
+            "\"M42\"": 2,
+            "\"NGC 2392\"": 20,
+            "\"Synthetic Archive\"": 10
+          },
+          "omittedFromCalls": 1,
+          "distinctScalarValues": 6
+        },
+        "order": {
+          "present": 3,
+          "locales": {
+            "en": 3
+          },
+          "scalarValues": {
+            "\"magnitude\"": 1,
+            "\"name\"": 1,
+            "\"size\"": 1
+          },
+          "omittedFromCalls": 63,
+          "distinctScalarValues": 3
+        },
+        "types": {
+          "present": 1,
+          "locales": {
+            "en": 1
+          },
+          "scalarValues": {
+            "\"G\"": 1
+          },
+          "omittedFromCalls": 65,
+          "distinctScalarValues": 1
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "get_session_summary": {
-      "conversations": 33,
+      "conversations": 93,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -415,7 +1156,75 @@
         "since_hours"
       ],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "group_by": {
+          "present": 92,
+          "locales": {
+            "en": 11,
+            "de": 9,
+            "fr": 9,
+            "es": 9,
+            "it": 9,
+            "pt": 9,
+            "nl": 9,
+            "pl": 9,
+            "ja": 9,
+            "zh": 9
+          },
+          "scalarValues": {
+            "\"filter\"": 21,
+            "\"target\"": 41,
+            "\"target_filter\"": 30
+          },
+          "omittedFromCalls": 1,
+          "distinctScalarValues": 3
+        },
+        "image_type": {
+          "present": 91,
+          "locales": {
+            "en": 10,
+            "de": 9,
+            "fr": 9,
+            "es": 9,
+            "it": 9,
+            "pt": 9,
+            "nl": 9,
+            "pl": 9,
+            "ja": 9,
+            "zh": 9
+          },
+          "scalarValues": {
+            "\"all\"": 51,
+            "\"light\"": 40
+          },
+          "omittedFromCalls": 2,
+          "distinctScalarValues": 2
+        },
+        "since_hours": {
+          "present": 30,
+          "locales": {
+            "en": 3,
+            "de": 3,
+            "fr": 3,
+            "es": 3,
+            "it": 3,
+            "pt": 3,
+            "nl": 3,
+            "pl": 3,
+            "ja": 3,
+            "zh": 3
+          },
+          "scalarValues": {
+            "3": 10,
+            "4": 10,
+            "9": 10
+          },
+          "omittedFromCalls": 63,
+          "distinctScalarValues": 3
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "get_system_health": {
       "conversations": 10,
@@ -435,10 +1244,33 @@
         "client_time"
       ],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "client_time": {
+          "present": 10,
+          "locales": {
+            "en": 1,
+            "de": 1,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "\"2026-11-07T19:20:00Z\"": 10
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 1
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "get_events": {
-      "conversations": 34,
+      "conversations": 164,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -460,7 +1292,147 @@
         "wait_seconds"
       ],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "kinds": {
+          "present": 110,
+          "locales": {
+            "en": 11,
+            "de": 11,
+            "fr": 11,
+            "es": 11,
+            "it": 11,
+            "pt": 11,
+            "nl": 11,
+            "pl": 11,
+            "ja": 11,
+            "zh": 11
+          },
+          "scalarValues": {
+            "\"camera\"": 30,
+            "\"camera,mount\"": 10,
+            "\"device\"": 10,
+            "\"guider\"": 10,
+            "\"image\"": 10,
+            "\"mount\"": 10,
+            "\"safety\"": 10,
+            "\"safety,device\"": 10,
+            "\"sequence\"": 10
+          },
+          "omittedFromCalls": 55,
+          "distinctScalarValues": 9
+        },
+        "limit": {
+          "present": 110,
+          "locales": {
+            "en": 11,
+            "de": 11,
+            "fr": 11,
+            "es": 11,
+            "it": 11,
+            "pt": 11,
+            "nl": 11,
+            "pl": 11,
+            "ja": 11,
+            "zh": 11
+          },
+          "scalarValues": {
+            "12": 10,
+            "17": 80,
+            "18": 10,
+            "43": 10
+          },
+          "omittedFromCalls": 55,
+          "distinctScalarValues": 4
+        },
+        "min_severity": {
+          "present": 73,
+          "locales": {
+            "en": 10,
+            "de": 7,
+            "fr": 7,
+            "es": 7,
+            "it": 7,
+            "pt": 7,
+            "nl": 7,
+            "pl": 7,
+            "ja": 7,
+            "zh": 7
+          },
+          "scalarValues": {
+            "\"critical\"": 11,
+            "\"error\"": 31,
+            "\"info\"": 11,
+            "\"warning\"": 20
+          },
+          "omittedFromCalls": 92,
+          "distinctScalarValues": 4
+        },
+        "run_id": {
+          "present": 11,
+          "locales": {
+            "en": 2,
+            "de": 1,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "\"a1b2\"": 10,
+            "\"b3c4\"": 1
+          },
+          "omittedFromCalls": 154,
+          "distinctScalarValues": 2
+        },
+        "since_id": {
+          "present": 11,
+          "locales": {
+            "en": 2,
+            "de": 1,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "42": 10,
+            "84": 1
+          },
+          "omittedFromCalls": 154,
+          "distinctScalarValues": 2
+        },
+        "wait_seconds": {
+          "present": 31,
+          "locales": {
+            "en": 4,
+            "de": 3,
+            "fr": 3,
+            "es": 3,
+            "it": 3,
+            "pt": 3,
+            "nl": 3,
+            "pl": 3,
+            "ja": 3,
+            "zh": 3
+          },
+          "scalarValues": {
+            "0": 20,
+            "2": 11
+          },
+          "omittedFromCalls": 134,
+          "distinctScalarValues": 2
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "stop_all": {
       "conversations": 80,
@@ -478,7 +1450,9 @@
       ],
       "positiveArguments": [],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {},
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "cancel_job": {
       "conversations": 65,
@@ -503,7 +1477,56 @@
         "job_id",
         "wait_seconds"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "job_id": {
+          "present": 65,
+          "locales": {
+            "de": 8,
+            "fr": 6,
+            "nl": 6,
+            "es": 6,
+            "en": 9,
+            "it": 6,
+            "pt": 6,
+            "ja": 6,
+            "pl": 6,
+            "zh": 6
+          },
+          "scalarValues": {
+            "\"job-4c2e91\"": 19,
+            "\"job-7f3a2c\"": 20,
+            "\"job-chat-42\"": 10,
+            "\"job-focus-fir\"": 4,
+            "\"job-slew-19\"": 2,
+            "\"job-training-011\"": 10
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 6
+        },
+        "wait_seconds": {
+          "present": 26,
+          "locales": {
+            "en": 5,
+            "de": 5,
+            "fr": 2,
+            "es": 2,
+            "it": 2,
+            "pt": 2,
+            "nl": 2,
+            "pl": 2,
+            "ja": 2,
+            "zh": 2
+          },
+          "scalarValues": {
+            "0": 16,
+            "5": 10
+          },
+          "omittedFromCalls": 39,
+          "distinctScalarValues": 2
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "stop_sequence": {
       "conversations": 70,
@@ -521,7 +1544,9 @@
       ],
       "positiveArguments": [],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {},
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "stop_guiding": {
       "conversations": 101,
@@ -542,7 +1567,9 @@
         "force",
         "wait_seconds"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {},
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "secure_observatory": {
       "conversations": 12,
@@ -566,10 +1593,115 @@
         "warm_camera"
       ],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "close_cover": {
+          "present": 12,
+          "locales": {
+            "en": 3,
+            "de": 1,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "true": 12
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 1
+        },
+        "close_dome": {
+          "present": 12,
+          "locales": {
+            "en": 3,
+            "de": 1,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "false": 1,
+            "true": 11
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 2
+        },
+        "park": {
+          "present": 12,
+          "locales": {
+            "en": 3,
+            "de": 1,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "true": 12
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 1
+        },
+        "wait_seconds": {
+          "present": 12,
+          "locales": {
+            "en": 3,
+            "de": 1,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "0": 12
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 1
+        },
+        "warm_camera": {
+          "present": 12,
+          "locales": {
+            "en": 3,
+            "de": 1,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "false": 1,
+            "true": 11
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 2
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "connect_device": {
-      "conversations": 351,
+      "conversations": 471,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -583,14 +1715,68 @@
         "zh"
       ],
       "positiveArguments": [
-        "device"
+        "device",
+        "wait_seconds"
       ],
       "boundaryArguments": [
         "device",
         "force",
         "wait_seconds"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "device": {
+          "present": 471,
+          "locales": {
+            "pl": 44,
+            "en": 60,
+            "pt": 44,
+            "nl": 44,
+            "fr": 44,
+            "de": 59,
+            "zh": 44,
+            "es": 44,
+            "it": 44,
+            "ja": 44
+          },
+          "scalarValues": {
+            "\"camera\"": 118,
+            "\"dome\"": 32,
+            "\"filter_wheel\"": 22,
+            "\"flat_device\"": 22,
+            "\"focuser\"": 32,
+            "\"guider\"": 24,
+            "\"mount\"": 43,
+            "\"rotator\"": 112,
+            "\"safety_monitor\"": 22,
+            "\"switch\"": 22,
+            "\"weather\"": 22
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 11
+        },
+        "wait_seconds": {
+          "present": 120,
+          "locales": {
+            "en": 12,
+            "de": 12,
+            "fr": 12,
+            "es": 12,
+            "it": 12,
+            "pt": 12,
+            "nl": 12,
+            "pl": 12,
+            "ja": 12,
+            "zh": 12
+          },
+          "scalarValues": {
+            "0": 120
+          },
+          "omittedFromCalls": 351,
+          "distinctScalarValues": 1
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "disconnect_device": {
       "conversations": 321,
@@ -614,7 +1800,40 @@
         "force",
         "wait_seconds"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "device": {
+          "present": 321,
+          "locales": {
+            "zh": 32,
+            "pl": 32,
+            "pt": 32,
+            "it": 32,
+            "nl": 32,
+            "en": 33,
+            "de": 33,
+            "fr": 32,
+            "ja": 31,
+            "es": 32
+          },
+          "scalarValues": {
+            "\"camera\"": 90,
+            "\"dome\"": 20,
+            "\"filter_wheel\"": 20,
+            "\"flat_device\"": 20,
+            "\"focuser\"": 20,
+            "\"guider\"": 20,
+            "\"mount\"": 51,
+            "\"rotator\"": 20,
+            "\"safety_monitor\"": 20,
+            "\"switch\"": 20,
+            "\"weather\"": 20
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 11
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "slew_mount": {
       "conversations": 169,
@@ -640,10 +1859,71 @@
         "ra",
         "wait_seconds"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "dec": {
+          "present": 169,
+          "locales": {
+            "it": 16,
+            "zh": 16,
+            "fr": 16,
+            "pl": 16,
+            "nl": 16,
+            "en": 21,
+            "ja": 16,
+            "de": 20,
+            "es": 16,
+            "pt": 16
+          },
+          "scalarValues": {
+            "-0.5": 46,
+            "-12.25": 2,
+            "-18.5": 12,
+            "-27.25": 20,
+            "-5.391": 30,
+            "-61.5": 20,
+            "34.5": 19,
+            "8.75": 20
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 8
+        },
+        "ra": {
+          "present": 169,
+          "locales": {
+            "it": 16,
+            "zh": 16,
+            "fr": 16,
+            "pl": 16,
+            "nl": 16,
+            "en": 21,
+            "ja": 16,
+            "de": 20,
+            "es": 16,
+            "pt": 16
+          },
+          "scalarValues": {
+            "11.375": 10,
+            "12.25": 19,
+            "13.275": 10,
+            "16.125": 10,
+            "2.25": 2,
+            "20.575": 10,
+            "21.625": 10,
+            "4.825": 10,
+            "5.5883": 30,
+            "7": 2,
+            "7.25": 12,
+            "8.375": 44
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 12
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "park_mount": {
-      "conversations": 110,
+      "conversations": 130,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -661,10 +1941,12 @@
         "force",
         "wait_seconds"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {},
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "unpark_mount": {
-      "conversations": 110,
+      "conversations": 130,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -682,7 +1964,9 @@
         "force",
         "wait_seconds"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {},
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "home_mount": {
       "conversations": 111,
@@ -703,7 +1987,9 @@
         "force",
         "wait_seconds"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {},
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "set_tracking": {
       "conversations": 61,
@@ -726,7 +2012,31 @@
         "enabled",
         "force"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "enabled": {
+          "present": 61,
+          "locales": {
+            "it": 6,
+            "nl": 6,
+            "ja": 6,
+            "pl": 5,
+            "de": 7,
+            "pt": 6,
+            "zh": 6,
+            "fr": 6,
+            "es": 6,
+            "en": 7
+          },
+          "scalarValues": {
+            "false": 21,
+            "true": 40
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 2
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "capture_image": {
       "conversations": 188,
@@ -760,7 +2070,114 @@
         "save",
         "wait_seconds"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "binning": {
+          "present": 2,
+          "locales": {
+            "en": 1,
+            "de": 1
+          },
+          "scalarValues": {
+            "2": 2
+          },
+          "omittedFromCalls": 186,
+          "distinctScalarValues": 1
+        },
+        "exposure_seconds": {
+          "present": 188,
+          "locales": {
+            "es": 17,
+            "pt": 18,
+            "pl": 18,
+            "nl": 18,
+            "it": 18,
+            "ja": 18,
+            "en": 23,
+            "zh": 18,
+            "fr": 17,
+            "de": 23
+          },
+          "scalarValues": {
+            "0.01": 40,
+            "0.5": 2,
+            "105": 10,
+            "120": 2,
+            "15": 2,
+            "165.0": 10,
+            "18": 10,
+            "2": 30,
+            "210": 10,
+            "270.0": 10,
+            "30": 2,
+            "43": 10,
+            "5": 20,
+            "52.5": 10,
+            "75.0": 10,
+            "90": 10
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 16
+        },
+        "filter": {
+          "present": 2,
+          "locales": {
+            "en": 1,
+            "de": 1
+          },
+          "scalarValues": {
+            "\"OIII\"": 2
+          },
+          "omittedFromCalls": 186,
+          "distinctScalarValues": 1
+        },
+        "gain": {
+          "present": 2,
+          "locales": {
+            "en": 1,
+            "de": 1
+          },
+          "scalarValues": {
+            "120": 2
+          },
+          "omittedFromCalls": 186,
+          "distinctScalarValues": 1
+        },
+        "offset": {
+          "present": 2,
+          "locales": {
+            "en": 1,
+            "de": 1
+          },
+          "scalarValues": {
+            "20": 2
+          },
+          "omittedFromCalls": 186,
+          "distinctScalarValues": 1
+        },
+        "save": {
+          "present": 140,
+          "locales": {
+            "en": 18,
+            "de": 18,
+            "fr": 13,
+            "es": 13,
+            "it": 13,
+            "pt": 13,
+            "nl": 13,
+            "pl": 13,
+            "ja": 13,
+            "zh": 13
+          },
+          "scalarValues": {
+            "false": 88,
+            "true": 52
+          },
+          "omittedFromCalls": 48,
+          "distinctScalarValues": 2
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "cool_camera": {
       "conversations": 135,
@@ -786,10 +2203,66 @@
         "target_celsius",
         "wait_seconds"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "duration_minutes": {
+          "present": 135,
+          "locales": {
+            "pl": 13,
+            "zh": 13,
+            "de": 16,
+            "pt": 13,
+            "es": 13,
+            "fr": 13,
+            "en": 16,
+            "nl": 13,
+            "it": 13,
+            "ja": 12
+          },
+          "scalarValues": {
+            "10": 30,
+            "12": 50,
+            "15": 19,
+            "3": 10,
+            "6": 6,
+            "7": 10,
+            "8": 10
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 7
+        },
+        "target_celsius": {
+          "present": 135,
+          "locales": {
+            "pl": 13,
+            "zh": 13,
+            "de": 16,
+            "pt": 13,
+            "es": 13,
+            "fr": 13,
+            "en": 16,
+            "nl": 13,
+            "it": 13,
+            "ja": 12
+          },
+          "scalarValues": {
+            "-10": 32,
+            "-12": 10,
+            "-15": 40,
+            "-17.25": 10,
+            "-5": 19,
+            "-6.5": 10,
+            "-8": 4,
+            "2.5": 10
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 8
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "warm_camera": {
-      "conversations": 140,
+      "conversations": 180,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -810,7 +2283,37 @@
         "force",
         "wait_seconds"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "duration_minutes": {
+          "present": 170,
+          "locales": {
+            "pl": 17,
+            "en": 18,
+            "pt": 16,
+            "zh": 17,
+            "nl": 17,
+            "es": 17,
+            "ja": 17,
+            "fr": 17,
+            "it": 16,
+            "de": 18
+          },
+          "scalarValues": {
+            "0": 20,
+            "10": 30,
+            "15": 68,
+            "18": 10,
+            "26.5": 10,
+            "3": 2,
+            "43": 10,
+            "60": 20
+          },
+          "omittedFromCalls": 10,
+          "distinctScalarValues": 8
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "move_focuser": {
       "conversations": 133,
@@ -834,7 +2337,38 @@
         "position",
         "wait_seconds"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "position": {
+          "present": 133,
+          "locales": {
+            "es": 13,
+            "pt": 13,
+            "fr": 13,
+            "pl": 13,
+            "de": 15,
+            "nl": 13,
+            "it": 13,
+            "ja": 13,
+            "zh": 12,
+            "en": 15
+          },
+          "scalarValues": {
+            "12550": 40,
+            "12673": 10,
+            "15000": 30,
+            "18420": 10,
+            "18520": 2,
+            "20350": 2,
+            "20849": 10,
+            "24500": 19,
+            "31507": 10
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 9
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "run_autofocus": {
       "conversations": 111,
@@ -855,7 +2389,9 @@
         "force",
         "wait_seconds"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {},
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "change_filter": {
       "conversations": 135,
@@ -881,7 +2417,54 @@
         "position",
         "wait_seconds"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "name": {
+          "present": 103,
+          "locales": {
+            "nl": 10,
+            "it": 10,
+            "de": 12,
+            "ja": 10,
+            "fr": 10,
+            "pt": 10,
+            "pl": 9,
+            "es": 10,
+            "zh": 10,
+            "en": 12
+          },
+          "scalarValues": {
+            "\"Ha\"": 42,
+            "\"OIII\"": 61
+          },
+          "omittedFromCalls": 32,
+          "distinctScalarValues": 2
+        },
+        "position": {
+          "present": 32,
+          "locales": {
+            "en": 4,
+            "de": 4,
+            "fr": 3,
+            "es": 3,
+            "it": 3,
+            "pt": 3,
+            "nl": 3,
+            "pl": 3,
+            "ja": 3,
+            "zh": 3
+          },
+          "scalarValues": {
+            "1": 2,
+            "2": 10,
+            "4": 10,
+            "7": 10
+          },
+          "omittedFromCalls": 103,
+          "distinctScalarValues": 4
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "start_guiding": {
       "conversations": 100,
@@ -905,7 +2488,31 @@
         "force_calibration",
         "wait_seconds"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "force_calibration": {
+          "present": 52,
+          "locales": {
+            "en": 6,
+            "de": 6,
+            "fr": 5,
+            "es": 5,
+            "it": 5,
+            "pt": 5,
+            "nl": 5,
+            "pl": 5,
+            "ja": 5,
+            "zh": 5
+          },
+          "scalarValues": {
+            "false": 10,
+            "true": 42
+          },
+          "omittedFromCalls": 48,
+          "distinctScalarValues": 2
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "set_switch": {
       "conversations": 153,
@@ -931,7 +2538,62 @@
         "value",
         "wait_seconds"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "index": {
+          "present": 153,
+          "locales": {
+            "pt": 15,
+            "zh": 15,
+            "pl": 15,
+            "de": 17,
+            "it": 15,
+            "fr": 15,
+            "es": 15,
+            "en": 17,
+            "ja": 14,
+            "nl": 15
+          },
+          "scalarValues": {
+            "0": 70,
+            "1": 29,
+            "12": 10,
+            "2": 14,
+            "5": 10,
+            "6": 10,
+            "9": 10
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 7
+        },
+        "value": {
+          "present": 153,
+          "locales": {
+            "pt": 15,
+            "zh": 15,
+            "pl": 15,
+            "de": 17,
+            "it": 15,
+            "fr": 15,
+            "es": 15,
+            "en": 17,
+            "ja": 14,
+            "nl": 15
+          },
+          "scalarValues": {
+            "0": 31,
+            "0.35": 20,
+            "1": 70,
+            "37.25": 10,
+            "40": 10,
+            "50": 2,
+            "62.5": 10
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 7
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "plate_solve": {
       "conversations": 12,
@@ -952,10 +2614,54 @@
         "wait_seconds"
       ],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "sync": {
+          "present": 12,
+          "locales": {
+            "en": 3,
+            "de": 1,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "false": 11,
+            "true": 1
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 2
+        },
+        "wait_seconds": {
+          "present": 12,
+          "locales": {
+            "en": 3,
+            "de": 1,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "0": 12
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 1
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "center_target": {
-      "conversations": 32,
+      "conversations": 52,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -974,10 +2680,83 @@
         "wait_seconds"
       ],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "dec": {
+          "present": 52,
+          "locales": {
+            "en": 7,
+            "de": 5,
+            "fr": 5,
+            "es": 5,
+            "it": 5,
+            "pt": 5,
+            "nl": 5,
+            "pl": 5,
+            "ja": 5,
+            "zh": 5
+          },
+          "scalarValues": {
+            "-12": 11,
+            "-22.75": 10,
+            "-90": 10,
+            "18.5": 1,
+            "47.25": 10,
+            "90": 10
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 6
+        },
+        "ra": {
+          "present": 52,
+          "locales": {
+            "en": 7,
+            "de": 5,
+            "fr": 5,
+            "es": 5,
+            "it": 5,
+            "pt": 5,
+            "nl": 5,
+            "pl": 5,
+            "ja": 5,
+            "zh": 5
+          },
+          "scalarValues": {
+            "0": 10,
+            "19.35": 10,
+            "2.65": 10,
+            "23.75": 10,
+            "8.2": 11,
+            "9.25": 1
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 6
+        },
+        "wait_seconds": {
+          "present": 52,
+          "locales": {
+            "en": 7,
+            "de": 5,
+            "fr": 5,
+            "es": 5,
+            "it": 5,
+            "pt": 5,
+            "nl": 5,
+            "pl": 5,
+            "ja": 5,
+            "zh": 5
+          },
+          "scalarValues": {
+            "0": 52
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 1
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "move_rotator": {
-      "conversations": 12,
+      "conversations": 32,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -996,10 +2775,76 @@
         "wait_seconds"
       ],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "mechanical": {
+          "present": 32,
+          "locales": {
+            "en": 5,
+            "de": 3,
+            "fr": 3,
+            "es": 3,
+            "it": 3,
+            "pt": 3,
+            "nl": 3,
+            "pl": 3,
+            "ja": 3,
+            "zh": 3
+          },
+          "scalarValues": {
+            "false": 21,
+            "true": 11
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 2
+        },
+        "position": {
+          "present": 32,
+          "locales": {
+            "en": 5,
+            "de": 3,
+            "fr": 3,
+            "es": 3,
+            "it": 3,
+            "pt": 3,
+            "nl": 3,
+            "pl": 3,
+            "ja": 3,
+            "zh": 3
+          },
+          "scalarValues": {
+            "125": 1,
+            "137.25": 20,
+            "42": 11
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 3
+        },
+        "wait_seconds": {
+          "present": 12,
+          "locales": {
+            "en": 3,
+            "de": 1,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "0": 12
+          },
+          "omittedFromCalls": 20,
+          "distinctScalarValues": 1
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "control_flat_device": {
-      "conversations": 55,
+      "conversations": 95,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -1018,10 +2863,77 @@
         "wait_seconds"
       ],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "action": {
+          "present": 95,
+          "locales": {
+            "en": 14,
+            "de": 9,
+            "fr": 9,
+            "es": 9,
+            "it": 9,
+            "pt": 9,
+            "nl": 9,
+            "pl": 9,
+            "ja": 9,
+            "zh": 9
+          },
+          "scalarValues": {
+            "\"close_cover\"": 11,
+            "\"light_off\"": 31,
+            "\"light_on\"": 31,
+            "\"open_cover\"": 11,
+            "\"set_brightness\"": 11
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 5
+        },
+        "brightness": {
+          "present": 11,
+          "locales": {
+            "en": 2,
+            "de": 1,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "75": 11
+          },
+          "omittedFromCalls": 84,
+          "distinctScalarValues": 1
+        },
+        "wait_seconds": {
+          "present": 15,
+          "locales": {
+            "en": 6,
+            "de": 1,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "0": 15
+          },
+          "omittedFromCalls": 80,
+          "distinctScalarValues": 1
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "control_dome": {
-      "conversations": 58,
+      "conversations": 98,
       "naturalIntentLocales": [
         "de",
         "en",
@@ -1040,7 +2952,68 @@
         "wait_seconds"
       ],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "action": {
+          "present": 98,
+          "locales": {
+            "en": 17,
+            "de": 9,
+            "fr": 9,
+            "es": 9,
+            "it": 9,
+            "pt": 9,
+            "nl": 9,
+            "pl": 9,
+            "ja": 9,
+            "zh": 9
+          },
+          "scalarValues": {
+            "\"close_shutter\"": 31,
+            "\"find_home\"": 1,
+            "\"open_shutter\"": 61,
+            "\"park\"": 1,
+            "\"slew_to_azimuth\"": 1,
+            "\"start_following\"": 1,
+            "\"stop_following\"": 1,
+            "\"sync_to_mount\"": 1
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 8
+        },
+        "azimuth": {
+          "present": 1,
+          "locales": {
+            "en": 1
+          },
+          "scalarValues": {
+            "170": 1
+          },
+          "omittedFromCalls": 97,
+          "distinctScalarValues": 1
+        },
+        "wait_seconds": {
+          "present": 58,
+          "locales": {
+            "en": 13,
+            "de": 5,
+            "fr": 5,
+            "es": 5,
+            "it": 5,
+            "pt": 5,
+            "nl": 5,
+            "pl": 5,
+            "ja": 5,
+            "zh": 5
+          },
+          "scalarValues": {
+            "0": 58
+          },
+          "omittedFromCalls": 40,
+          "distinctScalarValues": 1
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "load_sequence": {
       "conversations": 92,
@@ -1062,7 +3035,37 @@
       "boundaryArguments": [
         "name"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "name": {
+          "present": 92,
+          "locales": {
+            "pl": 9,
+            "nl": 9,
+            "en": 11,
+            "it": 8,
+            "de": 11,
+            "es": 9,
+            "ja": 9,
+            "fr": 9,
+            "zh": 9,
+            "pt": 8
+          },
+          "scalarValues": {
+            "\"Autumn Session\"": 10,
+            "\"Copper Lantern\"": 10,
+            "\"Juniper Mosaic\"": 10,
+            "\"M31 Session\"": 20,
+            "\"M42 Narrowband\"": 18,
+            "\"Plan A\"": 12,
+            "\"Quiet Meadow\"": 10,
+            "\"RGB evening\"": 2
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 8
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "add_target": {
       "conversations": 131,
@@ -1104,7 +3107,358 @@
         "start_guiding",
         "template"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "autofocus_at_start": {
+          "present": 12,
+          "locales": {
+            "en": 2,
+            "de": 2,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "true": 12
+          },
+          "omittedFromCalls": 119,
+          "distinctScalarValues": 1
+        },
+        "dec": {
+          "present": 131,
+          "locales": {
+            "fr": 10,
+            "it": 9,
+            "de": 26,
+            "ja": 10,
+            "pl": 10,
+            "es": 10,
+            "zh": 10,
+            "nl": 10,
+            "en": 27,
+            "pt": 9
+          },
+          "scalarValues": {
+            "-0.5": 12,
+            "-12": 1,
+            "-13.75": 2,
+            "-17.25": 10,
+            "-22.5": 2,
+            "-27.25": 10,
+            "-5.391": 20,
+            "-61.5": 10,
+            "18.25": 2,
+            "18.5": 1,
+            "29.2688": 2,
+            "32.2688": 2,
+            "34.5": 18,
+            "35.2688": 2,
+            "38.2688": 2,
+            "40.912": 2,
+            "41.2688": 21,
+            "63.125": 2,
+            "8.75": 10
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 19
+        },
+        "dither_every": {
+          "present": 12,
+          "locales": {
+            "en": 2,
+            "de": 2,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "4": 2,
+            "5": 10
+          },
+          "omittedFromCalls": 119,
+          "distinctScalarValues": 2
+        },
+        "exposures": {
+          "present": 127,
+          "locales": {
+            "fr": 10,
+            "it": 9,
+            "de": 24,
+            "ja": 10,
+            "pl": 10,
+            "es": 10,
+            "zh": 10,
+            "nl": 10,
+            "en": 25,
+            "pt": 9
+          },
+          "scalarValues": {},
+          "omittedFromCalls": 4,
+          "distinctScalarValues": 0
+        },
+        "exposures[].count": {
+          "present": 129,
+          "locales": {
+            "fr": 10,
+            "it": 9,
+            "de": 25,
+            "ja": 10,
+            "pl": 10,
+            "es": 10,
+            "zh": 10,
+            "nl": 10,
+            "en": 26,
+            "pt": 9
+          },
+          "scalarValues": {
+            "10": 1,
+            "12": 22,
+            "120": 4,
+            "20": 4,
+            "23": 10,
+            "24": 2,
+            "240": 2,
+            "300": 28,
+            "4": 10,
+            "47": 10,
+            "48": 2,
+            "60": 2,
+            "8": 20,
+            "81": 10,
+            "90": 2
+          },
+          "omittedFromCalls": null,
+          "distinctScalarValues": 15
+        },
+        "exposures[].exposure_seconds": {
+          "present": 129,
+          "locales": {
+            "fr": 10,
+            "it": 9,
+            "de": 25,
+            "ja": 10,
+            "pl": 10,
+            "es": 10,
+            "zh": 10,
+            "nl": 10,
+            "en": 26,
+            "pt": 9
+          },
+          "scalarValues": {
+            "105": 10,
+            "120": 24,
+            "150": 4,
+            "150.0": 2,
+            "180": 20,
+            "210": 10,
+            "30": 2,
+            "300": 28,
+            "45": 10,
+            "52.5": 10,
+            "60": 5,
+            "600": 4
+          },
+          "omittedFromCalls": null,
+          "distinctScalarValues": 12
+        },
+        "exposures[].filter": {
+          "present": 4,
+          "locales": {
+            "en": 2,
+            "de": 2
+          },
+          "scalarValues": {
+            "\"Ha\"": 2,
+            "\"OIII\"": 2
+          },
+          "omittedFromCalls": null,
+          "distinctScalarValues": 2
+        },
+        "meridian_flip": {
+          "present": 1,
+          "locales": {
+            "en": 1
+          },
+          "scalarValues": {
+            "false": 1
+          },
+          "omittedFromCalls": 130,
+          "distinctScalarValues": 1
+        },
+        "name": {
+          "present": 131,
+          "locales": {
+            "fr": 10,
+            "it": 9,
+            "de": 26,
+            "ja": 10,
+            "pl": 10,
+            "es": 10,
+            "zh": 10,
+            "nl": 10,
+            "en": 27,
+            "pt": 9
+          },
+          "scalarValues": {
+            "\"Copper Lantern\"": 10,
+            "\"Field Cedar\"": 2,
+            "\"Field Cypress\"": 2,
+            "\"Field Elm\"": 2,
+            "\"Field Fir\"": 2,
+            "\"Field Maple\"": 2,
+            "\"Fixture A\"": 1,
+            "\"Fixture Galaxy\"": 1,
+            "\"Juniper Mosaic\"": 10,
+            "\"M31\"": 23,
+            "\"Quiet Meadow\"": 10,
+            "\"Testfeld A\"": 20,
+            "\"Testfeld B\"": 18,
+            "\"Training field 1\"": 2,
+            "\"Training field 2\"": 2,
+            "\"Training field 3\"": 2,
+            "\"Training field 4\"": 2,
+            "\"User Field Alpha\"": 10,
+            "\"Étoile-训练-Łąka de\"": 1,
+            "\"Étoile-训练-Łąka en\"": 1,
+            "\"Étoile-训练-Łąka es\"": 1,
+            "\"Étoile-训练-Łąka fr\"": 1,
+            "\"Étoile-训练-Łąka it\"": 1,
+            "\"Étoile-训练-Łąka ja\"": 1,
+            "\"Étoile-训练-Łąka nl\"": 1,
+            "\"Étoile-训练-Łąka pl\"": 1,
+            "\"Étoile-训练-Łąka pt\"": 1,
+            "\"Étoile-训练-Łąka zh\"": 1
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 28
+        },
+        "ra": {
+          "present": 131,
+          "locales": {
+            "fr": 10,
+            "it": 9,
+            "de": 26,
+            "ja": 10,
+            "pl": 10,
+            "es": 10,
+            "zh": 10,
+            "nl": 10,
+            "en": 27,
+            "pt": 9
+          },
+          "scalarValues": {
+            "0.7123": 21,
+            "0.8234": 2,
+            "1.9623": 2,
+            "11.375": 10,
+            "12.25": 18,
+            "12.75": 2,
+            "16.125": 10,
+            "18.375": 2,
+            "21.625": 10,
+            "3.2123": 2,
+            "3.625": 2,
+            "4.4623": 2,
+            "5.5883": 20,
+            "5.7123": 2,
+            "6.375": 2,
+            "6.45": 10,
+            "8.125": 2,
+            "8.2": 1,
+            "8.375": 10,
+            "9.25": 1
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 20
+        },
+        "rotation_degrees": {
+          "present": 12,
+          "locales": {
+            "en": 2,
+            "de": 2,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "35": 10,
+            "45": 2
+          },
+          "omittedFromCalls": 119,
+          "distinctScalarValues": 2
+        },
+        "slew_and_center": {
+          "present": 12,
+          "locales": {
+            "en": 2,
+            "de": 2,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "false": 2,
+            "true": 10
+          },
+          "omittedFromCalls": 119,
+          "distinctScalarValues": 2
+        },
+        "start_guiding": {
+          "present": 12,
+          "locales": {
+            "en": 2,
+            "de": 2,
+            "fr": 1,
+            "es": 1,
+            "it": 1,
+            "pt": 1,
+            "nl": 1,
+            "pl": 1,
+            "ja": 1,
+            "zh": 1
+          },
+          "scalarValues": {
+            "false": 2,
+            "true": 10
+          },
+          "omittedFromCalls": 119,
+          "distinctScalarValues": 2
+        },
+        "template": {
+          "present": 4,
+          "locales": {
+            "en": 2,
+            "de": 2
+          },
+          "scalarValues": {
+            "\"Ha 240s\"": 2,
+            "\"Template A\"": 2
+          },
+          "omittedFromCalls": 127,
+          "distinctScalarValues": 2
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "clear_targets": {
       "conversations": 71,
@@ -1122,7 +3476,9 @@
       ],
       "positiveArguments": [],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {},
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "save_sequence": {
       "conversations": 101,
@@ -1145,7 +3501,46 @@
         "name",
         "overwrite"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {
+        "name": {
+          "present": 101,
+          "locales": {
+            "ja": 10,
+            "pt": 10,
+            "en": 11,
+            "pl": 9,
+            "it": 10,
+            "fr": 10,
+            "zh": 10,
+            "de": 11,
+            "es": 10,
+            "nl": 10
+          },
+          "scalarValues": {
+            "\"Autumn Session\"": 10,
+            "\"Copper Lantern\"": 10,
+            "\"Juniper Mosaic\"": 10,
+            "\"M31 Session\"": 20,
+            "\"M42 Narrowband\"": 19,
+            "\"Plan B\"": 12,
+            "\"Quiet Meadow\"": 10,
+            "\"Étoile-训练-Łąka de\"": 1,
+            "\"Étoile-训练-Łąka en\"": 1,
+            "\"Étoile-训练-Łąka es\"": 1,
+            "\"Étoile-训练-Łąka fr\"": 1,
+            "\"Étoile-训练-Łąka it\"": 1,
+            "\"Étoile-训练-Łąka ja\"": 1,
+            "\"Étoile-训练-Łąka nl\"": 1,
+            "\"Étoile-训练-Łąka pl\"": 1,
+            "\"Étoile-训练-Łąka pt\"": 1,
+            "\"Étoile-训练-Łąka zh\"": 1
+          },
+          "omittedFromCalls": 0,
+          "distinctScalarValues": 17
+        }
+      },
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "start_sequence": {
       "conversations": 71,
@@ -1165,7 +3560,9 @@
       "boundaryArguments": [
         "skip_validation"
       ],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {},
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     },
     "reset_sequence": {
       "conversations": 70,
@@ -1183,12 +3580,14 @@
       ],
       "positiveArguments": [],
       "boundaryArguments": [],
-      "uncoveredArguments": []
+      "uncoveredArguments": [],
+      "argumentCoverage": {},
+      "argumentCoverageNote": "Exact presence/omission and scalar samples; defaults are not normalized. Nested counts are per array item."
     }
   },
   "jsonInUserConversations": 694,
-  "multiUserTurnConversations": 325,
-  "multipleModifyingTools": 4,
+  "multiUserTurnConversations": 485,
+  "multipleModifyingTools": 14,
   "maxExposedTools": 3,
   "nativeReview": "pending"
 }

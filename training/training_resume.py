@@ -40,6 +40,49 @@ def required_files(run):
     return REQUIRED if run['precision'] == 'fp16' else tuple(n for n in REQUIRED if n != 'scaler.pt')
 
 
+def verify_restoration(checkpoint, run):
+    """Bind a staged working state to its original bytes; paths are not identity."""
+    checkpoint = Path(checkpoint)
+    root = checkpoint.parent.parent.parent
+    manifest = root / 'resume-restoration.json'
+    if not manifest.is_file():
+        return {'status': 'not-staged; original source bytes unknown'}
+    report = json.loads(manifest.read_text(encoding='utf-8'))
+    if Path(report['checkpoint']).resolve() != checkpoint.resolve():
+        raise ValueError('Restoration checkpoint path changed; re-stage the source instead of relabeling a copy')
+    prefix = checkpoint.relative_to(root).as_posix() + '/'
+    original = checkpoint / 'trainer_state.original.json'
+    if sha256(original) != report['sourceFilesSha256'].get(prefix + 'trainer_state.json'):
+        raise ValueError('Original trainer state differs from restoration source hash')
+    source_state = json.loads(original.read_text(encoding='utf-8'))
+    working_state = json.loads((checkpoint / 'trainer_state.json').read_text(encoding='utf-8'))
+    source_best = source_state['best_model_checkpoint']
+    source_state['best_model_checkpoint'] = report['relocatedBestCheckpoint']
+    if working_state != source_state:
+        raise ValueError('Working trainer state differs beyond the recorded best-checkpoint path relocation')
+    best = Path(working_state['best_model_checkpoint'])
+    if best.resolve().parent != checkpoint.resolve().parent:
+        raise ValueError('Restored best checkpoint must stay in the owned checkpoint directory')
+    for name in required_files(run):
+        if name != 'trainer_state.json' and sha256(checkpoint / name) != report['sourceFilesSha256'].get(prefix + name):
+            raise ValueError('Restored checkpoint file differs from original source: ' + name)
+    for name in ('adapter_model.safetensors', 'adapter_config.json'):
+        candidates = [key for key in report['sourceFilesSha256']
+                      if key.endswith('/' + best.name + '/' + name)]
+        expected = {report['sourceFilesSha256'][key] for key in candidates}
+        if not expected or expected != {sha256(best / name)}:
+            raise ValueError('Restored best adapter differs from recorded source: ' + name)
+    working_hashes = {name: sha256(checkpoint / name) for name in required_files(run)}
+    if report.get('workingCheckpointFilesSha256', working_hashes) != working_hashes:
+        raise ValueError('Working checkpoint bytes changed after restoration')
+    return {'status': 'verified original and relocated working bytes separately',
+            'originalTrainerStateSha256': sha256(original),
+            'workingTrainerStateSha256': working_hashes['trainer_state.json'],
+            'originalBestModelCheckpoint': source_best,
+            'relocatedBestModelCheckpoint': working_state['best_model_checkpoint'],
+            'restorationManifestSha256': sha256(manifest)}
+
+
 def validate_resume(checkpoint, config, dataset, base, method):
     checkpoint = Path(checkpoint)
     if checkpoint.parent.name != 'checkpoints':
@@ -58,12 +101,14 @@ def validate_resume(checkpoint, config, dataset, base, method):
     if state['train_batch_size'] != config['batchSize']:
         raise ValueError('Checkpoint batch size mismatch')
     files = {name: sha256(checkpoint / name) for name in required_files(run)}
+    restoration = verify_restoration(checkpoint, run)
     best = Path(state['best_model_checkpoint'])
     if not best.is_dir() or not (best / 'adapter_model.safetensors').is_file():
         raise ValueError('Best checkpoint must be relocated to a preserved local copy')
     return run, state, {'checkpoint': str(checkpoint.resolve()), 'checkpointFilesSha256': files,
                          'startStep': state['global_step'], 'targetSteps': state['max_steps'],
                          'bestMetricAtResume': state['best_metric'],
+                         'restorationVerification': restoration,
                          'originalHardware': run['hardware'], 'bitIdenticalToColab': False}
 
 
@@ -170,6 +215,9 @@ def stage_source(bundle, output):
     source_state['best_model_checkpoint'] = str((output / 'full/checkpoints' / best_name).resolve())
     write_json(checkpoint / 'trainer_state.json', source_state)
     report = {'archive': str(bundle.resolve()), 'archiveSha256': archive_hash, 'sourceFilesSha256': hashes,
+              'workingCheckpointFilesSha256': {name: sha256(checkpoint / name) for name in required_files(run)},
+              'originalBestModelCheckpoint': json.loads((checkpoint / 'trainer_state.original.json').read_text(encoding='utf-8'))['best_model_checkpoint'],
+              'stateRewriteFields': ['best_model_checkpoint'],
               'checkpoint': str(checkpoint.resolve()), 'startStep': source_state['global_step'],
               'targetSteps': source_state['max_steps'], 'schedulerLastEpoch': scheduler['last_epoch'],
               'precision': run['precision'], 'fp16Scale': scaler['scale'] if scaler else None, 'weightsOnlyDeserialization': True,

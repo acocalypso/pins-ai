@@ -36,11 +36,12 @@ def main():
         the setup cells. Sign-in and Drive authorization occur in your session.
 
         In resume mode, set `RESUME_SOURCE` to the original Drive run folder (or results ZIP).
-        Set `RUN_TRAINING = True` deliberately to train in a new output folder.
+        Resume keeps the original run folder and adds a unique `attempts/resume-...` folder.
+        Set `RUN_TRAINING = True` deliberately to train there.
         A short GPU smoke and adapter reload must pass first; resume mode uses a
         one-step continuation probe to check restored state.
         This updated resume workflow has not yet been executed on Colab. GPU availability and runtime lifetime
-        depend on Colab allocation. Use a new run name for each attempt.
+        depend on Colab allocation. Prior files and checkpoints are preserved.
     ''')
     cell('code', '''
         from pathlib import Path
@@ -57,12 +58,13 @@ def main():
         RUN_EVALUATION = False  # Enable after training; no tuning against gold scores.
         RUN_FINAL_GOLD = False  # Final release measurement only, never an iterative tuning loop.
         DRIVE_FOLDER = Path('/content/drive/MyDrive/pins-ai')
-        # Original run to continue, NOT this session's new RUN_NAME/resume-source.
-        RESUME_SOURCE = DRIVE_FOLDER / 'runs/qwen3-pins-v7-colab-20261014-191543'
+        # Original run root to continue; its latest training attempt is selected automatically.
+        RESUME_SOURCE = DRIVE_FOLDER / 'runs/YOUR_ORIGINAL_RUN_FOLDER'
         # Alternatively: the results ZIP exported from that same original run.
-        RUN_NAME = 'qwen3-pins-v8-colab-'  + datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
-        TRAIN_CONFIG = 'training/configs/config-v8.json'
-        SFT_DATA = 'artifacts/v8/sft'
+        RESUME_RUN_ROOT = None  # ZIP only: original Drive root if its name cannot be inferred.
+        RUN_NAME = 'qwen3-pins-v9-colab-'  + datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
+        TRAIN_CONFIG = 'training/configs/config-v9.json'
+        SFT_DATA = 'artifacts/v9/sft'
         PRIOR_ADAPTER = DRIVE_FOLDER / 'runs/qwen3-pins-v2-colab-20261011-131536/full/adapter'
         REPOSITORY = 'https://github.com/acocalypso/pins-ai.git'
         BRANCH = 'main'
@@ -111,9 +113,17 @@ def main():
         audit = json.loads((PROJECT / 'training/dataset/contracts/audit.json').read_text())
         if audit['sourceRevision'] != 'c4d8f5a11ece4d4a40473c82a4b8464fafd6f095':
             raise ValueError('Rebuild this notebook/bundle for the newer audited MCP revision')
-        RUN_ROOT = DRIVE_FOLDER / 'runs' / RUN_NAME
-        RUN_ROOT.mkdir(parents=True, exist_ok=False)
-        (RUN_ROOT / 'source-git.json').write_text(json.dumps({
+        import colab_run_layout
+        importlib.reload(colab_run_layout)
+        from colab_run_layout import create_layout, publish_latest, preserve_resume_evidence, archive_attempt
+        layout = create_layout(TRAINING_MODE, DRIVE_FOLDER, RUN_NAME, RESUME_SOURCE, RESUME_RUN_ROOT)
+        RUN_ROOT, ATTEMPT_ROOT = layout['runRoot'], layout['attemptRoot']
+        RUN_NAME = RUN_ROOT.name
+        (ATTEMPT_ROOT / 'colab-run-layout.json').write_text(json.dumps({
+            'runName': RUN_NAME, 'attempt': str(ATTEMPT_ROOT.relative_to(RUN_ROOT)),
+            'resumeSource': str(layout['source']) if layout['source'] else None
+        }, indent=2))
+        (ATTEMPT_ROOT / 'source-git.json').write_text(json.dumps({
             'repository': REPOSITORY, 'branch': BRANCH, 'gitRevision': git_revision,
             'driveData': drive_data,
             'mcpRevision': audit['sourceRevision'], 'runName': RUN_NAME,
@@ -146,13 +156,13 @@ def main():
         PYTHON = Path(sys.executable)
         print('Using Colab interpreter:', PYTHON, sys.version)
         setup_command([PYTHON, 'training/colab_environment.py',
-                       '--report', RUN_ROOT / 'colab-environment.json'])
+                       '--report', ATTEMPT_ROOT / 'colab-environment.json'])
         setup_command([PYTHON, 'training/preflight.py'])
     ''')
     cell('code', '''
         def run_pipeline(arguments, log_name):
             """Interactive notebook job, persistent log; stop child on cell interrupt."""
-            log_path = RUN_ROOT / log_name
+            log_path = ATTEMPT_ROOT / log_name
             if log_path.exists():
                 raise RuntimeError(f'Log exists; preserve it and use a fresh run: {log_path}')
             started = time.monotonic()
@@ -160,10 +170,13 @@ def main():
                 cwd=PROJECT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                 text=True, encoding='utf-8', errors='replace', bufsize=1)
             last_status = started
+            latest_published = False
             try:
                 with log_path.open('w', encoding='utf-8') as log:
                     for line in process.stdout:
                         log.write(line); log.flush()
+                        if log_name == 'training.log' and not latest_published:
+                            latest_published = publish_latest(RUN_ROOT, ATTEMPT_ROOT)
                         if '[metrics]' in line or line.startswith('PASS') or line.startswith('{"id"'):
                             print(line.rstrip(), flush=True)
                         elif time.monotonic() - last_status > 30:
@@ -179,6 +192,8 @@ def main():
                     except subprocess.TimeoutExpired: process.kill(); process.wait()
                 raise
             finally:
+                if log_name == 'training.log' and not latest_published:
+                    publish_latest(RUN_ROOT, ATTEMPT_ROOT)
                 if process.stdout is not None: process.stdout.close()
             print(f'Finished in {time.monotonic() - started:.1f}s; log: {log_path}')
     ''')
@@ -191,7 +206,7 @@ def main():
         automatic dependency upgrade. Training reads VM-local weights, not Drive.
         Only train/validation are exported. Test, eval_gold and hard_gold stay
         outside the training examples. All original package hashes are checked.
-        The default curriculum is **v8 multilingual MCP48 reliability contrasts**: plain multilingual
+        The default curriculum is **v9 multilingual MCP48 fidelity contrasts**: plain multilingual
         requests, clarification and dependent workflows; proposals do not grant
         hardware approval. Original datasets remain archived unchanged. This is a
         changed recipe: select `TRAINING_MODE = 'fresh'`, not an old checkpoint resume.
@@ -206,7 +221,7 @@ def main():
                           '--output', BASE], 'fetch-base.log')
             cached_base = {'source': 'download', 'path': str(BASE)}
         cached_base['persistentCache'] = persist_base_model(BASE, BASE_CACHE, PROJECT / TRAIN_CONFIG)
-        (RUN_ROOT / 'base-cache.json').write_text(json.dumps(cached_base, indent=2))
+        (ATTEMPT_ROOT / 'base-cache.json').write_text(json.dumps(cached_base, indent=2))
         print('Base weights:', cached_base['source'], '| VM path:', BASE)
         run_pipeline(['training/dataset/scripts/validate_dataset.py'], 'package-validation.log')
         run_pipeline(['training/tests/chat_dataset_tests.py'], 'chat-data-validation.log')
@@ -219,12 +234,13 @@ def main():
         assert manifest['skipped'] == 0
         for split, info in manifest['splits'].items():
             print(split, ':', info['assistantTurns'], 'assistant turns; max tokens', info['tokens']['max'])
-        (RUN_ROOT / 'prepared-manifest.json').write_text(json.dumps(manifest, indent=2))
+        (ATTEMPT_ROOT / 'prepared-manifest.json').write_text(json.dumps(manifest, indent=2))
     ''')
     cell('markdown', '''
         ## Restore latest complete checkpoint (resume mode)
-        The source run/ZIP is read only. A new copy lives in this run's
-        `resume-source` folder on Drive. Incomplete newer checkpoints are reported;
+        Existing source files stay read only. Required checkpoint state is staged under
+        the VM-local ignored `.local/training/resume` directory. Only the preserved
+        best adapter and restoration provenance are copied into the new attempt on Drive. Incomplete newer checkpoints are reported;
         the numeric latest complete checkpoint is used, not necessarily the best.
         Completed runs, missing state and changed data/base are rejected.
         The selected run's exact saved configuration replaces the fresh-run preset;
@@ -235,9 +251,11 @@ def main():
         RESUME_CHECKPOINT = None
         if TRAINING_MODE == 'resume':
             print('Selected original resume source:', RESUME_SOURCE)
-            run_pipeline(['training/training_resume.py', '--source', RESUME_SOURCE,
-                          '--output', RUN_ROOT / 'resume-source'], 'restore-checkpoint.log')
-            restoration = json.loads((RUN_ROOT / 'resume-source/resume-restoration.json').read_text())
+            STAGED_RESUME = PROJECT / '.local/training/resume' / RUN_NAME / ATTEMPT_ROOT.name
+            run_pipeline(['training/training_resume.py', '--source', layout['source'],
+                          '--output', STAGED_RESUME], 'restore-checkpoint.log')
+            restoration = json.loads((STAGED_RESUME / 'resume-restoration.json').read_text())
+            preserve_resume_evidence(ATTEMPT_ROOT, STAGED_RESUME)
             RESUME_CHECKPOINT = Path(restoration['checkpoint'])
             print('Resume checkpoint:', RESUME_CHECKPOINT)
             print('Steps:', restoration['startStep'], 'of', restoration['targetSteps'])
@@ -247,7 +265,7 @@ def main():
             configured = json.loads((PROJECT / TRAIN_CONFIG).read_text())
             from training_resume import saved_resume_config
             prepared = json.loads((PROJECT / SFT_DATA / 'manifest.json').read_text())
-            TRAIN_CONFIG = str(saved_resume_config(RESUME_CHECKPOINT, prepared, RUN_ROOT / 'resume-config.json'))
+            TRAIN_CONFIG = str(saved_resume_config(RESUME_CHECKPOINT, prepared, ATTEMPT_ROOT / 'resume-config.json'))
             differences = sorted(k for k in original['config'].keys() | configured.keys()
                                  if original['config'].get(k) != configured.get(k))
             print('Using exact saved resume config:', TRAIN_CONFIG)
@@ -268,8 +286,8 @@ def main():
         Resume mode preserves the original checks and validation contract.
     ''')
     cell('code', '''
-        SMOKE = RUN_ROOT / 'smoke'
-        FULL = RUN_ROOT / 'full'
+        SMOKE = ATTEMPT_ROOT / 'smoke'
+        FULL = ATTEMPT_ROOT / 'full'
         if RUN_TRAINING:
             if TRAINING_MODE == 'resume':
                 run_pipeline(['training/train.py', '--base', '.local/training/base', '--dataset-mode', 'mcp',
@@ -282,8 +300,8 @@ def main():
                     '--logging-steps', '1', '--output', SMOKE], 'smoke.log')
                 reload_args = ['--reload-smoke', '--max-new-tokens', '64']
             run_pipeline(['training/evaluate_v2.py', '--suite', 'validation_smoke', '--prompt-mode', 'chat',
-                *reload_args, '--adapter', SMOKE / 'adapter', '--output', RUN_ROOT / 'smoke-reload.json'], 'smoke-reload.log')
-            smoke_report = json.loads((RUN_ROOT / 'smoke-reload.json').read_text())
+                *reload_args, '--adapter', SMOKE / 'adapter', '--output', ATTEMPT_ROOT / 'smoke-reload.json'], 'smoke-reload.log')
+            smoke_report = json.loads((ATTEMPT_ROOT / 'smoke-reload.json').read_text())
             assert smoke_report.get('completed')
         else:
             print('Training remains disabled. Change RUN_TRAINING in the configuration cell to opt in.')
@@ -306,7 +324,7 @@ def main():
         eval_unsafe_proposals, eval_generation_truncated and eval_selection_score.
         Changed data/configuration requires fresh training from the pinned base.
         To continue an old run exactly, use its original configuration and source
-        revision; do not substitute this v8 profile for the old recipe.
+        revision; do not substitute this v9 profile for the old recipe.
         Checkpoints, metrics, dependency versions and the final best adapter are
         written to Drive. Interrupting a cell stops its child process. Abrupt VM
         deletion may leave metadata marked started; it never implies completion.
@@ -340,9 +358,9 @@ def main():
                                        ('validation', 'eval_loss', 'Validation')]:
                 points = [m for m in metrics if m['event'] == event]
                 ax.plot([m['step'] for m in points], [m[key] for m in points], marker='o', label=label)
-            ax.set(xlabel='Optimizer step', ylabel='Loss', title='PINS Qwen3 v8 training')
+            ax.set(xlabel='Optimizer step', ylabel='Loss', title='PINS Qwen3 v9 training')
             ax.legend(); ax.grid(alpha=0.2); fig.tight_layout()
-            fig.savefig(RUN_ROOT / 'loss-curves.png', dpi=150)
+            fig.savefig(ATTEMPT_ROOT / 'loss-curves.png', dpi=150)
             plt.show()
             generated = [m for m in metrics if m['event'] == 'validation' and 'eval_tool_exact' in m]
             if generated:
@@ -351,7 +369,7 @@ def main():
                     ax.plot([m['step'] for m in generated], [m[key] for m in generated], marker='o', label=key)
                 ax.set(xlabel='Optimizer step', ylabel='Rate', ylim=(0, 1), title='Development tool accuracy')
                 ax.legend(); ax.grid(alpha=0.2); fig.tight_layout()
-                fig.savefig(RUN_ROOT / 'tool-accuracy-curves.png', dpi=150)
+                fig.savefig(ATTEMPT_ROOT / 'tool-accuracy-curves.png', dpi=150)
                 plt.show()
             print((FULL / 'metrics-latest.json').read_text())
         else:
@@ -373,35 +391,32 @@ def main():
         if RUN_EVALUATION:
             completed = json.loads((FULL / 'training-run.json').read_text())
             assert completed['status'] == 'completed' and not completed['smokeOnly']
-            comparisons = [('v8', FULL / 'adapter'), ('base', None)]
+            comparisons = [('v9', FULL / 'adapter'), ('base', None)]
             if PRIOR_ADAPTER.is_dir(): comparisons.insert(1, ('prior-v2', PRIOR_ADAPTER))
             else: print('Prior v2 adapter not found on Drive; its comparison is pending.')
             for name, adapter in comparisons:
                 extra = ['--adapter', adapter] if adapter else []
                 run_pipeline(['training/evaluate_v2.py', '--suite', 'validation_smoke', '--prompt-mode', 'chat',
-                    '--max-new-tokens', '192', *extra, '--output', RUN_ROOT / f'{name}-eval.json'], f'{name}-eval.log')
+                    '--max-new-tokens', '192', *extra, '--output', ATTEMPT_ROOT / f'{name}-eval.json'], f'{name}-eval.log')
                 if RUN_FINAL_GOLD:
                     run_pipeline(['training/evaluate_v2.py', '--suite', 'hard_gold',
-                        *extra, '--output', RUN_ROOT / f'{name}-hard-gold.json'], f'{name}-hard-gold.log')
+                        *extra, '--output', ATTEMPT_ROOT / f'{name}-hard-gold.json'], f'{name}-hard-gold.log')
             print('Comparison JSON/logs saved to Drive; inspect strict argument and per-language scores.')
         else:
             print('Evaluation disabled; gold cases have not been used for training.')
     ''')
     cell('markdown', '''
         ## Retrieve the result
-        Outputs are already in your Drive run folder. This cell additionally makes
-        an archive containing the adapter, saved checkpoints, loss curves, logs and
-        provenance. Base weights, the environment and hardware credentials are not
+        Outputs are already in the original Drive run folder. This cell additionally makes
+        an archive inside this attempt containing the adapter, saved checkpoints, loss curves, logs and
+        provenance, including its preserved best source adapter. Previous attempts and
+        ZIPs are excluded. Base weights, the environment and hardware credentials are not
         included. An interrupted run must not be labeled a completed model.
         After downloading, verify training-run.json status before local evaluation/export.
     ''')
     cell('code', '''
         if FULL.is_dir():
-            import shutil
-            if (DRIVE_FOLDER / (RUN_NAME + '-results.zip')).exists():
-                raise FileExistsError('Results ZIP already exists; preserve it before archiving again.')
-            result_zip = Path(shutil.make_archive(str(DRIVE_FOLDER / (RUN_NAME + '-results')), 'zip',
-                                                  root_dir=RUN_ROOT))
+            result_zip = archive_attempt(RUN_ROOT, ATTEMPT_ROOT)
             print('Results:', result_zip)
             print('SHA256:', hashlib.sha256(result_zip.read_bytes()).hexdigest())
         else:

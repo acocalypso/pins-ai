@@ -38,6 +38,42 @@ class ResumeTests(unittest.TestCase):
         self.assertEqual(len(info['checkpointFilesSha256']), len(REQUIRED))
         self.assertFalse(info['bitIdenticalToColab'])
 
+    def staged_fixture(self):
+        original = dict(self.state, best_model_checkpoint='/content/old/full/checkpoints/checkpoint-700')
+        path = self.checkpoint / 'trainer_state.original.json'
+        path.write_text(json.dumps(original), encoding='utf-8')
+        prefix = 'full/checkpoints/checkpoint-700/'
+        hashes = {prefix+n: sha256(self.checkpoint/n) for n in REQUIRED}
+        hashes[prefix+'trainer_state.json'] = sha256(path)
+        report = {'checkpoint': str(self.checkpoint.resolve()), 'sourceFilesSha256': hashes,
+                  'relocatedBestCheckpoint': str(self.checkpoint),
+                  'workingCheckpointFilesSha256': {n: sha256(self.checkpoint/n) for n in REQUIRED}}
+        (self.root/'resume-restoration.json').write_text(json.dumps(report), encoding='utf-8')
+
+    def test_original_and_relocated_state_have_distinct_verified_hashes(self):
+        self.staged_fixture()
+        _, _, info = validate_resume(self.checkpoint,self.config,self.data,self.base,'qlora')
+        proof = info['restorationVerification']
+        self.assertNotEqual(proof['originalTrainerStateSha256'],proof['workingTrainerStateSha256'])
+        self.assertEqual(proof['originalBestModelCheckpoint'],'/content/old/full/checkpoints/checkpoint-700')
+
+    def test_relocated_state_cannot_hide_changed_step_or_callback_state(self):
+        self.staged_fixture()
+        self.state['stateful_callbacks'] = {'ResearchProgress': {'counter':0}}
+        self.save()
+        with self.assertRaisesRegex(ValueError,'beyond the recorded'):
+            validate_resume(self.checkpoint,self.config,self.data,self.base,'qlora')
+
+    def test_restored_original_and_optimizer_bytes_are_bound_to_manifest(self):
+        self.staged_fixture()
+        (self.checkpoint/'optimizer.pt').write_bytes(b'different optimizer')
+        with self.assertRaisesRegex(ValueError,'differs from original source'):
+            validate_resume(self.checkpoint,self.config,self.data,self.base,'qlora')
+        self.staged_fixture()
+        (self.checkpoint/'trainer_state.original.json').write_text('{}')
+        with self.assertRaisesRegex(ValueError,'Original trainer state'):
+            validate_resume(self.checkpoint,self.config,self.data,self.base,'qlora')
+
     def test_notebook_uses_selected_run_config_without_changing_original(self):
         original = (self.root / 'full/training-run.json').read_bytes()
         output = self.root / 'new-session/resume-config.json'

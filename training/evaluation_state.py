@@ -16,20 +16,20 @@ REPORT_VERSION = 3
 
 
 def select_cases(suite, per_language=0, job_continuations=False, prompt_mode='legacy'):
-    if suite == 'future_holdout' and prompt_mode != 'chat':
+    if suite in ('future_holdout', 'future_holdout_v9') and prompt_mode != 'chat':
         raise ValueError('Future holdout requires explicit chat proposal semantics: --prompt-mode chat')
-    if prompt_mode not in ('legacy', 'chat') or (prompt_mode == 'chat' and suite not in ('validation_smoke', 'future_holdout')):
+    if prompt_mode not in ('legacy', 'chat') or (prompt_mode == 'chat' and suite not in ('validation_smoke', 'future_holdout', 'future_holdout_v9')):
         raise ValueError('Chat projection is for development validation only; gold stays unchanged')
     if per_language < 0:
         raise ValueError('per-language must be nonnegative')
     path = PACKAGE / 'data/audited/validation.jsonl' if suite == 'validation_smoke' else PACKAGE / 'data' / f'{suite}.jsonl'
-    if suite == 'future_holdout':
-        path = PACKAGE / 'holdout-v8.jsonl'
+    if suite in ('future_holdout', 'future_holdout_v9'):
+        path = PACKAGE / ('holdout-v9.jsonl' if suite == 'future_holdout_v9' else 'holdout-v8.jsonl')
         manifest = json.loads(path.with_suffix('.manifest.json').read_text(encoding='utf-8'))
         if sha256(path) != manifest['sha256']:
             raise ValueError('Frozen future holdout changed')
     rows = read_jsonl(path)
-    if prompt_mode == 'chat' and suite != 'future_holdout':
+    if prompt_mode == 'chat' and suite not in ('future_holdout', 'future_holdout_v9'):
         # V7 evaluation projected legacy records before the SFT exporter labeled
         # them validation. Preserve that historical metadata for identical case
         # fingerprints. This function supplies evaluation inputs only.
@@ -41,6 +41,12 @@ def select_cases(suite, per_language=0, job_continuations=False, prompt_mode='le
                 row['provenance']['split'] = historical_splits[row['id']]
     if suite in ('validation_smoke', 'future_holdout'):
         rows = [{**r, 'messages': r['messages'][:2]} for r in rows]
+    if suite == 'future_holdout_v9':
+        for row in rows:
+            turn = row['evaluation_turn']
+            if not isinstance(turn,int) or turn < 2 or row['messages'][turn]['role'] != 'assistant':
+                raise ValueError('Invalid independent evaluation turn')
+            row['messages'] = row['messages'][:turn]
     inputs = {path.relative_to(PACKAGE).as_posix(): sha256(path)}
     if prompt_mode == 'chat':
         from common import ROOT

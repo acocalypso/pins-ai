@@ -1,0 +1,242 @@
+{
+  "version": "v9-controlled-fidelity-plan-20261023-1",
+  "status": "prepared; no v9 GPU smoke, full training, conversion, deployment or equipment operation executed",
+  "productionEligible": false,
+  "baselineEvidence": {
+    "report": "training/experiments/v8-baseline-20261023.json",
+    "run": "qwen3-pins-v8-colab-20261023-063804",
+    "archivedSourceRevision": "9c52d39",
+    "reportsVerified": 11,
+    "verification": "Historical strict per-case outcomes preserved; aggregates/selection recomputed. Byte verification without loading model or optimizer pickles.",
+    "restorationFilesVerified": 31,
+    "pinnedBaseFilesVerified": 9,
+    "trainerStateDiscrepancy": "resolved: only best_model_checkpoint path relocated; original and working bytes separately match their source/resume manifests",
+    "selectedAdapterWeightsSha256": "8df78805979aeb5fa9f482d2a866ca57e6a34c073dcf88a6126f283ae82c7a4d",
+    "selected": {
+      "step": 600,
+      "exact": 123,
+      "cases": 146,
+      "positiveExact": 78,
+      "positiveCases": 96,
+      "unwanted": 5,
+      "noToolCases": 50,
+      "invalidNoTool": 1,
+      "invalidTotal": 3,
+      "macroExact": 0.8142857142857143
+    },
+    "accuracyResearch": {
+      "step": 700,
+      "exact": 127,
+      "cases": 146,
+      "positiveExact": 88,
+      "positiveCases": 96,
+      "unwanted": 11,
+      "noToolCases": 50,
+      "macroExact": 0.9138775510204082
+    },
+    "historicalSelectionPreserved": true,
+    "earlyStoppedAt": 1100,
+    "historicalPlannedSteps": 1560,
+    "rawPredictionReplay": {
+      "predictions": 1606,
+      "discrepancies": 0,
+      "modelInference": false
+    }
+  },
+  "data": {
+    "trainConversations": 6889,
+    "newTrainOnlyConversations": 850,
+    "newSource": "training/fidelity_curriculum.py",
+    "languages": [
+      "en",
+      "de",
+      "fr",
+      "es",
+      "it",
+      "pt",
+      "nl",
+      "pl",
+      "ja",
+      "zh"
+    ],
+    "tools": 48,
+    "manifest": "training/dataset/manifest.json",
+    "coverage": "training/dataset/coverage.json",
+    "preparedAssistantTurns": 9280,
+    "preparedAssistantTurnsStatus": "verified CPU/local-tokenizer preparation, no skips",
+    "nativeReview": "pending",
+    "observations": "synthetic; not hardware proof",
+    "authoring": "domain requirements and actual gateway schemas; no evaluation examples or reports imported as training templates",
+    "frozenSplits": "Preserve original/audited validation, test, eval_gold, hard_gold, validation-chat-v7, holdout-v8 and the 326-example baseline bytes",
+    "isolation": "Audit groups/translation families, exact requests, numeric-normalized and near-text matches across every held-out source; human semantic review remains necessary",
+    "preservedV8Conversations": 6039,
+    "protectedFileHashesUnchanged": 24
+  },
+  "ablations": [
+    {
+      "id": "A-data-only-learning-recipe",
+      "required": true,
+      "start": "fresh pinned base; never resume v8 on changed data",
+      "reference": "archived v8 source/config/data and verified selected/diagnostic adapters",
+      "configs": [
+        "training/configs/config-v9.json",
+        "training/configs/mi355x-v9-lora-bf16.json"
+      ],
+      "changedLearningFactor": "train-only curriculum",
+      "diagnosticOnlyChange": "researchRetentionVersion=v9-multi-axis-1; historical selection and early stopping unchanged",
+      "fixed": {
+        "seed": 3407,
+        "learningRate": 5e-05,
+        "loraRank": 8,
+        "loraAlpha": 16,
+        "loraDropout": 0.05,
+        "epochs": 3,
+        "batchSize": 1,
+        "gradientAccumulation": 16,
+        "maxLength": 1536,
+        "maxNewTokens": 192,
+        "evaluationSteps": 100,
+        "earlyStoppingPatience": 4,
+        "earlyStoppingThreshold": 0.005
+      },
+      "computeCaveat": "More data at three epochs increases steps/tokens. This is not equal-compute, not an identical 1560-step run. Any matched-budget control needs separate future design; full-run --max-steps is prohibited because it marks smokeOnly.",
+      "derivedPlannedOptimizerSteps": 1740
+    },
+    {
+      "id": "B-learning-rate-only",
+      "required": false,
+      "after": "A evaluated on frozen development; no tuning from future holdout predictions",
+      "changeFromA": {
+        "learningRate": 3e-05
+      },
+      "fixed": "same v9 data, base, seed, rank/alpha, epochs, batch/accumulation, backend and selection",
+      "requires": "separate versioned config, preparation identity and matching new GPU smoke"
+    },
+    {
+      "id": "C-capacity-only",
+      "required": false,
+      "after": "A; do not combine with B without an explicit factorial design",
+      "changeFromA": {
+        "loraRank": 16,
+        "loraAlpha": 32
+      },
+      "fixed": "same v9 data and A learning rate; all other factors fixed",
+      "requires": "separate versioned config and matching new GPU memory/performance smoke"
+    }
+  ],
+  "execution": {
+    "automaticTraining": false,
+    "cpuBeforeGpu": [
+      "rebuild train-only corpus",
+      "dataset and actual gateway schema checks",
+      "source-isolation audit",
+      "pinned-tokenizer preparation: 1536 context with 192 output reserve, no overflow/skips",
+      "review source/config/data/policy/schema/tokenizer hashes"
+    ],
+    "cuda": "FP16/NF4 QLoRA; existing pinned-base provenance and selected CUDA stack; measured matching GPU smoke required",
+    "rocm": "BF16 LoRA on supported ROCm; no bitsandbytes dependency; no AMD success inferred from NVIDIA",
+    "freshSmoke": "one optimizer step --infrastructure-smoke, then four --reload-smoke probes with 64 output tokens",
+    "full": "start manually only after matching smoke/reload passes, using --smoke-run and no smoke max-steps",
+    "evaluation": "full 192-output-token frozen development reports for base/prior/new and retained candidates on matched backend/tool scopes",
+    "exactResume": "only interrupted original run with original source/config/data/base/dependencies and complete optimizer/scheduler/RNG/scaler state; completed/early-stopped sources rejected",
+    "colabResume": {
+      "source": "RESUME_SOURCE=original Drive run folder",
+      "runRoot": "same original folder",
+      "attemptRoot": "RUN_ROOT/attempts/resume-<UTC>",
+      "discovery": "latest started training attempt; ignore setup-only attempts",
+      "largeRestoration": "VM-local .local/training/resume",
+      "persistent": "small preserved best adapter plus source/working-state provenance; logs/smoke/full under unique attempt",
+      "colabExecution": "not yet verified"
+    }
+  },
+  "researchSelection": {
+    "version": "v9-multi-axis-1",
+    "maxUniqueAdapterCopies": 3,
+    "roles": [
+      "historical safety/policy rank",
+      "positive-tool exact",
+      "distinct macro exact, otherwise a critical-safety Pareto point"
+    ],
+    "axes": [
+      "critical safety slices",
+      "unwanted proposals",
+      "schema errors",
+      "positive exact",
+      "macro exact"
+    ],
+    "latency": "reported when measured; not a frontier axis without comparable hardware evidence",
+    "productionGateIndependent": true,
+    "researchCopiesResumeCapable": false,
+    "historicalV8ProposedRetainedSteps": [
+      500,
+      600,
+      700
+    ]
+  },
+  "independentReleaseEvaluation": {
+    "suite": "future_holdout_v9",
+    "cases": 100,
+    "positiveCases": 50,
+    "negativeCases": 50,
+    "nativeDomainReview": "pending",
+    "completionCoverage": "incomplete; expand independently before a release claim",
+    "timing": "after model/recipe freeze and independent review",
+    "neverUseFor": [
+      "gradient updates",
+      "checkpoint selection",
+      "early stopping",
+      "iterative prompt/curriculum/hyperparameter tuning"
+    ],
+    "uncertainty": "Report per-locale/category positive/negative denominators and Wilson intervals; zero failures on a small sample is not universal perfection"
+  },
+  "acceptance": {
+    "criticalUnwantedProposals": 0,
+    "severeActionReversals": 0,
+    "inventedCoordinateActions": 0,
+    "unauthorizedSimulatedExecutions": 0,
+    "requiredCallSchemaFailures": 0,
+    "truncatedOutputs": 0,
+    "positiveReference": {
+      "sharedDevelopment": "at least preserve 78/96 selected-v8 positive exact; compare paired regressions and uncertainty",
+      "aspirational": "88/96 positive exact capability reference from diagnostic-v8; never substitute its unsafe outputs for safety",
+      "generalization": "neither shared-development reference proves unseen accuracy"
+    },
+    "additionalRequired": [
+      "no significant schema or positive-capability regression",
+      "independent native/domain-reviewed positive and adversarial holdout",
+      "matched Q4 base plus separate F16 runtime LoRA parity",
+      "Pi output-format and resource/latency parity",
+      "Pi RAM/swap, 75 C thermal cutoff and active-imaging/guiding contention checks"
+    ],
+    "unknownEvidenceFailsClosed": true,
+    "currentUnknown": [
+      "v9 model outcomes",
+      "reviewed independent holdout",
+      "native review",
+      "quantized GGUF parity",
+      "Pi resource and latency evidence",
+      "physical equipment evidence"
+    ]
+  },
+  "archive": [
+    "unchanged original results ZIP",
+    "source Git revision and patch",
+    "base/config/tokenizer/schema/policy/data/prepared manifests and hashes",
+    "dependency freeze and GPU preflight",
+    "original and relocated trainer states with restoration/source manifests",
+    "complete optimizer/scheduler/RNG/scaler checkpoints for exact resume",
+    "training and smoke/reload logs",
+    "all development, independent holdout and diagnostic reports",
+    "selected adapter and at most three research adapter copies",
+    "research-candidates/selection.json",
+    "original Drive run identity, attempt provenance and latest-attempt pointer"
+  ],
+  "commands": "docs/training.md#v9-operator-handoff-2026-10-23",
+  "claims": {
+    "v9AccuracyImprovementMeasured": false,
+    "gpuTrainingStarted": false,
+    "modelWeightsLoadedForByteAudit": false,
+    "equipmentExecuted": false,
+    "productionApproved": false
+  }
+}
